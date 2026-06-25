@@ -1,4 +1,4 @@
-"""Fixtures for the integration tests: a real Modbus TCP server + vendor path."""
+"""Fixtures for the integration tests: a real in-process Modbus TCP server."""
 
 from __future__ import annotations
 
@@ -12,11 +12,9 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 COMPONENT = REPO_ROOT / "custom_components" / "trovis557x"
-VENDOR = COMPONENT / "vendor"
-# Make `custom_components.trovis557x` importable, and the vendored libs too.
-for path in (REPO_ROOT, VENDOR):
-    if str(path) not in sys.path:
-        sys.path.insert(0, str(path))
+# Make `custom_components.trovis557x` importable (the libs come from PyPI).
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from pymodbus import FramerType  # noqa: E402
 from pymodbus.datastore import (  # noqa: E402

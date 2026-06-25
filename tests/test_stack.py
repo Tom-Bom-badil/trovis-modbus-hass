@@ -1,8 +1,8 @@
-"""The vendored libraries must work end-to-end exactly as the component uses them.
+"""The library stack must work end-to-end exactly as the component uses it.
 
 This exercises the real integration data path (connect -> ModbusUnit ->
-Trovis557x.async_update) without needing a running Home Assistant. This variant
-is backed by tmodbus.
+Trovis557x.async_update) without needing a running Home Assistant, against the
+``trovis-modbus`` + ``modbus-connection[tmodbus]`` packages from PyPI.
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from .conftest import UNIT_ID
 COMPONENT = Path(__file__).resolve().parents[1] / "custom_components" / "trovis557x"
 
 
-async def test_vendored_imports() -> None:
+async def test_library_imports() -> None:
     import modbus_connection
     import modbus_connection.tmodbus
     import trovis_modbus
@@ -25,11 +25,9 @@ async def test_vendored_imports() -> None:
     assert hasattr(modbus_connection, "ModbusUnit")
     assert hasattr(modbus_connection.tmodbus, "connect_tcp")
     assert hasattr(trovis_modbus, "Trovis557x")
-    # pymodbus backend is intentionally NOT vendored.
-    assert not (COMPONENT / "vendor" / "modbus_connection" / "pymodbus").exists()
 
 
-async def test_end_to_end_through_vendor(server: tuple[str, int]) -> None:
+async def test_end_to_end(server: tuple[str, int]) -> None:
     from modbus_connection.tmodbus import connect_tcp
     from trovis_modbus import OperatingMode, Trovis557x
 

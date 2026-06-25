@@ -9,9 +9,10 @@ dependencies = []
 dev = [
     "pytest>=8",
     "pytest-asyncio>=0.24",
-    # The backend under test.
-    "tmodbus==0.3.0",
-    "serialx==1.8.2",
+    # The integration's runtime requirements, from PyPI (same as the manifest):
+    # the device library and the connection layer with its tmodbus backend.
+    "trovis-modbus==1.0.0",
+    "modbus-connection[tmodbus]==3.0.0",
     # pymodbus is only used to stand up the in-process Modbus *server* the tests
     # talk to (a backend-neutral device on the wire), not as the client backend.
     "pymodbus[serial]==3.11.2",
@@ -28,13 +29,6 @@ testpaths = ["tests"]
 
 [tool.ruff]
 target-version = "py312"
-# The vendored libraries are linted/formatted in their own repos.
-extend-exclude = ["custom_components/trovis557x/vendor"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B"]
-
-[tool.ruff.lint.per-file-ignores]
-# `_vendor` must be imported before the vendored libs, so it cannot be sorted
-# into the normal third-party/local order.
-"custom_components/trovis557x/__init__.py" = ["I001"]

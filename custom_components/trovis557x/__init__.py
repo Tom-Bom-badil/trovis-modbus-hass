@@ -2,8 +2,8 @@
 
 Trovis is a DIRECT Modbus connection: this integration owns the connection. The
 config flow asks for Network (TCP) or Serial; either choice builds a
-tmodbus-backed connection via the vendored ``modbus_connection.tmodbus``, gets
-a ``ModbusUnit`` and hands it to the vendored ``trovis_modbus`` library.
+tmodbus-backed connection via ``modbus_connection.tmodbus``, gets a
+``ModbusUnit`` and hands it to the ``trovis_modbus`` library.
 """
 
 from __future__ import annotations
@@ -11,10 +11,6 @@ from __future__ import annotations
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
-
-# Importing the package runs this before any submodule, putting the vendored
-# libraries on sys.path; submodules then import them as normal.
-from . import _vendor  # noqa: F401
 from modbus_connection import ModbusConnectionError
 from trovis_modbus import Trovis557x
 

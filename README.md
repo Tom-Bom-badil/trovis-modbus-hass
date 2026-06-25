@@ -6,11 +6,10 @@ set of the original [`samson_trovis_557x`](https://github.com/Tom-Bom-badil/sams
 YAML package as proper UI entities — no YAML, no helpers, set up entirely from
 the UI.
 
-It is **self-contained**: the connection layer (`modbus_connection` + its
-tmodbus backend) and the device library (`trovis_modbus`) are vendored into the
-component under `vendor/`, so you can install it from a zip with no extra repos.
-Home Assistant installs the external requirements, `tmodbus` + `serialx`,
-automatically.
+The device library (`trovis-modbus`) and the connection layer with its tmodbus
+backend (`modbus-connection[tmodbus]`) are published on PyPI; Home Assistant
+installs them — and their dependencies (`tmodbus` + `serialx`) — automatically
+from the component's manifest.
 
 ## Install
 
@@ -58,20 +57,10 @@ One device, with proper entity types per sub-system:
 
 Trovis is a **direct** Modbus connection — you do **not** need any separate
 Modbus integration. On setup the component builds a tmodbus-backed connection
-via the vendored `modbus_connection.tmodbus` (`connect_tcp` / `connect_serial`),
-takes a `ModbusUnit` for the configured address, and hands it to the vendored
-`trovis_modbus` library. A `DataUpdateCoordinator` polls on your interval; if the
-link drops the entry reloads to re-establish it.
-
-## Updating the vendored libraries
-
-The vendored copies are produced by `scripts/vendor.sh` from the sibling
-`modbus-connection` and `trovis-modbus` source repos. Re-run it after changing
-either library:
-
-```bash
-./scripts/vendor.sh
-```
+via `modbus_connection.tmodbus` (`connect_tcp` / `connect_serial`), takes a
+`ModbusUnit` for the configured address, and hands it to the `trovis_modbus`
+library. A `DataUpdateCoordinator` polls on your interval; if the link drops the
+entry reloads to re-establish it.
 
 ## Develop / test
 
@@ -80,12 +69,12 @@ uv sync
 uv run pytest
 ```
 
-The suite verifies the vendored stack end-to-end against a real in-process
+The suite verifies the library stack end-to-end against a real in-process
 Modbus server and runs the config flow + entry setup inside a real Home
 Assistant via `pytest-homeassistant-custom-component`.
 
-Formatting/linting is [ruff](https://docs.astral.sh/ruff/), enforced in CI (the
-vendored libraries are excluded — they are linted in their own repos). Install
+Formatting/linting is [ruff](https://docs.astral.sh/ruff/), enforced in CI.
+Install
 the commit hook with [prek](https://github.com/j178/prek):
 
 ```bash
