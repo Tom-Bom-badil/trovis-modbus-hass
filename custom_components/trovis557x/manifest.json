@@ -3,7 +3,7 @@
   "name": "Samson Trovis 557x",
   "codeowners": ["@balloob"],
   "config_flow": true,
-  "documentation": "https://github.com/balloob/trovis-modbus-hass",
+  "documentation": "https://github.com/Tom-Bom-badil/trovis-modbus-hass",
   "integration_type": "device",
   "iot_class": "local_polling",
   "loggers": ["modbus_connection", "trovis_modbus", "tmodbus"],
