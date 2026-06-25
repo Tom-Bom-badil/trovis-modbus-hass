@@ -68,18 +68,37 @@ def _switch(component: str, attribute: str, name: str) -> TrovisSensorDescriptio
     )
 
 
-# Controller-level sensors.
-_CONTROLLER: tuple[TrovisSensorDescription, ...] = (
-    _temp("sensors", "outside_1", "Outside temperature"),
-    _temp("sensors", "outside_2", "Outside temperature 2", enabled=False),
-    _temp("sensors", "flow_4", "Flow temperature 4", enabled=False),
-    _temp("sensors", "storage_remote", "Storage/remote temperature", enabled=False),
-    _temp("sensors", "remote_1", "Remote adjuster 1", enabled=False),
-    _temp("sensors", "remote_2", "Remote adjuster 2", enabled=False),
-    _temp("controller", "max_flow_setpoint", "Max flow setpoint", enabled=False),
+# Global sensors.
+_GLOBAL: tuple[TrovisSensorDescription, ...] = (
+    _temp("sensors", "af1", "AF1 outside sensor 1"),
+    _temp("sensors", "af2", "AF2 outside sensor 2"),
+
+    _temp("sensors", "vf1", "VF1 flow sensor 1"),
+    _temp("sensors", "vf2", "VF2 flow sensor 2"),
+    _temp("sensors", "vf3", "VF3 flow sensor 3"),
+    _temp("sensors", "vf4", "VF4 flow sensor 4"),
+
+    _temp("sensors", "ruef1", "RüF1 return sensor 1"),
+    _temp("sensors", "ruef2", "RüF2 return sensor 2"),
+    _temp("sensors", "ruef3", "RüF3 return sensor 3"),
+
+    _temp("sensors", "rf1", "RF1 room sensor 1"),
+    _temp("sensors", "rf2", "RF2 room sensor 2"),
+    _temp("sensors", "rf3", "RF3 room sensor 3"),
+
+    _temp("sensors", "sf1", "SF1 hot water sensor 1"),
+    _temp("sensors", "sf2", "SF2 hot water sensor 2"),
+    _temp("sensors", "sf3_fg3", "SF3/FG3 hot water sensor / remote control 3"),
+
+    _temp("sensors", "fg1", "FG1 remote control 1"),
+    _temp("sensors", "fg2", "FG2 remote control 2"),
+
+    # _temp("controller", "max_flow_setpoint", "Max flow setpoint", enabled=False),
+    _temp("controller", "max_flow_setpoint", "Max flow setpoint"),
     _switch("controller", "switch_top", "Switch top"),
     _switch("controller", "switch_middle", "Switch middle"),
     _switch("controller", "switch_bottom", "Switch bottom"),
+
     TrovisSensorDescription(
         key="controller_error_status",
         name="Error status",
@@ -87,18 +106,6 @@ _CONTROLLER: tuple[TrovisSensorDescription, ...] = (
         attribute="error_status",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
-)
-
-# Per-circuit sensors (attribute, name).
-_CIRCUIT: tuple[tuple[str, str, bool], ...] = (
-    ("flow_temperature", "Flow temperature", True),
-    ("return_temperature", "Return temperature", True),
-)
-
-# Hot-water sensors.
-_HOT_WATER: tuple[TrovisSensorDescription, ...] = (
-    _temp("hot_water", "storage_temperature_lower", "Lower storage temperature"),
-    _temp("hot_water", "active_charge_setpoint", "Charge setpoint", enabled=False),
 )
 
 
@@ -109,15 +116,10 @@ async def async_setup_entry(
 ) -> None:
     """Set up Trovis sensors."""
     coordinator = entry.runtime_data
-    entities = [TrovisSensor(coordinator, d) for d in (*_CONTROLLER, *_HOT_WATER)]
+    entities = [TrovisSensor(coordinator, description) for description in _GLOBAL]
+
     for index in (1, 2, 3):
         component = f"heating_circuit_{index}"
-        for attribute, name, enabled in _CIRCUIT:
-            entities.append(
-                TrovisSensor(
-                    coordinator, _temp(component, attribute, name, enabled=enabled)
-                )
-            )
         entities.append(
             TrovisSensor(
                 coordinator,
@@ -132,6 +134,7 @@ async def async_setup_entry(
                 ),
             )
         )
+
     async_add_entities(entities)
 
 

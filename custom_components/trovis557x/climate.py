@@ -71,9 +71,18 @@ class TrovisHeatingCircuitClimate(TrovisEntity, ClimateEntity):
     def _circuit(self) -> HeatingCircuit:
         return self._subsystem  # type: ignore[return-value]
 
+    # @property
+    # def current_temperature(self) -> float | None:
+    #     return self._circuit.room_temperature
     @property
     def current_temperature(self) -> float | None:
-        return self._circuit.room_temperature
+        """Return the current temperature.
+        Physical room sensors are exposed centrally through the Sensors component.
+        They are not assigned to heating circuits here because the mapping depends
+        on the configured hydraulic scheme.
+        --> ToDo: Evaluate if hard coded connection to heating circuits, likely no
+        """
+        return None
 
     @property
     def target_temperature(self) -> float | None:

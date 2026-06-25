@@ -58,7 +58,7 @@ class TrovisHotWaterEntity(TrovisEntity, WaterHeaterEntity):
 
     @property
     def current_temperature(self) -> float | None:
-        return self._hot_water.storage_temperature
+        return self.coordinator.data.sensors.sf1
 
     @property
     def target_temperature(self) -> float | None:
