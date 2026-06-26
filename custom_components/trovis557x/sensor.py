@@ -146,7 +146,7 @@ class TrovisSensor(TrovisEntity, SensorEntity):
     def __init__(
         self, coordinator: TrovisCoordinator, description: TrovisSensorDescription
     ) -> None:
-        super().__init__(coordinator, description.key, description.component)
+        super().__init__(coordinator, description.key, description.component, "sensor")
         self.entity_description = description
 
     @property

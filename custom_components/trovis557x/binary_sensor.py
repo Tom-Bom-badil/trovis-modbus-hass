@@ -30,9 +30,11 @@ def _binary(
     attribute: str,
     name: str,
     device_class: BinarySensorDeviceClass | None = None,
+    *,
+    key: str | None = None,
 ) -> TrovisBinaryDescription:
     return TrovisBinaryDescription(
-        key=f"{component}_{attribute}",
+        key=key or f"{component}_{attribute}",
         name=name,
         component=component,
         attribute=attribute,
@@ -42,8 +44,8 @@ def _binary(
 
 
 _CONTROLLER: tuple[TrovisBinaryDescription, ...] = (
-    _binary("controller", "collective_fault", "Fault", BinarySensorDeviceClass.PROBLEM),
-    _binary("controller", "summer_active", "Summer mode"),
+    _binary("controller", "general_fault", "Fault", BinarySensorDeviceClass.PROBLEM, key="general_fault"),
+    _binary("controller", "summer_active", "Summer mode", key="summer_active"),
 )
 
 # Per-circuit coils (attribute, name, device_class).
@@ -99,7 +101,7 @@ class TrovisBinarySensor(TrovisEntity, BinarySensorEntity):
     def __init__(
         self, coordinator: TrovisCoordinator, description: TrovisBinaryDescription
     ) -> None:
-        super().__init__(coordinator, description.key, description.component)
+        super().__init__(coordinator, description.key, description.component, "binary_sensor")
         self.entity_description = description
 
     @property

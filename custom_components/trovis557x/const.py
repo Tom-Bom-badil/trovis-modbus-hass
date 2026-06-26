@@ -9,12 +9,14 @@ DOMAIN: Final = "trovis557x"
 
 CONF_CONNECTION_TYPE: Final = "connection_type"
 CONF_UNIT_ID: Final = "unit_id"
+CONF_SLUG: Final = "slug"
 
 CONNECTION_TCP: Final = "tcp"
 CONNECTION_SERIAL: Final = "serial"
 
 DEFAULT_PORT: Final = 502
 DEFAULT_UNIT_ID: Final = 246  # the controller's default Modbus station address
+DEFAULT_SLUG: Final = "trovis"
 
 # The Trovis 557x serial line is fixed at 19200 8N1 (the PA6 default); only the
 # port itself is asked for.

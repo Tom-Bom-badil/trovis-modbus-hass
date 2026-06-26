@@ -1,16 +1,17 @@
 """Base entity for Trovis 557x.
 
-Each heating circuit, the hot water tank, and the physical input sensors
+Each heating circuit, the hot water tank, and the physical measurement inputs
 are their own (sub-)devices, linked to the controller via ``via_device``.
 Everything else belongs to the controller.
 """
 
 from __future__ import annotations
 
-from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.helpers.entity import DeviceInfo, async_generate_entity_id
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import slugify
 
-from .const import DOMAIN
+from .const import CONF_SLUG, DEFAULT_SLUG, DOMAIN
 from .coordinator import TrovisCoordinator
 
 
@@ -26,18 +27,37 @@ def _sub_device(component: str) -> tuple[str, str] | None:
     return None
 
 
+def _entry_slug(value: object) -> str:
+    """Return a Home Assistant friendly entity prefix."""
+    return slugify(str(value or "")) or DEFAULT_SLUG
+
+
 class TrovisEntity(CoordinatorEntity[TrovisCoordinator]):
     """Common identity + device-info for every Trovis entity."""
 
     _attr_has_entity_name = True
 
     def __init__(
-        self, coordinator: TrovisCoordinator, key: str, component: str
+        self,
+        coordinator: TrovisCoordinator,
+        key: str,
+        component: str,
+        platform: str,
     ) -> None:
         super().__init__(coordinator)
         self._component = component
+
         entry = coordinator.config_entry
         self._attr_unique_id = f"{entry.entry_id}_{key}"
+        entity_slug = _entry_slug(entry.data.get(CONF_SLUG, entry.title))
+        object_id = f"{entity_slug}_{key}"
+        self._attr_suggested_object_id = object_id
+        self.entity_id = async_generate_entity_id(
+            f"{platform}.{{}}",
+            object_id,
+            hass=coordinator.hass,
+        )
+
         info = coordinator.device.info
         sub = _sub_device(component)
         if sub is None:

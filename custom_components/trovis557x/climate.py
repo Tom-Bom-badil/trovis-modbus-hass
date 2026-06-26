@@ -65,6 +65,7 @@ class TrovisHeatingCircuitClimate(TrovisEntity, ClimateEntity):
             coordinator,
             key=f"climate_circuit_{index}",
             component=f"heating_circuit_{index}",
+            platform="climate",
         )
 
     @property

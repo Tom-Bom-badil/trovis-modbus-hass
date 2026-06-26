@@ -13,23 +13,27 @@
         "data": {
           "host": "Host",
           "port": "Port",
-          "unit_id": "Modbus Unit"
+          "unit_id": "Modbus Unit",
+          "slug": "Entity ID prefix"
         },
         "data_description": {
           "host": "The hostname or IP address of the Modbus gateway or device.",
           "port": "The TCP port the Modbus gateway listens on (default 502).",
-          "unit_id": "The controller's Modbus station address (PA1; default 246)."
+          "unit_id": "The controller's Modbus station address (PA1; default 246).",
+          "slug": "Prefix for generated entity IDs, e.g. 'mytrovis' - this will result in IDs like e.g. sensor.mytrovis_af1."
         }
       },
       "serial": {
         "title": "Serial connection",
         "data": {
           "device": "Serial port",
-          "unit_id": "Modbus Unit"
+          "unit_id": "Modbus Unit",
+          "slug": "Entity ID prefix"
         },
         "data_description": {
           "device": "The serial port the controller is wired to. The line is fixed at 19200 baud, 8N1.",
-          "unit_id": "The controller's Modbus station address (PA1; default 246)."
+          "unit_id": "The controller's Modbus station address (PA1; default 246).",
+          "slug": "Prefix for generated entity IDs, e.g. 'mytrovis' - this will result in IDs like e.g. sensor.mytrovis_af1."
         }
       }
     },

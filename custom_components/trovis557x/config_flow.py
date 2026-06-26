@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import voluptuous as vol
@@ -12,9 +13,12 @@ from homeassistant.helpers.selector import (
     NumberSelectorConfig,
     NumberSelectorMode,
     SerialPortSelector,
+    TextSelector,
 )
+from homeassistant.util import slugify
 from modbus_connection import ModbusConnection, ModbusError
 from modbus_connection.tmodbus import connect_serial, connect_tcp
+
 from ._local_dev import apply_local_trovis_modbus_override
 
 apply_local_trovis_modbus_override()
@@ -23,10 +27,12 @@ from trovis_modbus import Trovis557x
 
 from .const import (
     CONF_CONNECTION_TYPE,
+    CONF_SLUG,
     CONF_UNIT_ID,
     CONNECTION_SERIAL,
     CONNECTION_TCP,
     DEFAULT_PORT,
+    DEFAULT_SLUG,
     DEFAULT_UNIT_ID,
     DOMAIN,
     SERIAL_BAUDRATE,
@@ -39,11 +45,19 @@ _UNIT = NumberSelector(
     NumberSelectorConfig(min=1, max=255, step=1, mode=NumberSelectorMode.BOX)
 )
 
+
+def _normalize_slug(value: object) -> str:
+    """Return a Home Assistant friendly entity prefix."""
+    slug = slugify(str(value or ""))
+    return re.sub(r"_+", "_", slug).strip("_") or DEFAULT_SLUG
+
+
 STEP_NETWORK = vol.Schema(
     {
         vol.Required(CONF_HOST): str,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): vol.Coerce(int),
         vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): _UNIT,
+        vol.Optional(CONF_SLUG, default=""): TextSelector(),
     }
 )
 
@@ -51,6 +65,7 @@ STEP_SERIAL = vol.Schema(
     {
         vol.Required(CONF_DEVICE): SerialPortSelector(),
         vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): _UNIT,
+        vol.Optional(CONF_SLUG, default=""): TextSelector(),
     }
 )
 
@@ -116,9 +131,13 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
         if user_input is not None:
             data = {CONF_CONNECTION_TYPE: connection_type, **user_input}
-            if (title := await self._async_title(data)) is None:
+            title = await self._async_title(data)
+            if title is None:
                 errors["base"] = "cannot_connect"
             else:
+                # If the user leaves the prefix empty, derive it from the
+                # detected model, e.g. "Trovis 5578" -> "trovis_5578".
+                data[CONF_SLUG] = _normalize_slug(data.get(CONF_SLUG) or title)
                 return self.async_create_entry(title=title, data=data)
         return self.async_show_form(step_id=step_id, data_schema=schema, errors=errors)
 

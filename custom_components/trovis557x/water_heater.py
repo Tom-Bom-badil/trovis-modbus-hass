@@ -50,7 +50,12 @@ class TrovisHotWaterEntity(TrovisEntity, WaterHeaterEntity):
     _attr_operation_list = list(_MODES)
 
     def __init__(self, coordinator: TrovisCoordinator) -> None:
-        super().__init__(coordinator, key="water_heater", component="hot_water")
+        super().__init__(
+            coordinator,
+            key="water_heater",
+            component="hot_water",
+            platform="water_heater",
+        )
 
     @property
     def _hot_water(self) -> HotWater:
