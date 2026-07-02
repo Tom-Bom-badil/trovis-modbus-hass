@@ -44,15 +44,33 @@
           "slug": "Prefix für generierte Entitäts-IDs, z. B. 't5573'. Daraus entstehen IDs wie 'sensor.t5573_outside_temperature'.",
           "access_code": "Die Schlüsselzahl für Schreibzugriff (siehe letzte Seite im Gerätehandbuch)."
         }
+      },
+      "reconfigure": {
+        "title": "Regler neu konfigurieren",
+        "description": "Verbindungsdaten und Schreibzugriff bearbeiten. Der Entity-ID-Präfix bleibt unverändert. Reglermodell, angeschlossene Sensoren und Netzwerk-Framing werden erneut automatisch erkannt.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "device": "Serielle Schnittstelle",
+          "unit_id": "Modbus Unit",
+          "name": "Eindeutiger Name",
+          "access_code": "Schlüsselzahl"
+        },
+        "data_description": {
+          "host": "Hostname oder IP-Adresse des Modbus-Gateways.",
+          "port": "TCP-Port des Modbus-Gateways.",
+          "device": "Serielle Schnittstelle oder Websocket URL (z.B. socket://IP:port)",
+          "unit_id": "Modbus-Stationsadresse des Reglers (PA1).",
+          "name": "Eindeutiger Anzeigename für diesen Regler.",
+          "access_code": "Schlüsselzahl für den Schreibzugriff."
+        }
       }
     },
     "error": {
       "cannot_connect": "Verbindung fehlgeschlagen. Prüfe die Verbindungsdaten und ob der Regler erreichbar ist."
-    }
-  },
-  "options": {
+    },
     "abort": {
-      "cannot_connect": "Verbindung fehlgeschlagen. Prüfe, ob der Regler erreichbar ist."
+      "reconfigure_successful": "Die Neukonfiguration war erfolgreich."
     }
   },
   "device": {

@@ -44,15 +44,33 @@
           "slug": "Prefix for generated entity IDs, e.g. 't5573'. This will result in IDs like 'sensor.t5573_outside_temperature_1'.",
           "access_code": "The number code for write access (see last page in the device manual)."
         }
+      },
+      "reconfigure": {
+        "title": "Reconfigure controller",
+        "description": "Update the connection and write-access settings. The entity ID prefix remains unchanged. The controller model, connected sensors and network framing are detected again automatically.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "device": "Serial port",
+          "unit_id": "Modbus Unit",
+          "name": "Unique name",
+          "access_code": "Access code"
+        },
+        "data_description": {
+          "host": "Hostname or IP address of the Modbus gateway.",
+          "port": "TCP port of the Modbus gateway.",
+          "device": "Serial port or websocket URL (eg. socket://IP:port)",
+          "unit_id": "The controller's Modbus station address (PA1).",
+          "name": "Unique display name for this controller.",
+          "access_code": "The number code for write access."
+        }
       }
     },
     "error": {
       "cannot_connect": "Failed to connect. Check the connection details and that the controller is reachable."
-    }
-  },
-  "options": {
+    },
     "abort": {
-      "cannot_connect": "Failed to connect. Check that the controller is reachable."
+      "reconfigure_successful": "Reconfiguration was successful."
     }
   },
   "device": {

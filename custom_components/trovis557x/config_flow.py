@@ -7,14 +7,9 @@ import re
 from typing import Any
 
 import voluptuous as vol
-from homeassistant.config_entries import (
-    ConfigEntry,
-    ConfigFlow,
-    ConfigFlowResult,
-    OptionsFlowWithReload,
-)
+
+from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_DEVICE, CONF_HOST, CONF_NAME, CONF_PORT
-from homeassistant.core import callback
 from homeassistant.helpers.selector import (
     NumberSelector,
     NumberSelectorConfig,
@@ -23,6 +18,7 @@ from homeassistant.helpers.selector import (
     TextSelector,
 )
 from homeassistant.util import slugify
+
 from modbus_connection import ModbusConnection, ModbusError
 from modbus_connection.tmodbus import connect_serial, connect_tcp
 
@@ -55,11 +51,21 @@ from .const import (
 )
 
 _UNIT = NumberSelector(
-    NumberSelectorConfig(min=1, max=255, step=1, mode=NumberSelectorMode.BOX)
+    NumberSelectorConfig(
+        min=1,
+        max=255,
+        step=1,
+        mode=NumberSelectorMode.BOX,
+    )
 )
 
 _ACCESS_CODE = NumberSelector(
-    NumberSelectorConfig(min=0, max=9999, step=1, mode=NumberSelectorMode.BOX)
+    NumberSelectorConfig(
+        min=0,
+        max=9999,
+        step=1,
+        mode=NumberSelectorMode.BOX,
+    )
 )
 
 
@@ -95,8 +101,14 @@ def _device_schema(default_name: str, default_slug: str) -> vol.Schema:
     """Return the device setup schema."""
     return vol.Schema(
         {
-            vol.Required(CONF_NAME, default=default_name): TextSelector(),
-            vol.Required(CONF_SLUG, default=default_slug): TextSelector(),
+            vol.Required(
+                CONF_NAME,
+                default=default_name,
+            ): TextSelector(),
+            vol.Required(
+                CONF_SLUG,
+                default=default_slug,
+            ): TextSelector(),
             vol.Required(
                 CONF_ACCESS_CODE,
                 default=DEFAULT_WRITE_ACCESS_CODE,
@@ -105,10 +117,51 @@ def _device_schema(default_name: str, default_slug: str) -> vol.Schema:
     )
 
 
+def _reconfigure_schema(
+    connection_type: str,
+    current_device: str | None = None,
+) -> vol.Schema:
+    """Return the schema for an existing config entry."""
+    common = {
+        vol.Required(CONF_UNIT_ID): _UNIT,
+        vol.Required(CONF_NAME): TextSelector(),
+        vol.Required(CONF_ACCESS_CODE): _ACCESS_CODE,
+    }
+
+    if connection_type == CONNECTION_SERIAL:
+        custom_url = bool(
+            current_device
+            and current_device.startswith(
+                (
+                    "socket://",
+                    "rfc2217://",
+                    "esphome://",
+                )
+            )
+        )
+
+        return vol.Schema(
+            {
+                vol.Required(CONF_DEVICE): (
+                    TextSelector()
+                    if custom_url
+                    else SerialPortSelector()
+                ),
+                **common,
+            }
+        )
+
+    return vol.Schema(
+        {
+            vol.Required(CONF_HOST): str,
+            vol.Required(CONF_PORT): vol.Coerce(int),
+            **common,
+        }
+    )
+
+
 async def open_connection(data: dict[str, Any]) -> ModbusConnection:
     """Open the connection described by a config entry."""
-    unit_id = int(data[CONF_UNIT_ID])
-
     if data[CONF_CONNECTION_TYPE] == CONNECTION_SERIAL:
         return await connect_serial(
             data[CONF_DEVICE],
@@ -121,7 +174,10 @@ async def open_connection(data: dict[str, Any]) -> ModbusConnection:
     return await connect_tcp(
         data[CONF_HOST],
         port=int(data[CONF_PORT]),
-        framer=data.get(CONF_NETWORK_FRAMER, NETWORK_FRAMER_RTU),
+        framer=data.get(
+            CONF_NETWORK_FRAMER,
+            NETWORK_FRAMER_RTU,
+        ),
     )
 
 
@@ -137,20 +193,21 @@ async def _async_probe_once(
             connection.for_unit(int(data[CONF_UNIT_ID]))
         )
         return probe.model, probe.detected_sensors
-    except (ModbusError, OSError, ValueError):
+    except (ModbusError, ValueError):
         return None
     finally:
         if connection is not None:
-            with suppress(ModbusError, OSError):
+            with suppress(ModbusError):
                 await connection.close()
 
 
 async def _async_probe(
     data: dict[str, Any],
 ) -> tuple[int, tuple[str, ...], str | None] | None:
-    """Probe the controller and detect network framing when necessary."""
+    """Probe the controller and detect network framing when required."""
     if data[CONF_CONNECTION_TYPE] == CONNECTION_SERIAL:
         result = await _async_probe_once(data)
+
         if result is None:
             return None
 
@@ -158,18 +215,25 @@ async def _async_probe(
         return model, detected_sensors, None
 
     stored_framer = data.get(CONF_NETWORK_FRAMER)
-    framers = (
-        (stored_framer,)
-        if stored_framer is not None
-        else (NETWORK_FRAMER_RTU, NETWORK_FRAMER_SOCKET)
-    )
+
+    if stored_framer in (
+        NETWORK_FRAMER_RTU,
+        NETWORK_FRAMER_SOCKET,
+    ):
+        framers = (stored_framer,)
+    else:
+        framers = (
+            NETWORK_FRAMER_RTU,
+            NETWORK_FRAMER_SOCKET,
+        )
 
     for framer in framers:
-        probe_data = {
-            **data,
-            CONF_NETWORK_FRAMER: framer,
-        }
-        result = await _async_probe_once(probe_data)
+        result = await _async_probe_once(
+            {
+                **data,
+                CONF_NETWORK_FRAMER: framer,
+            }
+        )
 
         if result is not None:
             model, detected_sensors = result
@@ -187,14 +251,6 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
     _detected_model: int | None = None
     _detected_sensors: tuple[str, ...] = ()
 
-    @staticmethod
-    @callback
-    def async_get_options_flow(
-        config_entry: ConfigEntry,
-    ) -> TrovisOptionsFlow:
-        """Create the options flow."""
-        return TrovisOptionsFlow()
-
     async def async_step_user(
         self,
         user_input: dict[str, Any] | None = None,
@@ -209,7 +265,7 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
         self,
         user_input: dict[str, Any] | None = None,
     ) -> ConfigFlowResult:
-        """Configure an automatically detected network connection."""
+        """Configure a network connection."""
         return await self._connection_step(
             CONNECTION_TCP,
             "network",
@@ -236,7 +292,7 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
         schema: vol.Schema,
         user_input: dict[str, Any] | None,
     ) -> ConfigFlowResult:
-        """Validate the connection and continue device setup."""
+        """Validate connection data and continue setup."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
@@ -244,6 +300,7 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
                 CONF_CONNECTION_TYPE: connection_type,
                 **user_input,
             }
+
             probe = await _async_probe(data)
 
             if probe is None:
@@ -257,6 +314,7 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
                 self._pending_data = data
                 self._detected_model = model
                 self._detected_sensors = detected_sensors
+
                 return await self.async_step_device()
 
         return self.async_show_form(
@@ -269,7 +327,7 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
         self,
         user_input: dict[str, Any] | None = None,
     ) -> ConfigFlowResult:
-        """Let the user choose display name and entity ID prefix."""
+        """Configure device name, entity prefix and access code."""
         if self._pending_data is None or self._detected_model is None:
             return await self.async_step_user()
 
@@ -277,8 +335,13 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
         default_slug = _normalize_slug(default_name)
 
         if user_input is not None:
-            name = _normalize_name(user_input.get(CONF_NAME), default_name)
-            slug = _normalize_slug(user_input.get(CONF_SLUG) or name)
+            name = _normalize_name(
+                user_input.get(CONF_NAME),
+                default_name,
+            )
+            slug = _normalize_slug(
+                user_input.get(CONF_SLUG) or name
+            )
 
             data = {
                 **self._pending_data,
@@ -291,7 +354,9 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
                     )
                 ),
                 CONF_MODEL: self._detected_model,
-                CONF_DETECTED_SENSORS: list(self._detected_sensors),
+                CONF_DETECTED_SENSORS: list(
+                    self._detected_sensors
+                ),
             }
 
             return self.async_create_entry(
@@ -301,49 +366,104 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="device",
-            data_schema=_device_schema(default_name, default_slug),
+            data_schema=_device_schema(
+                default_name,
+                default_slug,
+            ),
             errors={},
         )
 
-
-class TrovisOptionsFlow(OptionsFlowWithReload):
-    """Refresh automatically detected TROVIS properties."""
-
-    async def async_step_init(
+    async def async_step_reconfigure(
         self,
         user_input: dict[str, Any] | None = None,
     ) -> ConfigFlowResult:
-        """Re-detect model, network framing and connected sensors."""
-        probe = await _async_probe(dict(self.config_entry.data))
+        """Update connection and controller settings."""
+        entry = self._get_reconfigure_entry()
+        connection_type = entry.data[CONF_CONNECTION_TYPE]
+        errors: dict[str, str] = {}
 
-        if probe is None:
-            return self.async_abort(reason="cannot_connect")
-
-        model, detected_sensors, network_framer = probe
-
-        if (
-            network_framer is not None
-            and self.config_entry.data.get(CONF_NETWORK_FRAMER)
-            != network_framer
-        ):
-            self.hass.config_entries.async_update_entry(
-                self.config_entry,
-                data={
-                    **self.config_entry.data,
-                    CONF_NETWORK_FRAMER: network_framer,
-                },
+        if user_input is not None:
+            name = _normalize_name(
+                user_input.get(CONF_NAME),
+                entry.title,
             )
 
-        known_sensors = self.config_entry.options.get(
-            CONF_DETECTED_SENSORS,
-            self.config_entry.data.get(CONF_DETECTED_SENSORS, ()),
-        )
-
-        return self.async_create_entry(
-            data={
-                CONF_MODEL: model,
-                CONF_DETECTED_SENSORS: sorted(
-                    set(known_sensors) | set(detected_sensors)
-                ),
+            # Deliberately omit the previously detected network framer here.
+            # Reconfiguration must test both RTU-over-TCP and native Modbus TCP
+            # again in case the gateway configuration has changed.
+            probe_data = {
+                CONF_CONNECTION_TYPE: connection_type,
+                **user_input,
             }
+
+            probe = await _async_probe(probe_data)
+
+            if probe is None:
+                errors["base"] = "cannot_connect"
+            else:
+                model, detected_sensors, network_framer = probe
+
+                known_sensors = set(
+                    entry.data.get(
+                        CONF_DETECTED_SENSORS,
+                        (),
+                    )
+                )
+                known_sensors.update(
+                    entry.options.get(
+                        CONF_DETECTED_SENSORS,
+                        (),
+                    )
+                )
+                known_sensors.update(detected_sensors)
+
+                data_updates: dict[str, Any] = {
+                    **user_input,
+                    CONF_CONNECTION_TYPE: connection_type,
+                    CONF_NAME: name,
+                    CONF_ACCESS_CODE: int(
+                        user_input.get(
+                            CONF_ACCESS_CODE,
+                            DEFAULT_WRITE_ACCESS_CODE,
+                        )
+                    ),
+                    CONF_MODEL: model,
+                    CONF_DETECTED_SENSORS: sorted(
+                        known_sensors
+                    ),
+                }
+
+                if network_framer is not None:
+                    data_updates[CONF_NETWORK_FRAMER] = network_framer
+
+                return self.async_update_reload_and_abort(
+                    entry,
+                    title=name,
+                    data_updates=data_updates,
+                    options={},
+                )
+
+        suggested_values = {
+            **entry.data,
+            **entry.options,
+            CONF_NAME: entry.data.get(
+                CONF_NAME,
+                entry.title,
+            ),
+            CONF_ACCESS_CODE: entry.data.get(
+                CONF_ACCESS_CODE,
+                DEFAULT_WRITE_ACCESS_CODE,
+            ),
+        }
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=self.add_suggested_values_to_schema(
+                _reconfigure_schema(
+                    connection_type,
+                    entry.data.get(CONF_DEVICE),
+                ),
+                suggested_values,
+            ),
+            errors=errors,
         )
