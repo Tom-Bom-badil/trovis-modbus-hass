@@ -12,7 +12,11 @@ import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from modbus_connection.mock import MockModbusConnection, MockModbusUnit
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.common import (
+    MockConfigEntry,
+    MockModule,
+    mock_integration,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -114,9 +118,14 @@ def _enable_custom_integrations(enable_custom_integrations):  # noqa: ANN001
 @pytest.fixture
 def modbus_provider(hass: HomeAssistant) -> MockProvider:
     """Provide one enabled Modbus Connection entry and a TROVIS-shaped unit."""
-    # Mark the provider integration as loaded. Its transport and lifecycle are
-    # outside the scope of the TROVIS consumer-integration tests.
-    hass.config.components.add(MODBUS_CONNECTION_DOMAIN)
+    # Register the provider with Home Assistant's integration loader. The
+    # sys.modules stub above supplies async_get_unit to the TROVIS code, while
+    # this loader mock satisfies the manifest dependency.
+    mock_integration(
+        hass,
+        MockModule(MODBUS_CONNECTION_DOMAIN),
+        built_in=False,
+    )
 
     entry = MockConfigEntry(
         domain=MODBUS_CONNECTION_DOMAIN,
