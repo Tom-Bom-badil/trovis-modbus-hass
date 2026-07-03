@@ -1,7 +1,7 @@
 [project]
-name = "trovis-modbus-hass-tmodbus-tests"
+name = "trovis-modbus-hass-tests"
 version = "0"
-description = "Dev/test environment for the Trovis 557x custom component (tmodbus)."
+description = "Dev/test environment for the Trovis 557x custom integration."
 requires-python = ">=3.13"
 dependencies = []
 
@@ -11,12 +11,9 @@ dev = [
     "pytest-asyncio>=0.24",
     # Device library required by the TROVIS integration.
     "trovis-modbus>=1.0.2,<2",
-    # Connection library and tmodbus backend used by the provider and tests.
-    "modbus-connection[tmodbus]>=3.3.0,<4",
-    # pymodbus is only used to stand up the in-process Modbus server the tests
-    # talk to, not as the client backend.
-    "pymodbus[serial]==3.11.2",
-    # Real Home Assistant + harness, to test the config flow and entry setup.
+    # Backend-neutral connection API and in-memory MockModbusUnit.
+    "modbus-connection>=3.3.0,<4",
+    # Real Home Assistant plus its custom-component test harness.
     "pytest-homeassistant-custom-component",
 ]
 

@@ -1,9 +1,4 @@
-"""The library stack must work end-to-end exactly as the component uses it.
-
-This exercises the real integration data path (connect -> ModbusUnit ->
-Trovis557x.async_update) without needing a running Home Assistant, against the
-``trovis-modbus`` + ``modbus-connection[tmodbus]`` packages from PyPI.
-"""
+"""Tests for package boundaries, manifest and translations."""
 
 from __future__ import annotations
 
@@ -11,52 +6,73 @@ import json
 from pathlib import Path
 
 import pytest
+from modbus_connection.mock import MockModbusConnection
+from trovis_modbus import OperatingMode, Trovis557x
 
-from .conftest import UNIT_ID
+from .conftest import COILS, HOLDING, UNIT_ID
 
 COMPONENT = Path(__file__).resolve().parents[1] / "custom_components" / "trovis557x"
 
 
-async def test_library_imports() -> None:
-    import modbus_connection
-    import modbus_connection.tmodbus
-    import trovis_modbus
+async def test_library_stack_with_mock_unit() -> None:
+    """Use the same ModbusUnit boundary as the Home Assistant integration."""
+    connection = MockModbusConnection()
+    unit = connection.for_unit(UNIT_ID)
+    unit.holding.update(HOLDING)
+    unit.coils.update(COILS)
 
-    assert hasattr(modbus_connection, "ModbusUnit")
-    assert hasattr(modbus_connection.tmodbus, "connect_tcp")
-    assert hasattr(trovis_modbus, "Trovis557x")
+    probe = await Trovis557x.async_probe(unit)
 
+    assert probe.model == 5579
 
-async def test_end_to_end(server: tuple[str, int]) -> None:
-    from modbus_connection.tmodbus import connect_tcp
-    from trovis_modbus import OperatingMode, Trovis557x
+    device = Trovis557x(
+        unit,
+        model=probe.model,
+        detected_sensors=probe.detected_sensors,
+    )
+    await device.async_update()
 
-    host, port = server
-    # RTU-over-TCP gateway; tmodbus backend.
-    conn = await connect_tcp(host, port=port, unit_id=UNIT_ID, framer="rtu")
-    try:
-        device = Trovis557x(conn.for_unit(UNIT_ID))
-        await device.async_update()
-        assert device.info.model == "Trovis 5579"
-        assert device.sensors.outside_1 == pytest.approx(12.3)
-        assert device.heating_circuit_1.pump_running is True
-        assert device.heating_circuit_1.mode is OperatingMode.AUTOMATIC
-        assert device.hot_water.setpoint_active == pytest.approx(50.0)
-    finally:
-        await conn.close()
+    assert device.info.model == "Trovis 5579"
+    assert device.sensors.af1 == pytest.approx(12.3)
+    assert device.heating_circuit_1.pump_running is True
+    assert device.heating_circuit_1.mode is OperatingMode.AUTOMATIC
+    assert device.hot_water.setpoint_active == pytest.approx(50.0)
 
 
 def test_manifest_valid() -> None:
-    manifest = json.loads((COMPONENT / "manifest.json").read_text())
+    """Declare the provider integration without owning its backend."""
+    manifest = json.loads((COMPONENT / "manifest.json").read_text(encoding="utf-8"))
+
     assert manifest["domain"] == "trovis557x"
     assert manifest["config_flow"] is True
-    assert any("tmodbus" in req for req in manifest["requirements"])
+    assert "modbus_connection" in manifest["dependencies"]
+
+    requirements = manifest["requirements"]
+    assert any(requirement.startswith("trovis-modbus") for requirement in requirements)
+    assert not any(
+        "modbus-connection" in requirement
+        or "tmodbus" in requirement
+        or "pymodbus" in requirement
+        for requirement in requirements
+    )
+
     assert "trovis_modbus" in manifest["loggers"]
 
 
 def test_strings_and_translation_valid() -> None:
-    strings = json.loads((COMPONENT / "strings.json").read_text())
-    en = json.loads((COMPONENT / "translations" / "en.json").read_text())
-    assert "network" in strings["config"]["step"]
-    assert "serial" in strings["config"]["step"]
-    assert strings == en
+    """Expose shared-connection setup instead of transport setup."""
+    strings = json.loads((COMPONENT / "strings.json").read_text(encoding="utf-8"))
+    english = json.loads(
+        (COMPONENT / "translations" / "en.json").read_text(encoding="utf-8")
+    )
+
+    steps = strings["config"]["step"]
+
+    assert {"user", "device", "reconfigure"} <= steps.keys()
+    assert "network" not in steps
+    assert "serial" not in steps
+
+    assert "connection_entry_id" in steps["user"]["data"]
+    assert "unit_id" in steps["user"]["data"]
+
+    assert strings == english

@@ -1,112 +1,134 @@
-"""Fixtures for the integration tests: a real in-process Modbus TCP server."""
+"""Fixtures for TROVIS tests over an in-memory shared Modbus unit."""
 
 from __future__ import annotations
 
-import asyncio
-import socket
 import sys
-from collections.abc import AsyncIterator
+from dataclasses import dataclass
 from pathlib import Path
+from types import ModuleType
+from typing import Final
 
 import pytest
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
+from modbus_connection.mock import MockModbusConnection, MockModbusUnit
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-COMPONENT = REPO_ROOT / "custom_components" / "trovis557x"
-# Make `custom_components.trovis557x` importable (the libs come from PyPI).
+
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from pymodbus import FramerType  # noqa: E402
-from pymodbus.datastore import (  # noqa: E402
-    ModbusDeviceContext,
-    ModbusSequentialDataBlock,
-    ModbusServerContext,
-)
-from pymodbus.server import ModbusTcpServer  # noqa: E402
 
-UNIT_ID = 247
+MODBUS_CONNECTION_DOMAIN: Final = "modbus_connection"
+UNIT_ID: Final = 247
 
-HOLDING = {
-    0: 5579,  # model
+_PROVIDER_UNITS: Final = "test_modbus_connection_units"
+
+
+def _async_get_unit(
+    hass: HomeAssistant,
+    connection_entry_id: str,
+    unit_id: int,
+) -> MockModbusUnit:
+    """Return the unit registered for a test provider entry."""
+    units = hass.data.get(_PROVIDER_UNITS, {})
+
+    try:
+        return units[(connection_entry_id, unit_id)]
+    except KeyError as err:
+        raise ConfigEntryNotReady("The test Modbus connection is not ready") from err
+
+
+# The real provider integration is installed separately in Home Assistant.
+# GitHub Actions checks out only this repository, so expose the small public
+# provider boundary needed by the TROVIS integration during tests.
+_provider_module = ModuleType("custom_components.modbus_connection")
+_provider_module.async_get_unit = _async_get_unit
+sys.modules["custom_components.modbus_connection"] = _provider_module
+
+
+# Raw Modbus protocol addresses, not manufacturer HR/CL reference numbers.
+HOLDING: dict[int, int] = {
+    0: 5579,  # controller model
+    1: 21,  # system version -> 2.1
     2: 305,  # firmware -> 3.05
     3: 110,  # hardware -> 1.10
-    5: 12345,  # serial
-    9: 123,  # outside_1 -> 12.3
-    19: 200,  # room_1 -> 20.0
-    22: 450,  # storage_1 -> 45.0
-    98: 900,  # max flow setpoint -> 90.0
-    99: 1430,  # time
-    100: 2106,  # date
-    101: 2026,  # year
-    102: 1,  # switch_top -> AUTOMATIC
-    105: 1,  # hc1 mode -> AUTOMATIC
-    106: 42,  # hc1 control signal
-    111: 1,  # hot_water mode -> AUTOMATIC
-    999: 550,  # hc1 flow_setpoint -> 55.0
-    1000: 800,  # hc1 flow_max
-    1001: 200,  # hc1 flow_min
-    1002: 210,  # hc1 room_setpoint_day -> 21.0
-    1003: 180,  # hc1 room_setpoint_night
-    1004: 210,  # hc1 room_setpoint_active -> 21.0
-    1005: 12,  # hc1 slope
-    1006: 0,  # hc1 level
-    1799: 500,  # hot_water setpoint_day -> 50.0
-    1800: 600,  # hot_water setpoint_max
-    1801: 450,  # hot_water setpoint_min
-    1807: 500,  # hot_water setpoint_active -> 50.0
-    1837: 670,  # hot_water active_charge_setpoint -> 67.0
+    5: 12345,  # serial number
+    9: 123,  # AF1 outside temperature -> 12.3 °C
+    12: 300,  # VF1 flow temperature -> 30.0 °C
+    19: 200,  # RF1 room temperature -> 20.0 °C
+    22: 450,  # SF1 storage temperature -> 45.0 °C
+    23: 0x7FFF,  # SF2 invalid-value marker
+    98: 900,  # maximum flow setpoint -> 90.0 °C
+    99: 1430,  # controller time -> 14:30
+    100: 2106,  # controller date -> 21.06
+    101: 2026,  # controller year
+    102: 1,  # upper rotary switch -> automatic
+    105: 1,  # Rk1 operation mode -> automatic
+    106: 42,  # Rk1 valve setpoint -> 42 %
+    112: 1505,  # summer operation start -> 15.05
+    149: 0,  # no controller error
+    999: 550,  # Rk1 flow setpoint -> 55.0 °C
+    1000: 800,  # Rk1 maximum flow temperature -> 80.0 °C
+    1001: 200,  # Rk1 minimum flow temperature -> 20.0 °C
+    1002: 210,  # Rk1 room setpoint day -> 21.0 °C
+    1003: 180,  # Rk1 room setpoint night -> 18.0 °C
+    1004: 210,  # Rk1 active room setpoint -> 21.0 °C
+    1005: 12,  # Rk1 slope -> 1.2
+    1006: 0,  # Rk1 level -> 0.0 K
+    1199: 480,  # Rk2 flow setpoint -> 48.0 °C
+    1799: 500,  # domestic-hot-water setpoint -> 50.0 °C
+    1800: 600,  # domestic-hot-water maximum -> 60.0 °C
+    1801: 450,  # domestic-hot-water minimum -> 45.0 °C
+    1807: 500,  # active domestic-hot-water setpoint -> 50.0 °C
+    1830: 3,  # disinfection weekday -> Wednesday
+    1831: 1900,  # disinfection start -> 19:00
+    1837: 670,  # active charge setpoint -> 67.0 °C
 }
-COILS = {
-    56: True,  # hc1 pump
-    999: True,  # hc1 automatic
-    1000: True,  # hc1 day active
-    59: True,  # hot_water charge pump
-    1799: True,  # hot_water automatic
+
+COILS: dict[int, bool] = {
+    3: True,  # controller initially operates autonomously
+    56: True,  # Rk1 pump running
+    59: True,  # domestic-hot-water charge pump running
+    999: True,  # Rk1 automatic mode
+    1000: True,  # Rk1 day mode active
+    1799: True,  # domestic hot water automatic mode
 }
 
 
-def _block(
-    mapping: dict[int, int | bool], size: int = 2000
-) -> ModbusSequentialDataBlock:
-    values = [0] * (size + 1)
-    for address, value in mapping.items():
-        values[address + 1] = int(value)
-    return ModbusSequentialDataBlock(0, values)
+@dataclass(frozen=True)
+class MockProvider:
+    """A configured Modbus Connection provider and its shared unit."""
+
+    entry: MockConfigEntry
+    unit: MockModbusUnit
 
 
-def _free_port() -> int:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.bind(("127.0.0.1", 0))
-        return sock.getsockname()[1]
+@pytest.fixture(autouse=True)
+def _enable_custom_integrations(enable_custom_integrations):  # noqa: ANN001
+    """Allow loading the custom TROVIS integration."""
+    yield
 
 
 @pytest.fixture
-async def server(socket_enabled) -> AsyncIterator[tuple[str, int]]:  # noqa: ANN001
-    # `socket_enabled` (from pytest-homeassistant-custom-component) lifts the
-    # default socket ban so the in-process Modbus server can bind/accept.
-    device = ModbusDeviceContext(
-        co=_block(COILS), hr=_block(HOLDING), di=_block({}), ir=_block({})
+def modbus_provider(hass: HomeAssistant) -> MockProvider:
+    """Provide one enabled Modbus Connection entry and a TROVIS-shaped unit."""
+    # Mark the provider integration as loaded. Its transport and lifecycle are
+    # outside the scope of the TROVIS consumer-integration tests.
+    hass.config.components.add(MODBUS_CONNECTION_DOMAIN)
+
+    entry = MockConfigEntry(
+        domain=MODBUS_CONNECTION_DOMAIN,
+        title="Test Modbus Connection",
     )
-    context = ModbusServerContext(devices={UNIT_ID: device}, single=False)
-    host, port = "127.0.0.1", _free_port()
-    # The integration speaks RTU-over-TCP, so the test gateway does too.
-    srv = ModbusTcpServer(context, framer=FramerType.RTU, address=(host, port))
-    task = asyncio.create_task(srv.serve_forever())
-    for _ in range(100):
-        try:
-            _, writer = await asyncio.open_connection(host, port)
-        except OSError:
-            await asyncio.sleep(0.02)
-            continue
-        writer.close()
-        await writer.wait_closed()
-        break
-    try:
-        yield host, port
-    finally:
-        await srv.shutdown()
-        task.cancel()
-        try:
-            await task
-        except (asyncio.CancelledError, Exception):
-            pass
+    entry.add_to_hass(hass)
+
+    connection = MockModbusConnection()
+    unit = connection.for_unit(UNIT_ID)
+    unit.holding.update(HOLDING)
+    unit.coils.update(COILS)
+
+    hass.data.setdefault(_PROVIDER_UNITS, {})[(entry.entry_id, UNIT_ID)] = unit
+
+    return MockProvider(entry=entry, unit=unit)
