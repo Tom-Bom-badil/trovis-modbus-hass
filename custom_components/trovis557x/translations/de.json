@@ -37,7 +37,7 @@
         },
         "data_description": {
           "connection_entry_id": "Die gemeinsam genutzte Verbindung für diesen Controller.",
-          "unit_id": "Modbus-Stationsadresse des Controllers (PA1).",
+          "unit_id": "Modbus Stationsadresse des Controllers (PA1).",
           "name": "Eindeutiger Anzeigename für diesen Controller.",
           "access_code": "Schlüsselzahl für den Schreibzugriff."
         }
