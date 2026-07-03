@@ -9,12 +9,12 @@ dependencies = []
 dev = [
     "pytest>=8",
     "pytest-asyncio>=0.24",
-    # The integration's runtime requirements, from PyPI (same as the manifest):
-    # the device library and the connection layer with its tmodbus backend.
-    "trovis-modbus==1.0.0",
-    "modbus-connection[tmodbus]==3.0.0",
-    # pymodbus is only used to stand up the in-process Modbus *server* the tests
-    # talk to (a backend-neutral device on the wire), not as the client backend.
+    # Device library required by the TROVIS integration.
+    "trovis-modbus>=1.0.2,<2",
+    # Connection library and tmodbus backend used by the provider and tests.
+    "modbus-connection[tmodbus]>=3.3.0,<4",
+    # pymodbus is only used to stand up the in-process Modbus server the tests
+    # talk to, not as the client backend.
     "pymodbus[serial]==3.11.2",
     # Real Home Assistant + harness, to test the config flow and entry setup.
     "pytest-homeassistant-custom-component",
