@@ -9,6 +9,7 @@ from types import ModuleType
 from typing import Final
 
 import pytest
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from modbus_connection.mock import MockModbusConnection, MockModbusUnit
@@ -16,9 +17,11 @@ from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
     MockModule,
     mock_integration,
+    mock_platform,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -115,6 +118,14 @@ def _enable_custom_integrations(enable_custom_integrations):  # noqa: ANN001
     yield
 
 
+async def _async_setup_provider_entry(
+    _hass: HomeAssistant,
+    _entry: ConfigEntry,
+) -> bool:
+    """Set up the simulated Modbus Connection entry."""
+    return True
+
+
 @pytest.fixture
 def modbus_provider(hass: HomeAssistant) -> MockProvider:
     """Provide one enabled Modbus Connection entry and a TROVIS-shaped unit."""
@@ -123,8 +134,16 @@ def modbus_provider(hass: HomeAssistant) -> MockProvider:
     # this loader mock satisfies the manifest dependency.
     mock_integration(
         hass,
-        MockModule(MODBUS_CONNECTION_DOMAIN),
+        MockModule(
+            MODBUS_CONNECTION_DOMAIN,
+            async_setup_entry=_async_setup_provider_entry,
+        ),
         built_in=False,
+    )
+    mock_platform(
+        hass,
+        f"{MODBUS_CONNECTION_DOMAIN}.config_flow",
+        None,
     )
 
     entry = MockConfigEntry(

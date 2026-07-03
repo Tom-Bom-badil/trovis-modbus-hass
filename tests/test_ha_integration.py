@@ -125,7 +125,7 @@ async def test_register_and_coil_writes(
     modbus_provider: MockProvider,
 ) -> None:
     """Write a register and a coil through Home Assistant entities."""
-    await _setup(hass, modbus_provider)
+    entry = await _setup(hass, modbus_provider)
 
     await hass.services.async_call(
         "switch",
@@ -144,10 +144,17 @@ async def test_register_and_coil_writes(
         blocking=True,
     )
 
+    # The write itself happens immediately. The coordinator refresh requested
+    # by the entity may be debounced because write access was enabled directly
+    # beforehand.
+    assert modbus_provider.unit.holding[101] == 2027
+
+    await entry.runtime_data.async_refresh()
+    await hass.async_block_till_done()
+
     year = hass.states.get(f"number.{SLUG}_year")
     assert year is not None
     assert float(year.state) == pytest.approx(2027)
-    assert modbus_provider.unit.holding[101] == 2027
 
     coils_before = dict(modbus_provider.unit.coils)
 
@@ -158,10 +165,14 @@ async def test_register_and_coil_writes(
         blocking=True,
     )
 
+    assert modbus_provider.unit.coils != coils_before
+
+    await entry.runtime_data.async_refresh()
+    await hass.async_block_till_done()
+
     daylight_saving = hass.states.get(f"switch.{SLUG}_automatic_daylight_saving_time")
     assert daylight_saving is not None
     assert daylight_saving.state == "on"
-    assert modbus_provider.unit.coils != coils_before
 
 
 async def test_config_flow_uses_existing_connection(
