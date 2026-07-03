@@ -1,29 +1,30 @@
-"""The Samson Trovis 557x integration.
-
-Trovis is a direct Modbus connection. The integration owns the connection and
-hands its ModbusUnit to trovis-modbus.
-"""
+"""The Samson Trovis 557x integration using a shared Modbus connection."""
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+from custom_components.modbus_connection import async_get_unit
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
-from modbus_connection import ModbusConnectionError, ModbusError
 
 from ._local_dev import apply_local_trovis_modbus_override
-
-apply_local_trovis_modbus_override()
-
-from trovis_modbus import Trovis557x
-
-from .config_flow import open_connection
 from .const import (
+    CONF_CONNECTION_ENTRY_ID,
     CONF_DETECTED_SENSORS,
     CONF_MODEL,
     CONF_UNIT_ID,
 )
-from .coordinator import TrovisConfigEntry, TrovisCoordinator
+
+if TYPE_CHECKING:
+    from .coordinator import TrovisCoordinator
+
+# Apply the optional local library override once, before Home Assistant imports
+# config_flow.py, coordinator.py or any entity platform.
+apply_local_trovis_modbus_override()
+
 
 PLATFORMS = [
     Platform.BINARY_SENSOR,
@@ -38,81 +39,67 @@ PLATFORMS = [
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: TrovisConfigEntry,
+    entry: ConfigEntry[TrovisCoordinator],
 ) -> bool:
     """Set up Trovis 557x from a config entry."""
+    from trovis_modbus import Trovis557x
+
+    from .coordinator import TrovisCoordinator
+
+    settings = {
+        **entry.data,
+        **entry.options,
+    }
+
     try:
-        connection = await open_connection(dict(entry.data))
-    except ModbusConnectionError as err:
+        connection_entry_id = str(settings[CONF_CONNECTION_ENTRY_ID])
+        unit_id = int(settings[CONF_UNIT_ID])
+        model = int(settings[CONF_MODEL])
+        detected_sensors = tuple(settings[CONF_DETECTED_SENSORS])
+    except (KeyError, TypeError, ValueError) as err:
         raise ConfigEntryNotReady(
-            f"Could not connect to Trovis: {err}"
+            "The TROVIS config entry does not contain valid probe data"
         ) from err
 
-    unit = connection.for_unit(int(entry.data[CONF_UNIT_ID]))
-    settings = {**entry.data, **entry.options}
-
-    # Upgrade entries created before automatic model/sensor detection.
-    if (
-        CONF_MODEL not in settings
-        or CONF_DETECTED_SENSORS not in settings
-    ):
-        try:
-            probe = await Trovis557x.async_probe(unit)
-        except (ModbusError, OSError, ValueError) as err:
-            await connection.close()
-            raise ConfigEntryNotReady(
-                f"Could not probe Trovis: {err}"
-            ) from err
-
-        data = {
-            **entry.data,
-            CONF_MODEL: probe.model,
-            CONF_DETECTED_SENSORS: list(probe.detected_sensors),
-        }
-        hass.config_entries.async_update_entry(entry, data=data)
-        settings = {**data, **entry.options}
+    unit = async_get_unit(
+        hass,
+        connection_entry_id,
+        unit_id,
+    )
 
     try:
         device = Trovis557x(
             unit,
-            model=int(settings[CONF_MODEL]),
-            detected_sensors=settings[CONF_DETECTED_SENSORS],
+            model=model,
+            detected_sensors=detected_sensors,
         )
     except ValueError as err:
-        await connection.close()
         raise ConfigEntryNotReady(str(err)) from err
 
-    coordinator = TrovisCoordinator(hass, entry, connection, device)
+    coordinator = TrovisCoordinator(
+        hass,
+        entry,
+        device,
+    )
 
-    try:
-        await coordinator.async_config_entry_first_refresh()
-    except ConfigEntryNotReady:
-        await connection.close()
-        raise
+    await coordinator.async_config_entry_first_refresh()
 
     entry.runtime_data = coordinator
 
-    entry.async_on_unload(
-        connection.on_connection_lost(
-            lambda: hass.config_entries.async_schedule_reload(entry.entry_id)
-        )
+    await hass.config_entries.async_forward_entry_setups(
+        entry,
+        PLATFORMS,
     )
 
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
 
 async def async_unload_entry(
     hass: HomeAssistant,
-    entry: TrovisConfigEntry,
+    entry: ConfigEntry[TrovisCoordinator],
 ) -> bool:
-    """Unload a config entry and close the owned connection."""
-    unloaded = await hass.config_entries.async_unload_platforms(
+    """Unload a Trovis 557x config entry."""
+    return await hass.config_entries.async_unload_platforms(
         entry,
         PLATFORMS,
     )
-
-    if unloaded:
-        await entry.runtime_data.connection.close()
-
-    return unloaded

@@ -15,21 +15,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-
-from ._local_dev import apply_local_trovis_modbus_override
-
-apply_local_trovis_modbus_override()
-
 from trovis_modbus import (
+    TrovisValueValidationError,
     TrovisWriteAccessDisabledError,
     TrovisWriteAccessError,
     TrovisWriteNotImplementedError,
 )
-
-try:
-    from trovis_modbus import TrovisValueValidationError
-except ImportError:  # pragma: no cover - compatibility while developing locally
-    from trovis_modbus.exceptions import TrovisValueValidationError
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
 from .entity import TrovisEntity
@@ -168,7 +159,9 @@ async def async_setup_entry(
             for description in _rk_number_descriptions(index)
         )
 
-    entities.extend(TrovisNumber(coordinator, description) for description in _HOT_WATER)
+    entities.extend(
+        TrovisNumber(coordinator, description) for description in _HOT_WATER
+    )
 
     async_add_entities(entities)
 

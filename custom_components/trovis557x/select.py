@@ -9,22 +9,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-
-from ._local_dev import apply_local_trovis_modbus_override
-
-apply_local_trovis_modbus_override()
-
 from trovis_modbus import (
+    TrovisValueValidationError,
     TrovisWriteAccessDisabledError,
     TrovisWriteAccessError,
     TrovisWriteNotImplementedError,
 )
-
-try:
-    from trovis_modbus import TrovisValueValidationError
-except ImportError:  # pragma: no cover - compatibility while developing locally
-    from trovis_modbus.exceptions import TrovisValueValidationError
-
 from trovis_modbus.metadata import EnumMetadata
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
@@ -114,9 +104,7 @@ class TrovisSelect(TrovisEntity, SelectEntity):
         enum_metadata = require_enum_metadata(self._subsystem, description.field)
         self._enum_metadata: EnumMetadata = enum_metadata
 
-        self._option_by_key = {
-            option.key: option for option in enum_metadata.options
-        }
+        self._option_by_key = {option.key: option for option in enum_metadata.options}
         self._key_by_value = {
             int(option.value): option.key for option in enum_metadata.options
         }

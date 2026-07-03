@@ -5,6 +5,7 @@ are their own (sub-)devices, linked to the controller via ``via_device``.
 """
 
 from __future__ import annotations
+
 from collections.abc import Mapping
 
 from homeassistant.helpers.entity import DeviceInfo, async_generate_entity_id

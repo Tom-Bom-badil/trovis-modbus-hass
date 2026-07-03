@@ -6,15 +6,14 @@ import logging
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from modbus_connection import ModbusConnection, ModbusError
-from ._local_dev import apply_local_trovis_modbus_override
+from homeassistant.helpers.update_coordinator import (
+    DataUpdateCoordinator,
+    UpdateFailed,
+)
+from modbus_connection import ModbusError
+from trovis_modbus import DEFAULT_WRITE_ACCESS_CODE, Trovis557x
 
-apply_local_trovis_modbus_override()
-
-from trovis_modbus import Trovis557x, DEFAULT_WRITE_ACCESS_CODE
-
-from .const import DOMAIN, SCAN_INTERVAL, CONF_ACCESS_CODE
+from .const import CONF_ACCESS_CODE, DOMAIN, SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,19 +21,15 @@ type TrovisConfigEntry = ConfigEntry[TrovisCoordinator]
 
 
 class TrovisCoordinator(DataUpdateCoordinator[Trovis557x]):
-    """Owns the connection + device and refreshes every sub-system on a schedule.
-
-    ``async_update`` fans out to each component (each reads only its own
-    registers), so adding/removing entities never changes what is polled.
-    """
+    """Poll a TROVIS controller through a shared Modbus unit."""
 
     def __init__(
         self,
         hass: HomeAssistant,
         entry: TrovisConfigEntry,
-        connection: ModbusConnection,
         device: Trovis557x,
     ) -> None:
+        """Initialize the TROVIS coordinator."""
         super().__init__(
             hass,
             _LOGGER,
@@ -42,8 +37,12 @@ class TrovisCoordinator(DataUpdateCoordinator[Trovis557x]):
             config_entry=entry,
             update_interval=SCAN_INTERVAL,
         )
-        self.connection = connection
+
         self.device = device
+
+        self._hass = hass
+        self._first_refresh_succeeded = False
+        self._reload_scheduled = False
 
     @property
     def access_code(self) -> int:
@@ -56,12 +55,17 @@ class TrovisCoordinator(DataUpdateCoordinator[Trovis557x]):
         )
 
     async def _async_update_data(self) -> Trovis557x:
+        """Refresh all TROVIS data."""
         try:
             await self.device.async_update()
         except ModbusError as err:
-            raise UpdateFailed(f"Error communicating with Trovis: {err}") from err
-        return self.device
+            if self._first_refresh_succeeded and not self._reload_scheduled:
+                self._reload_scheduled = True
+                self._hass.config_entries.async_schedule_reload(
+                    self.config_entry.entry_id
+                )
 
-    async def async_shutdown(self) -> None:
-        await super().async_shutdown()
-        await self.connection.close()
+            raise UpdateFailed(f"Error communicating with Trovis: {err}") from err
+
+        self._first_refresh_succeeded = True
+        return self.device

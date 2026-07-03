@@ -2,33 +2,14 @@
   "config": {
     "step": {
       "user": {
-        "description": "How is the controller connected?",
-        "menu_options": {
-          "network": "Network",
-          "serial": "Serial or socket://ip:port (Modbus RTU)"
-        }
-      },
-      "network": {
-        "title": "Network connection",
+        "title": "Modbus connection",
+        "description": "Select the shared Modbus connection used by this controller.",
         "data": {
-          "host": "Host",
-          "port": "Port",
-          "unit_id": "Modbus Unit"
+          "connection_entry_id": "Modbus connection",
+          "unit_id": "Modbus unit ID"
         },
         "data_description": {
-          "host": "The hostname or IP address of the gateway. Native Modbus TCP and transparent RTU over TCP are detected automatically.",
-          "port": "The TCP port the Modbus gateway listens on (default 502).",
-          "unit_id": "The controller's Modbus station address (PA1; default 246)."
-        }
-      },
-      "serial": {
-        "title": "Serial connection",
-        "data": {
-          "device": "Serial port",
-          "unit_id": "Modbus Unit"
-        },
-        "data_description": {
-          "device": "The serial port the controller is wired to. The line is fixed at 19200 baud, 8N1.",
+          "connection_entry_id": "The connection must already be configured in the Modbus Connection integration.",
           "unit_id": "The controller's Modbus station address (PA1; default 246)."
         }
       },
@@ -42,24 +23,20 @@
         "data_description": {
           "name": "Unique display name for this controller, e.g. 'Samson Trovis'. Use a different name for each controller.",
           "slug": "Prefix for generated entity IDs, e.g. 't5573'. This will result in IDs like 'sensor.t5573_outside_temperature_1'.",
-          "access_code": "The number code for write access (see last page in the device manual)."
+          "access_code": "The number code for write access (see the last page in the device manual)."
         }
       },
       "reconfigure": {
         "title": "Reconfigure controller",
-        "description": "Update the connection and write-access settings. The entity ID prefix remains unchanged. The controller model, connected sensors and network framing are detected again automatically.",
+        "description": "Update the shared Modbus connection and write-access settings. The entity ID prefix remains unchanged. The controller model and connected sensors are detected again automatically.",
         "data": {
-          "host": "Host",
-          "port": "Port",
-          "device": "Serial port",
-          "unit_id": "Modbus Unit",
+          "connection_entry_id": "Modbus connection",
+          "unit_id": "Modbus unit ID",
           "name": "Unique name",
           "access_code": "Access code"
         },
         "data_description": {
-          "host": "Hostname or IP address of the Modbus gateway.",
-          "port": "TCP port of the Modbus gateway.",
-          "device": "Serial port or websocket URL (eg. socket://IP:port)",
+          "connection_entry_id": "The shared connection used by this controller.",
           "unit_id": "The controller's Modbus station address (PA1).",
           "name": "Unique display name for this controller.",
           "access_code": "The number code for write access."
@@ -67,7 +44,7 @@
       }
     },
     "error": {
-      "cannot_connect": "Failed to connect. Check the connection details and that the controller is reachable."
+      "cannot_connect": "Failed to communicate with the controller. Check the selected Modbus connection, unit ID and controller availability."
     },
     "abort": {
       "reconfigure_successful": "Reconfiguration was successful."

@@ -1,13 +1,10 @@
 """Climate platform - one entity per room heating circuit (Rk1-3)."""
 
 from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Any
 
-from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
-from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.components.climate import (
     ClimateEntity,
     ClimateEntityDescription,
@@ -15,22 +12,22 @@ from homeassistant.components.climate import (
     HVACAction,
     HVACMode,
 )
-
+from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from trovis_modbus import (
     HeatingCircuit,
     OperatingMode,
+    TrovisValueValidationError,
     TrovisWriteAccessDisabledError,
     TrovisWriteAccessError,
     TrovisWriteNotImplementedError,
-    TrovisValueValidationError,
 )
 
-from .metadata import ha_unit_from_number, require_number_metadata
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
 from .entity import TrovisEntity
-from ._local_dev import apply_local_trovis_modbus_override
-apply_local_trovis_modbus_override()
-
+from .metadata import ha_unit_from_number, require_number_metadata
 
 _TO_HVAC = {
     OperatingMode.STANDBY: HVACMode.OFF,
@@ -50,6 +47,7 @@ _FROM_HVAC = {
 @dataclass(frozen=True, kw_only=True)
 class TrovisClimateDescription(ClimateEntityDescription):
     """Describes a climate entity for one heating circuit."""
+
     component: str
 
 
@@ -126,7 +124,6 @@ class TrovisHeatingCircuitClimate(TrovisEntity, ClimateEntity):
         mode = self._circuit.mode
         return _TO_HVAC.get(mode) if mode is not None else None
 
-
     @property
     def hvac_action(self) -> HVACAction | None:
         if self._circuit.mode is OperatingMode.STANDBY:
@@ -134,7 +131,6 @@ class TrovisHeatingCircuitClimate(TrovisEntity, ClimateEntity):
         if self._circuit.pump_running is None:
             return None
         return HVACAction.HEATING if self._circuit.pump_running else HVACAction.IDLE
-
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set a new target temperature."""
@@ -162,7 +158,6 @@ class TrovisHeatingCircuitClimate(TrovisEntity, ClimateEntity):
             ) from err
 
         await self.coordinator.async_request_refresh()
-
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set a new HVAC mode."""

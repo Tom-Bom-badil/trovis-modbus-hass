@@ -20,10 +20,6 @@ from homeassistant.components.sensor import (
 from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-from ._local_dev import apply_local_trovis_modbus_override
-
-apply_local_trovis_modbus_override()
-
 from trovis_modbus import OperatingMode
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
@@ -87,20 +83,16 @@ def _switch(
 _GLOBAL: tuple[TrovisSensorDescription, ...] = (
     _temp("sensors", "af1", "AF1 outside sensor 1", key="outside_temperature_1"),
     _temp("sensors", "af2", "AF2 outside sensor 2", key="outside_temperature_2"),
-
     _temp("sensors", "vf1", "VF1 flow sensor 1", key="flow_temperature_1"),
     _temp("sensors", "vf2", "VF2 flow sensor 2", key="flow_temperature_2"),
     _temp("sensors", "vf3", "VF3 flow sensor 3", key="flow_temperature_3"),
     _temp("sensors", "vf4", "VF4 flow sensor 4", key="flow_temperature_4"),
-
     _temp("sensors", "ruef1", "RüF1 return sensor 1", key="return_temperature_1"),
     _temp("sensors", "ruef2", "RüF2 return sensor 2", key="return_temperature_2"),
     _temp("sensors", "ruef3", "RüF3 return sensor 3", key="return_temperature_3"),
-
     _temp("sensors", "rf1", "RF1 room sensor 1", key="room_temperature_1"),
     _temp("sensors", "rf2", "RF2 room sensor 2", key="room_temperature_2"),
     _temp("sensors", "rf3", "RF3 room sensor 3", key="room_temperature_3"),
-
     _temp("sensors", "sf1", "SF1 hot water sensor 1", key="dhw_storage_temperature"),
     _temp(
         "sensors",
@@ -108,13 +100,6 @@ _GLOBAL: tuple[TrovisSensorDescription, ...] = (
         "SF2 hot water sensor 2",
         key="dhw_storage_temperature_lower",
     ),
-    _temp(
-        "sensors",
-        "sf3_fg3",
-        "SF3/FG3 hot water sensor / remote control 3",
-        key="storage_remote_temperature",
-    ),
-
     _temp(
         "sensors",
         "fg1",
@@ -129,12 +114,16 @@ _GLOBAL: tuple[TrovisSensorDescription, ...] = (
         key="remote_adjustment_2",
         unit=UnitOfTemperature.KELVIN,
     ),
-
+    _temp(
+        "sensors",
+        "sf3_fg3",
+        "SF3/FG3 hot water sensor / remote control 3",
+        key="storage_remote_temperature",
+    ),
     _temp("controller", "max_flow_setpoint", "Max flow setpoint", enabled=False),
     _switch("controller", "switch_top", "Switch top"),
     _switch("controller", "switch_middle", "Switch middle"),
     _switch("controller", "switch_bottom", "Switch bottom"),
-
     TrovisSensorDescription(
         key="error_status",
         name="Error status",

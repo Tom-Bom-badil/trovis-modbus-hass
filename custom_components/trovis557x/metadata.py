@@ -6,7 +6,6 @@ from typing import Any
 
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.const import UnitOfTemperature
-
 from trovis_modbus.metadata import (
     BooleanMetadata,
     DatapointMetadata,

@@ -2,30 +2,20 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
-from homeassistant.helpers.entity import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-
-from ._local_dev import apply_local_trovis_modbus_override
-
-apply_local_trovis_modbus_override()
-
 from trovis_modbus import (
+    TrovisValueValidationError,
     TrovisWriteAccessDisabledError,
     TrovisWriteAccessError,
     TrovisWriteNotImplementedError,
 )
-
-try:
-    from trovis_modbus import TrovisValueValidationError
-except ImportError:  # pragma: no cover - compatibility while developing locally
-    from trovis_modbus.exceptions import TrovisValueValidationError
-
 from trovis_modbus.metadata import BooleanMetadata
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
@@ -146,7 +136,9 @@ async def async_setup_entry(
             for description in _rk_switch_descriptions(index)
         )
 
-    entities.extend(TrovisSwitch(coordinator, description) for description in _HOT_WATER)
+    entities.extend(
+        TrovisSwitch(coordinator, description) for description in _HOT_WATER
+    )
 
     async_add_entities(entities)
 

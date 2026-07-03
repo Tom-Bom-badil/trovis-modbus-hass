@@ -1,38 +1,35 @@
 """Water heater platform - the domestic hot water circuit (Rk4)."""
 
 from __future__ import annotations
-from typing import Any
-from dataclasses import dataclass
 
-from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
-from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from dataclasses import dataclass
+from typing import Any
+
 from homeassistant.components.water_heater import (
     WaterHeaterEntity,
     WaterHeaterEntityDescription,
     WaterHeaterEntityFeature,
 )
-
+from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from trovis_modbus import (
     HotWater,
     OperatingMode,
+    TrovisValueValidationError,
     TrovisWriteAccessDisabledError,
     TrovisWriteAccessError,
     TrovisWriteNotImplementedError,
-    TrovisValueValidationError
 )
 
+from .coordinator import TrovisConfigEntry, TrovisCoordinator
+from .entity import TrovisEntity
 from .metadata import (
     ha_unit_from_number,
     require_enum_metadata,
     require_number_metadata,
 )
-from .coordinator import TrovisConfigEntry, TrovisCoordinator
-from .entity import TrovisEntity
-from ._local_dev import apply_local_trovis_modbus_override
-apply_local_trovis_modbus_override()
-
 
 # Operation-list labels <-> controller modes.
 _MODES = {
@@ -46,6 +43,7 @@ _REVERSE = {mode: label for label, mode in _MODES.items()}
 @dataclass(frozen=True, kw_only=True)
 class TrovisWaterHeaterDescription(WaterHeaterEntityDescription):
     """Describes the domestic hot water entity."""
+
     component: str
 
 
@@ -87,9 +85,7 @@ class TrovisHotWaterEntity(TrovisEntity, WaterHeaterEntity):
         enum_metadata = require_enum_metadata(self._hot_water, "mode")
 
         self._enum_metadata = enum_metadata
-        self._option_by_key = {
-            option.key: option for option in enum_metadata.options
-        }
+        self._option_by_key = {option.key: option for option in enum_metadata.options}
         self._key_by_value = {
             int(option.value): option.key for option in enum_metadata.options
         }
@@ -102,26 +98,21 @@ class TrovisHotWaterEntity(TrovisEntity, WaterHeaterEntity):
             ha_unit_from_number(temperature_metadata) or UnitOfTemperature.CELSIUS
         )
 
-
     @property
     def _hot_water(self) -> HotWater:
         return self._subsystem  # type: ignore[return-value]
-
 
     @property
     def current_temperature(self) -> float | None:
         return self.coordinator.data.sensors.sf1
 
-
     @property
     def target_temperature(self) -> float | None:
         return self._hot_water.setpoint_active
 
-
     @property
     def min_temp(self) -> float:
         return self._hot_water.setpoint_min or 20.0
-
 
     @property
     def max_temp(self) -> float:
@@ -170,7 +161,6 @@ class TrovisHotWaterEntity(TrovisEntity, WaterHeaterEntity):
             ) from err
 
         await self.coordinator.async_request_refresh()
-
 
     async def async_set_operation_mode(self, operation_mode: str) -> None:
         """Set a new operation mode."""

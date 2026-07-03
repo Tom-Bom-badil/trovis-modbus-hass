@@ -48,7 +48,13 @@ def _binary(
 
 
 _CONTROLLER: tuple[TrovisBinaryDescription, ...] = (
-    _binary("controller", "general_fault", "Fault", BinarySensorDeviceClass.PROBLEM, key="general_fault"),
+    _binary(
+        "controller",
+        "general_fault",
+        "Fault",
+        BinarySensorDeviceClass.PROBLEM,
+        key="general_fault",
+    ),
     _binary("controller", "summer_active", "Summer mode", key="summer_active"),
 )
 
