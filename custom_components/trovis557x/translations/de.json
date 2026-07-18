@@ -123,7 +123,7 @@
     "select": {
       "operation_mode": {
         "name": "{rk} Betriebsart",
-        "state": {"standby": "Standby", "manual": "Hand", "day": "Sonne", "night": "Mond"}
+        "state": {"automatic": "Auto", "standby": "Standby", "manual": "Hand", "day": "Sonne", "night": "Mond"}
       }
     },
     "switch": {
