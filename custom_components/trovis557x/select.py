@@ -9,12 +9,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-from trovis_modbus import (
-    TrovisValueValidationError,
-    TrovisWriteAccessDisabledError,
-    TrovisWriteAccessError,
-    TrovisWriteNotImplementedError,
-)
 from trovis_modbus.metadata import EnumMetadata
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
@@ -134,24 +128,7 @@ class TrovisSelect(TrovisEntity, SelectEntity):
         except KeyError as err:
             raise HomeAssistantError(f"Unsupported TROVIS option: {option}") from err
 
-        if not self.coordinator.device.writing_enabled:
-            raise HomeAssistantError("Please enable writing for changes!")
-
-        try:
-            await self._subsystem.async_write_datapoint(
-                self.entity_description.field,
-                self._enum_metadata.enum_type(selected.value),
-                access_code=self.coordinator.access_code,
-            )
-        except (
-            TrovisWriteAccessDisabledError,
-            TrovisWriteAccessError,
-            TrovisValueValidationError,
-        ) as err:
-            raise HomeAssistantError(str(err)) from err
-        except TrovisWriteNotImplementedError as err:
-            raise HomeAssistantError(
-                "Writing TROVIS data points is not implemented yet"
-            ) from err
-
-        await self.coordinator.async_request_refresh()
+        await self._async_write_datapoint(
+            self.entity_description.field,
+            self._enum_metadata.enum_type(selected.value),
+        )

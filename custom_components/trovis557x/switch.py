@@ -10,12 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-from trovis_modbus import (
-    TrovisValueValidationError,
-    TrovisWriteAccessDisabledError,
-    TrovisWriteAccessError,
-    TrovisWriteNotImplementedError,
-)
+from trovis_modbus import TrovisWriteAccessError
 from trovis_modbus.metadata import BooleanMetadata
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
@@ -248,25 +243,5 @@ class TrovisSwitch(TrovisEntity, SwitchEntity):
         await self._async_set_switch(self._from_ha_bool(False))
 
     async def _async_set_switch(self, value: bool) -> None:
-        """Set the switch state."""
-        if not self.coordinator.device.writing_enabled:
-            raise HomeAssistantError("Please enable writing for changes!")
-
-        try:
-            await self._subsystem.async_write_datapoint(
-                self.entity_description.field,
-                value,
-                access_code=self.coordinator.access_code,
-            )
-        except (
-            TrovisWriteAccessDisabledError,
-            TrovisWriteAccessError,
-            TrovisValueValidationError,
-        ) as err:
-            raise HomeAssistantError(str(err)) from err
-        except TrovisWriteNotImplementedError as err:
-            raise HomeAssistantError(
-                "Writing TROVIS data points is not implemented yet"
-            ) from err
-
-        await self.coordinator.async_request_refresh()
+        """Set the switch state through the shared library write path."""
+        await self._async_write_datapoint(self.entity_description.field, value)

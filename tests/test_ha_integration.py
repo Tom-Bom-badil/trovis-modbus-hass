@@ -79,6 +79,39 @@ async def test_setup_entry_creates_entities(
     assert outside is not None
     assert float(outside.state) == pytest.approx(12.3)
 
+    system = hass.states.get(f"sensor.{SLUG}_system")
+    assert system is not None
+    assert float(system.state) == pytest.approx(2.1)
+    assert hass.states.get(f"number.{SLUG}_system") is None
+
+    active_room_setpoint = hass.states.get(f"sensor.{SLUG}_rk1_room_setpoint_active")
+    assert active_room_setpoint is not None
+    assert float(active_room_setpoint.state) == pytest.approx(21.0)
+
+    active_dhw_setpoint = hass.states.get(f"sensor.{SLUG}_rk4dhw_setpoint_active")
+    assert active_dhw_setpoint is not None
+    assert float(active_dhw_setpoint.state) == pytest.approx(50.0)
+
+    dhw_min = hass.states.get(f"number.{SLUG}_rk4dhw_setpoint_min")
+    dhw_max = hass.states.get(f"number.{SLUG}_rk4dhw_setpoint_max")
+    assert dhw_min is not None
+    assert dhw_max is not None
+    assert float(dhw_min.state) == pytest.approx(45.0)
+    assert float(dhw_max.state) == pytest.approx(60.0)
+
+    controller_date = hass.states.get(f"date.{SLUG}_controller_date")
+    controller_time = hass.states.get(f"time.{SLUG}_controller_time")
+    disinfection_start = hass.states.get(f"time.{SLUG}_rk4dhw_disinfection_start")
+    disinfection_stop = hass.states.get(f"time.{SLUG}_rk4dhw_disinfection_stop")
+    assert controller_date is not None
+    assert controller_date.state == "2026-06-21"
+    assert controller_time is not None
+    assert controller_time.state == "14:30:00"
+    assert disinfection_start is not None
+    assert disinfection_start.state == "19:00:00"
+    assert disinfection_stop is not None
+    assert disinfection_stop.state == "21:00:00"
+
     pump = hass.states.get(f"binary_sensor.{SLUG}_rk1_pump_running")
     assert pump is not None
     assert pump.state == "on"

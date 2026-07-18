@@ -12,15 +12,8 @@ from homeassistant.components.number import (
 )
 from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-from trovis_modbus import (
-    TrovisValueValidationError,
-    TrovisWriteAccessDisabledError,
-    TrovisWriteAccessError,
-    TrovisWriteNotImplementedError,
-)
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
 from .entity import TrovisEntity
@@ -138,6 +131,30 @@ _HOT_WATER: tuple[TrovisNumberDescription, ...] = (
         entity_category=EntityCategory.CONFIG,
         translation_placeholders={"rk": "Rk4"},
     ),
+    TrovisNumberDescription(
+        key="rk4dhw_setpoint_min",
+        translation_key="dhw_setpoint_min",
+        name="Rk4 minimum domestic-hot-water setpoint",
+        component="hot_water",
+        field="setpoint_min",
+        mode=NumberMode.BOX,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=NumberDeviceClass.TEMPERATURE,
+        entity_category=EntityCategory.CONFIG,
+        translation_placeholders={"rk": "Rk4"},
+    ),
+    TrovisNumberDescription(
+        key="rk4dhw_setpoint_max",
+        translation_key="dhw_setpoint_max",
+        name="Rk4 maximum domestic-hot-water setpoint",
+        component="hot_water",
+        field="setpoint_max",
+        mode=NumberMode.BOX,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=NumberDeviceClass.TEMPERATURE,
+        entity_category=EntityCategory.CONFIG,
+        translation_placeholders={"rk": "Rk4"},
+    ),
 )
 
 
@@ -211,25 +228,5 @@ class TrovisNumber(TrovisEntity, NumberEntity):
         return getattr(self._subsystem, self.entity_description.field)
 
     async def async_set_native_value(self, value: float) -> None:
-        """Set a new value."""
-        if not self.coordinator.device.writing_enabled:
-            raise HomeAssistantError("Please enable writing for changes!")
-
-        try:
-            await self._subsystem.async_write_datapoint(
-                self.entity_description.field,
-                value,
-                access_code=self.coordinator.access_code,
-            )
-        except (
-            TrovisWriteAccessDisabledError,
-            TrovisWriteAccessError,
-            TrovisValueValidationError,
-        ) as err:
-            raise HomeAssistantError(str(err)) from err
-        except TrovisWriteNotImplementedError as err:
-            raise HomeAssistantError(
-                "Writing TROVIS data points is not implemented yet"
-            ) from err
-
-        await self.coordinator.async_request_refresh()
+        """Set a new value through the shared library write path."""
+        await self._async_write_datapoint(self.entity_description.field, value)

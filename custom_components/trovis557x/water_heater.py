@@ -14,14 +14,7 @@ from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-from trovis_modbus import (
-    HotWater,
-    OperatingMode,
-    TrovisValueValidationError,
-    TrovisWriteAccessDisabledError,
-    TrovisWriteAccessError,
-    TrovisWriteNotImplementedError,
-)
+from trovis_modbus import HotWater, OperatingMode
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
 from .entity import TrovisEntity
@@ -140,27 +133,7 @@ class TrovisHotWaterEntity(TrovisEntity, WaterHeaterEntity):
         if (temperature := kwargs.get(ATTR_TEMPERATURE)) is None:
             return
 
-        if not self.coordinator.device.writing_enabled:
-            raise HomeAssistantError("Please enable writing for changes!")
-
-        try:
-            await self._hot_water.async_write_datapoint(
-                "setpoint_day",
-                temperature,
-                access_code=self.coordinator.access_code,
-            )
-        except (
-            TrovisWriteAccessDisabledError,
-            TrovisWriteAccessError,
-            TrovisValueValidationError,
-        ) as err:
-            raise HomeAssistantError(str(err)) from err
-        except TrovisWriteNotImplementedError as err:
-            raise HomeAssistantError(
-                "Writing TROVIS data points is not implemented yet"
-            ) from err
-
-        await self.coordinator.async_request_refresh()
+        await self._async_write_datapoint("setpoint_day", temperature)
 
     async def async_set_operation_mode(self, operation_mode: str) -> None:
         """Set a new operation mode."""
@@ -171,24 +144,7 @@ class TrovisHotWaterEntity(TrovisEntity, WaterHeaterEntity):
                 f"Unsupported TROVIS operation mode: {operation_mode}"
             ) from err
 
-        if not self.coordinator.device.writing_enabled:
-            raise HomeAssistantError("Please enable writing for changes!")
-
-        try:
-            await self._hot_water.async_write_datapoint(
-                "mode",
-                self._enum_metadata.enum_type(selected.value),
-                access_code=self.coordinator.access_code,
-            )
-        except (
-            TrovisWriteAccessDisabledError,
-            TrovisWriteAccessError,
-            TrovisValueValidationError,
-        ) as err:
-            raise HomeAssistantError(str(err)) from err
-        except TrovisWriteNotImplementedError as err:
-            raise HomeAssistantError(
-                "Writing TROVIS data points is not implemented yet"
-            ) from err
-
-        await self.coordinator.async_request_refresh()
+        await self._async_write_datapoint(
+            "mode",
+            self._enum_metadata.enum_type(selected.value),
+        )

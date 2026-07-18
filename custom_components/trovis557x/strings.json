@@ -51,90 +51,228 @@
     }
   },
   "device": {
-    "rk1": { "name": "Rk1 - Heating circuit 1" },
-    "rk2": { "name": "Rk2 - Heating circuit 2" },
-    "rk3": { "name": "Rk3 - Heating circuit 3" },
-    "rk4dhw": { "name": "Rk4 - Domestic hot water" },
-    "measurements": { "name": "Measurements" }
+    "rk1": {
+      "name": "Rk1 - Heating circuit 1"
+    },
+    "rk2": {
+      "name": "Rk2 - Heating circuit 2"
+    },
+    "rk3": {
+      "name": "Rk3 - Heating circuit 3"
+    },
+    "rk4dhw": {
+      "name": "Rk4 - Domestic hot water"
+    },
+    "measurements": {
+      "name": "Measurements"
+    }
   },
   "entity": {
     "sensor": {
-      "outside_temperature_1": { "name": "AF1 outside sensor 1" },
-      "outside_temperature_2": { "name": "AF2 outside sensor 2" },
-
-      "flow_temperature_1": { "name": "VF1 flow sensor 1" },
-      "flow_temperature_2": { "name": "VF2 flow sensor 2" },
-      "flow_temperature_3": { "name": "VF3 flow sensor 3" },
-      "flow_temperature_4": { "name": "VF4 flow sensor 4" },
-
-      "return_temperature_1": { "name": "RüF1 return sensor 1" },
-      "return_temperature_2": { "name": "RüF2 return sensor 2" },
-      "return_temperature_3": { "name": "RüF3 return sensor 3" },
-
-      "room_temperature_1": { "name": "RF1 room sensor 1" },
-      "room_temperature_2": { "name": "RF2 room sensor 2" },
-      "room_temperature_3": { "name": "RF3 room sensor 3" },
-
-      "dhw_storage_temperature": { "name": "SF1 storage sensor 1" },
-      "dhw_storage_temperature_lower": { "name": "SF2 storage sensor 2" },
-      "storage_remote_temperature": { "name": "SF3/FG3 storage sensor / remote control 3" },
-
-      "remote_adjustment_1": { "name": "FG1 remote control 1" },
-      "remote_adjustment_2": { "name": "FG2 remote control 2" },
-
-      "valve_setpoint": { "name": "{rk} valve setpoint" },
-
-      "error_status": { "name": "Error status" },
-      "max_flow_setpoint": { "name": "Max flow setpoint" },
-
-      "switch_top": { "name": "Switch top" },
-      "switch_middle": { "name": "Switch middle" },
-      "switch_bottom": { "name": "Switch bottom" }
+      "system": {
+        "name": "Hydraulic system"
+      },
+      "outside_temperature_1": {
+        "name": "AF1 outside sensor 1"
+      },
+      "outside_temperature_2": {
+        "name": "AF2 outside sensor 2"
+      },
+      "flow_temperature_1": {
+        "name": "VF1 flow sensor 1"
+      },
+      "flow_temperature_2": {
+        "name": "VF2 flow sensor 2"
+      },
+      "flow_temperature_3": {
+        "name": "VF3 flow sensor 3"
+      },
+      "flow_temperature_4": {
+        "name": "VF4 flow sensor 4"
+      },
+      "return_temperature_1": {
+        "name": "RüF1 return sensor 1"
+      },
+      "return_temperature_2": {
+        "name": "RüF2 return sensor 2"
+      },
+      "return_temperature_3": {
+        "name": "RüF3 return sensor 3"
+      },
+      "room_temperature_1": {
+        "name": "RF1 room sensor 1"
+      },
+      "room_temperature_2": {
+        "name": "RF2 room sensor 2"
+      },
+      "room_temperature_3": {
+        "name": "RF3 room sensor 3"
+      },
+      "dhw_storage_temperature": {
+        "name": "SF1 storage sensor 1"
+      },
+      "dhw_storage_temperature_lower": {
+        "name": "SF2 storage sensor 2"
+      },
+      "storage_remote_temperature": {
+        "name": "SF3/FG3 storage sensor / remote control 3"
+      },
+      "remote_adjustment_1": {
+        "name": "FG1 remote control 1"
+      },
+      "remote_adjustment_2": {
+        "name": "FG2 remote control 2"
+      },
+      "valve_setpoint": {
+        "name": "{rk} valve setpoint"
+      },
+      "room_setpoint_active": {
+        "name": "{rk} active room setpoint"
+      },
+      "dhw_setpoint_active": {
+        "name": "{rk} active dhw setpoint"
+      },
+      "error_status": {
+        "name": "Error status"
+      },
+      "max_flow_setpoint": {
+        "name": "Max flow setpoint"
+      },
+      "switch_top": {
+        "name": "Switch top"
+      },
+      "switch_middle": {
+        "name": "Switch middle"
+      },
+      "switch_bottom": {
+        "name": "Switch bottom"
+      }
     },
     "binary_sensor": {
-      "general_fault": { "name": "Fault" },
-      "summer_active": { "name": "Summer mode" },
-
-      "pump_running": { "name": "{rk} pump" },
-      "frost_protection": { "name": "{rk} frost protection" },
-      "standby": { "name": "{rk} standby" },
-
-      "charge_pump_running": { "name": "{rk} charge pump" },
-      "disinfection_active": { "name": "{rk} disinfection" },
-      "circulation_pump_running": { "name": "{rk} circulation pump" }
+      "general_fault": {
+        "name": "Fault"
+      },
+      "summer_active": {
+        "name": "Summer mode"
+      },
+      "pump_running": {
+        "name": "{rk} pump"
+      },
+      "frost_protection": {
+        "name": "{rk} frost protection"
+      },
+      "standby": {
+        "name": "{rk} standby"
+      },
+      "charge_pump_running": {
+        "name": "{rk} charge pump"
+      },
+      "disinfection_active": {
+        "name": "{rk} disinfection"
+      },
+      "circulation_pump_running": {
+        "name": "{rk} circulation pump"
+      }
     },
     "climate": {
-      "rk1": { "name": "Rk1 - Heating circuit 1" },
-      "rk2": { "name": "Rk2 - Heating circuit 2" },
-      "rk3": { "name": "Rk3 - Heating circuit 3" }
+      "rk1": {
+        "name": "Rk1 - Heating circuit 1"
+      },
+      "rk2": {
+        "name": "Rk2 - Heating circuit 2"
+      },
+      "rk3": {
+        "name": "Rk3 - Heating circuit 3"
+      }
     },
     "water_heater": {
-      "rk4dhw": { "name": "Rk4 - Domestic hot water" }
+      "rk4dhw": {
+        "name": "Rk4 - Domestic hot water"
+      }
     },
     "number": {
-      "year": { "name": "Current year" },
-      "room_setpoint_day": { "name": "{rk} room setpoint day" },
-      "room_setpoint_night": { "name": "{rk} room setpoint night" },
-      "slope": { "name": "{rk} slope" },
-      "level": { "name": "{rk} level" },
-      "dhw_setpoint": { "name": "{rk} dhw setpoint day" },
-      "dhw_hold_value": { "name": "{rk} dhw setpoint night" }
+      "year": {
+        "name": "Current year"
+      },
+      "room_setpoint_day": {
+        "name": "{rk} room setpoint day"
+      },
+      "room_setpoint_night": {
+        "name": "{rk} room setpoint night"
+      },
+      "slope": {
+        "name": "{rk} slope"
+      },
+      "level": {
+        "name": "{rk} level"
+      },
+      "dhw_setpoint": {
+        "name": "{rk} dhw setpoint day"
+      },
+      "dhw_hold_value": {
+        "name": "{rk} dhw setpoint night"
+      },
+      "dhw_setpoint_min": {
+        "name": "{rk} minimum dhw setpoint"
+      },
+      "dhw_setpoint_max": {
+        "name": "{rk} maximum dhw setpoint"
+      }
+    },
+    "date": {
+      "controller_date": {
+        "name": "Controller date"
+      }
+    },
+    "time": {
+      "controller_time": {
+        "name": "Controller time"
+      },
+      "disinfection_start": {
+        "name": "{rk} disinfection start"
+      },
+      "disinfection_stop": {
+        "name": "{rk} disinfection end"
+      }
     },
     "select": {
       "operation_mode": {
         "name": "{rk} operation mode",
-        "state": {"automatic": "Automatic", "standby": "Standby", "manual": "Manual", "day": "Sun", "night": "Moon"}
+        "state": {
+          "program": "Program",
+          "automatic": "Automatic",
+          "standby": "Standby",
+          "manual": "Manual",
+          "day": "Sun",
+          "night": "Moon"
+        }
       }
     },
     "switch": {
-      "write_access": {"name": "Write access"},
-      "delayed_outside_temp_adjustment_falling": {"name": "Delayed outside-temp adjustment falling"},
-      "delayed_outside_temp_adjustment_rising": {"name": "Delayed outside-temp adjustment rising"},
-      "automatic_daylight_saving_time": {"name": "Automatic daylight-saving time"},
-      "optimization": {"name": "{rk} optimization"},
-      "adaptation": {"name": "{rk} adaptation"},
-      "room_control_unit": {"name": "{rk} room control unit 5570"},
-      "intermediate_heating_operation": {"name": "{rk} intermediate heating operation"}
+      "write_access": {
+        "name": "Write access"
+      },
+      "delayed_outside_temp_adjustment_falling": {
+        "name": "Delayed outside-temp adjustment falling"
+      },
+      "delayed_outside_temp_adjustment_rising": {
+        "name": "Delayed outside-temp adjustment rising"
+      },
+      "automatic_daylight_saving_time": {
+        "name": "Automatic daylight-saving time"
+      },
+      "optimization": {
+        "name": "{rk} optimization"
+      },
+      "adaptation": {
+        "name": "{rk} adaptation"
+      },
+      "room_control_unit": {
+        "name": "{rk} room control unit 5570"
+      },
+      "intermediate_heating_operation": {
+        "name": "{rk} intermediate heating operation"
+      }
     }
   }
 }

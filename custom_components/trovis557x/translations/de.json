@@ -51,90 +51,227 @@
     }
   },
   "device": {
-    "rk1": { "name": "Rk1 - Heizkreis 1" },
-    "rk2": { "name": "Rk2 - Heizkreis 2" },
-    "rk3": { "name": "Rk3 - Heizkreis 3" },
-    "rk4dhw": { "name": "Rk4 - Warmwasser" },
-    "measurements": { "name": "Messwerte" }
+    "rk1": {
+      "name": "Rk1 - Heizkreis 1"
+    },
+    "rk2": {
+      "name": "Rk2 - Heizkreis 2"
+    },
+    "rk3": {
+      "name": "Rk3 - Heizkreis 3"
+    },
+    "rk4dhw": {
+      "name": "Rk4 - Warmwasser"
+    },
+    "measurements": {
+      "name": "Messwerte"
+    }
   },
   "entity": {
     "sensor": {
-      "outside_temperature_1": { "name": "AF1 Außenfühler 1" },
-      "outside_temperature_2": { "name": "AF2 Außenfühler 2" },
-
-      "flow_temperature_1": { "name": "VF1 Vorlauffühler 1" },
-      "flow_temperature_2": { "name": "VF2 Vorlauffühler 2" },
-      "flow_temperature_3": { "name": "VF3 Vorlauffühler 3" },
-      "flow_temperature_4": { "name": "VF4 Vorlauffühler 4" },
-
-      "return_temperature_1": { "name": "RüF1 Rücklauffühler 1" },
-      "return_temperature_2": { "name": "RüF2 Rücklauffühler 2" },
-      "return_temperature_3": { "name": "RüF3 Rücklauffühler 3" },
-
-      "room_temperature_1": { "name": "RF1 Raumfühler 1" },
-      "room_temperature_2": { "name": "RF2 Raumfühler 2" },
-      "room_temperature_3": { "name": "RF3 Raumfühler 3" },
-
-      "dhw_storage_temperature": { "name": "SF1 Speicherfühler 1" },
-      "dhw_storage_temperature_lower": { "name": "SF2 Speicherfühler 2" },
-      "storage_remote_temperature": { "name": "SF3/FG3 Speicherfühler/Ferngeber 3" },
-
-      "remote_adjustment_1": { "name": "FG1 Ferngeber 1" },
-      "remote_adjustment_2": { "name": "FG2 Ferngeber 2" },
-
-      "valve_setpoint": { "name": "{rk} Ventil-Stellvorgabe" },
-
-      "error_status": { "name": "Fehlerstatus" },
-      "max_flow_setpoint": { "name": "Maximaler Vorlauf-Sollwert" },
-
-      "switch_top": { "name": "Schalter oben" },
-      "switch_middle": { "name": "Schalter Mitte" },
-      "switch_bottom": { "name": "Schalter unten" }
+      "system": {
+        "name": "Anlage"
+      },
+      "outside_temperature_1": {
+        "name": "AF1 Außenfühler 1"
+      },
+      "outside_temperature_2": {
+        "name": "AF2 Außenfühler 2"
+      },
+      "flow_temperature_1": {
+        "name": "VF1 Vorlauffühler 1"
+      },
+      "flow_temperature_2": {
+        "name": "VF2 Vorlauffühler 2"
+      },
+      "flow_temperature_3": {
+        "name": "VF3 Vorlauffühler 3"
+      },
+      "flow_temperature_4": {
+        "name": "VF4 Vorlauffühler 4"
+      },
+      "return_temperature_1": {
+        "name": "RüF1 Rücklauffühler 1"
+      },
+      "return_temperature_2": {
+        "name": "RüF2 Rücklauffühler 2"
+      },
+      "return_temperature_3": {
+        "name": "RüF3 Rücklauffühler 3"
+      },
+      "room_temperature_1": {
+        "name": "RF1 Raumfühler 1"
+      },
+      "room_temperature_2": {
+        "name": "RF2 Raumfühler 2"
+      },
+      "room_temperature_3": {
+        "name": "RF3 Raumfühler 3"
+      },
+      "dhw_storage_temperature": {
+        "name": "SF1 Speicherfühler 1"
+      },
+      "dhw_storage_temperature_lower": {
+        "name": "SF2 Speicherfühler 2"
+      },
+      "storage_remote_temperature": {
+        "name": "SF3/FG3 Speicherfühler/Ferngeber 3"
+      },
+      "remote_adjustment_1": {
+        "name": "FG1 Ferngeber 1"
+      },
+      "remote_adjustment_2": {
+        "name": "FG2 Ferngeber 2"
+      },
+      "valve_setpoint": {
+        "name": "{rk} Ventil-Stellvorgabe"
+      },
+      "room_setpoint_active": {
+        "name": "{rk} aktiver Raumsollwert"
+      },
+      "dhw_setpoint_active": {
+        "name": "{rk} aktiver WW-Sollwert"
+      },
+      "error_status": {
+        "name": "Fehlerstatus"
+      },
+      "max_flow_setpoint": {
+        "name": "Maximaler Vorlauf-Sollwert"
+      },
+      "switch_top": {
+        "name": "Schalter oben"
+      },
+      "switch_middle": {
+        "name": "Schalter Mitte"
+      },
+      "switch_bottom": {
+        "name": "Schalter unten"
+      }
     },
     "binary_sensor": {
-      "general_fault": { "name": "Sammelstörung" },
-      "summer_active": { "name": "Sommerbetrieb" },
-
-      "pump_running": { "name": "{rk} Pumpe" },
-      "frost_protection": { "name": "{rk} Frostschutz" },
-      "standby": { "name": "{rk} Standby" },
-
-      "charge_pump_running": { "name": "{rk} Ladepumpe" },
-      "disinfection_active": { "name": "{rk} Desinfektion" },
-      "circulation_pump_running": { "name": "{rk} Zirkulationspumpe" }
+      "general_fault": {
+        "name": "Sammelstörung"
+      },
+      "summer_active": {
+        "name": "Sommerbetrieb"
+      },
+      "pump_running": {
+        "name": "{rk} Pumpe"
+      },
+      "frost_protection": {
+        "name": "{rk} Frostschutz"
+      },
+      "standby": {
+        "name": "{rk} Standby"
+      },
+      "charge_pump_running": {
+        "name": "{rk} Ladepumpe"
+      },
+      "disinfection_active": {
+        "name": "{rk} Desinfektion"
+      },
+      "circulation_pump_running": {
+        "name": "{rk} Zirkulationspumpe"
+      }
     },
     "climate": {
-      "rk1": { "name": "Rk1 - Heizkreis 1" },
-      "rk2": { "name": "Rk2 - Heizkreis 2" },
-      "rk3": { "name": "Rk3 - Heizkreis 3" }
+      "rk1": {
+        "name": "Rk1 - Heizkreis 1"
+      },
+      "rk2": {
+        "name": "Rk2 - Heizkreis 2"
+      },
+      "rk3": {
+        "name": "Rk3 - Heizkreis 3"
+      }
     },
     "water_heater": {
-      "rk4dhw": { "name": "Rk4 - Warmwasser" }
+      "rk4dhw": {
+        "name": "Rk4 - Warmwasser"
+      }
     },
     "number": {
-      "year": { "name": "Aktuelles Jahr" },
-      "room_setpoint_day": { "name": "{rk} Raumsoll Tag" },
-      "room_setpoint_night": { "name": "{rk} Raumsoll Nacht" },
-      "slope": { "name": "{rk} Steigung" },
-      "level": { "name": "{rk} Niveau" },
-      "dhw_setpoint": { "name": "{rk} WW Sollwert Tag" },
-      "dhw_hold_value": { "name": "{rk} WW Haltewert Nacht" }
+      "year": {
+        "name": "Aktuelles Jahr"
+      },
+      "room_setpoint_day": {
+        "name": "{rk} Raumsoll Tag"
+      },
+      "room_setpoint_night": {
+        "name": "{rk} Raumsoll Nacht"
+      },
+      "slope": {
+        "name": "{rk} Steigung"
+      },
+      "level": {
+        "name": "{rk} Niveau"
+      },
+      "dhw_setpoint": {
+        "name": "{rk} WW Sollwert Tag"
+      },
+      "dhw_hold_value": {
+        "name": "{rk} WW Haltewert Nacht"
+      },
+      "dhw_setpoint_min": {
+        "name": "{rk} minimaler WW-Sollwert"
+      },
+      "dhw_setpoint_max": {
+        "name": "{rk} maximaler WW-Sollwert"
+      }
+    },
+    "date": {
+      "controller_date": {
+        "name": "Reglerdatum"
+      }
+    },
+    "time": {
+      "controller_time": {
+        "name": "Reglerzeit"
+      },
+      "disinfection_start": {
+        "name": "{rk} Desinfektionsbeginn"
+      },
+      "disinfection_stop": {
+        "name": "{rk} Desinfektionsende"
+      }
     },
     "select": {
       "operation_mode": {
         "name": "{rk} Betriebsart",
-        "state": {"automatic": "Auto", "standby": "Standby", "manual": "Hand", "day": "Sonne", "night": "Mond"}
+        "state": {
+          "program": "Programm",
+          "automatic": "Auto",
+          "standby": "Standby",
+          "manual": "Hand",
+          "day": "Sonne",
+          "night": "Mond"
+        }
       }
     },
     "switch": {
-      "write_access": {"name": "Schreibzugriff"},
-      "delayed_outside_temp_adjustment_falling": {"name": "Verzögerte AT-Anpassung fallend"},
-      "delayed_outside_temp_adjustment_rising": {"name": "Verzögerte AT-Anpassung steigend"},
-      "automatic_daylight_saving_time": {"name": "Automatische Sommer-/Winterzeit"},
-      "optimization": {"name": "{rk} Optimierung"},
-      "adaptation": {"name": "{rk} Adaption"},
-      "room_control_unit": {"name": "{rk} Raumleitgerät 5570"},
-      "intermediate_heating_operation": {"name": "{rk} Zwischenheizbetrieb"
+      "write_access": {
+        "name": "Schreibzugriff"
+      },
+      "delayed_outside_temp_adjustment_falling": {
+        "name": "Verzögerte AT-Anpassung fallend"
+      },
+      "delayed_outside_temp_adjustment_rising": {
+        "name": "Verzögerte AT-Anpassung steigend"
+      },
+      "automatic_daylight_saving_time": {
+        "name": "Automatische Sommer-/Winterzeit"
+      },
+      "optimization": {
+        "name": "{rk} Optimierung"
+      },
+      "adaptation": {
+        "name": "{rk} Adaption"
+      },
+      "room_control_unit": {
+        "name": "{rk} Raumleitgerät 5570"
+      },
+      "intermediate_heating_operation": {
+        "name": "{rk} Zwischenheizbetrieb"
       }
     }
   }

@@ -29,10 +29,12 @@ apply_local_trovis_modbus_override()
 PLATFORMS = [
     Platform.BINARY_SENSOR,
     Platform.CLIMATE,
+    Platform.DATE,
     Platform.NUMBER,
     Platform.SELECT,
     Platform.SENSOR,
     Platform.SWITCH,
+    Platform.TIME,
     Platform.WATER_HEATER,
 ]
 

@@ -7,10 +7,18 @@ are their own (sub-)devices, linked to the controller via ``via_device``.
 from __future__ import annotations
 
 from collections.abc import Mapping
+from typing import Any
 
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import DeviceInfo, async_generate_entity_id
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
+from trovis_modbus import (
+    TrovisValueValidationError,
+    TrovisWriteAccessDisabledError,
+    TrovisWriteAccessError,
+    TrovisWriteNotImplementedError,
+)
 
 from .const import CONF_SLUG, DEFAULT_SLUG, DOMAIN
 from .coordinator import TrovisCoordinator
@@ -95,6 +103,30 @@ class TrovisEntity(CoordinatorEntity[TrovisCoordinator]):
             )
 
     @property
-    def _subsystem(self) -> object:
-        """The library sub-system object this entity reads from."""
+    def _subsystem(self) -> Any:
+        """Return the shared library component used by this entity."""
         return getattr(self.coordinator.device, self._component)
+
+    async def _async_write_datapoint(self, field: str, value: object) -> None:
+        """Write one library datapoint and refresh the shared coordinator."""
+        if not self.coordinator.device.writing_enabled:
+            raise HomeAssistantError("Please enable writing for changes!")
+
+        try:
+            await self._subsystem.async_write_datapoint(
+                field,
+                value,
+                access_code=self.coordinator.access_code,
+            )
+        except (
+            TrovisWriteAccessDisabledError,
+            TrovisWriteAccessError,
+            TrovisValueValidationError,
+        ) as err:
+            raise HomeAssistantError(str(err)) from err
+        except TrovisWriteNotImplementedError as err:
+            raise HomeAssistantError(
+                "Writing TROVIS data points is not implemented yet"
+            ) from err
+
+        await self.coordinator.async_request_refresh()

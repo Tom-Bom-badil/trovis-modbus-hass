@@ -1,9 +1,8 @@
-"""Sensor platform — diagnostic readings (temperatures, status, valve position).
+"""Primary read-only entities and diagnostic readings for TROVIS datapoints.
 
-Setpoints live on the climate / water-heater entities; room and storage
-temperatures are those entities' current temperature. What remains here is
-diagnostic, and is routed to the controller or the per-circuit / hot-water
-sub-device it belongs to.
+Normal Home Assistant entities are the complete primary representation of
+the library values. Climate and water-heater entities are convenience views
+over the same shared components and never own exclusive datapoints.
 """
 
 from __future__ import annotations
@@ -45,17 +44,21 @@ def _temp(
     translation_key: str | None = None,
     enabled: bool = True,
     unit: str = UnitOfTemperature.CELSIUS,
+    entity_category: EntityCategory | None = EntityCategory.DIAGNOSTIC,
+    state_class: SensorStateClass | None = SensorStateClass.MEASUREMENT,
+    translation_placeholders: dict[str, str] | None = None,
 ) -> TrovisSensorDescription:
     return TrovisSensorDescription(
         key=key or attribute,
         translation_key=translation_key,
+        translation_placeholders=translation_placeholders,
         name=name,
         component=component,
         attribute=attribute,
         device_class=SensorDeviceClass.TEMPERATURE,
         native_unit_of_measurement=unit,
-        state_class=SensorStateClass.MEASUREMENT,
-        entity_category=EntityCategory.DIAGNOSTIC,
+        state_class=state_class,
+        entity_category=entity_category,
         entity_registry_enabled_default=enabled,
     )
 
@@ -81,6 +84,14 @@ def _switch(
 
 
 _GLOBAL: tuple[TrovisSensorDescription, ...] = (
+    TrovisSensorDescription(
+        key="system",
+        translation_key="system",
+        name="Hydraulic system",
+        component="info",
+        attribute="system",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
     _temp("sensors", "af1", "AF1 outside sensor 1", key="outside_temperature_1"),
     _temp("sensors", "af2", "AF2 outside sensor 2", key="outside_temperature_2"),
     _temp("sensors", "vf1", "VF1 flow sensor 1", key="flow_temperature_1"),
@@ -153,22 +164,53 @@ async def async_setup_entry(
 
     for index in coordinator.device.heating_circuit_indices:
         component = f"heating_circuit_{index}"
-        entities.append(
-            TrovisSensor(
-                coordinator,
-                TrovisSensorDescription(
-                    key=f"rk{index}_valve_setpoint",
-                    translation_key="valve_setpoint",
-                    translation_placeholders={"rk": f"Rk{index}"},
-                    name=f"Rk{index} valve setpoint",
-                    component=component,
-                    attribute="valve_setpoint",
-                    native_unit_of_measurement=PERCENTAGE,
-                    state_class=SensorStateClass.MEASUREMENT,
-                    entity_category=EntityCategory.DIAGNOSTIC,
+        entities.extend(
+            (
+                TrovisSensor(
+                    coordinator,
+                    TrovisSensorDescription(
+                        key=f"rk{index}_valve_setpoint",
+                        translation_key="valve_setpoint",
+                        translation_placeholders={"rk": f"Rk{index}"},
+                        name=f"Rk{index} valve setpoint",
+                        component=component,
+                        attribute="valve_setpoint",
+                        native_unit_of_measurement=PERCENTAGE,
+                        state_class=SensorStateClass.MEASUREMENT,
+                        entity_category=EntityCategory.DIAGNOSTIC,
+                    ),
+                ),
+                TrovisSensor(
+                    coordinator,
+                    _temp(
+                        component,
+                        "room_setpoint_active",
+                        f"Rk{index} active room setpoint",
+                        key=f"rk{index}_room_setpoint_active",
+                        translation_key="room_setpoint_active",
+                        entity_category=None,
+                        state_class=None,
+                        translation_placeholders={"rk": f"Rk{index}"},
+                    ),
                 ),
             )
         )
+
+    entities.append(
+        TrovisSensor(
+            coordinator,
+            _temp(
+                "hot_water",
+                "setpoint_active",
+                "Rk4 active domestic-hot-water setpoint",
+                key="rk4dhw_setpoint_active",
+                translation_key="dhw_setpoint_active",
+                entity_category=None,
+                state_class=None,
+                translation_placeholders={"rk": "Rk4"},
+            ),
+        )
+    )
 
     async_add_entities(entities)
 

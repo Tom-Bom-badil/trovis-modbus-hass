@@ -58,7 +58,7 @@ sys.modules["custom_components.modbus_connection"] = _provider_module
 # Raw Modbus protocol addresses, not manufacturer HR/CL reference numbers.
 HOLDING: dict[int, int] = {
     0: 5579,  # controller model
-    1: 21,  # system version -> 2.1
+    1: 21,  # hydraulic system / Anlage -> 2.1
     2: 305,  # firmware -> 3.05
     3: 110,  # hardware -> 1.10
     5: 12345,  # serial number
@@ -91,6 +91,7 @@ HOLDING: dict[int, int] = {
     1807: 500,  # active domestic-hot-water setpoint -> 50.0 °C
     1830: 3,  # disinfection weekday -> Wednesday
     1831: 1900,  # disinfection start -> 19:00
+    1832: 2100,  # disinfection end -> 21:00
     1837: 670,  # active charge setpoint -> 67.0 °C
 }
 
