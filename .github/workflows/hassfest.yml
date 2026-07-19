@@ -1,0 +1,28 @@
+name: Hassfest Validation
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+  push:
+    branches:
+      - develop
+      - main
+  release:
+    types:
+      - published
+      - prereleased
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Run Hassfest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Hassfest
+        uses: home-assistant/actions/hassfest@master
