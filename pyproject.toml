@@ -10,7 +10,7 @@ dev = [
     "pytest>=8",
     "pytest-asyncio>=0.24",
     # Device library required by the TROVIS integration.
-    "trovis-modbus>=1.1.0,<2",
+    "trovis-modbus>=1.1.1,<2",
     # Backend-neutral connection API and in-memory MockModbusUnit.
     "modbus-connection>=3.3.0,<4",
     # Real Home Assistant plus its custom-component test harness.
