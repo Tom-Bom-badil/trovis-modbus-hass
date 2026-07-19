@@ -61,12 +61,17 @@ HOLDING: dict[int, int] = {
     1: 21,  # hydraulic system / Anlage -> 2.1
     2: 305,  # firmware -> 3.05
     3: 110,  # hardware -> 1.10
+    4: 0,  # special functions
     5: 12345,  # serial number
     9: 123,  # AF1 outside temperature -> 12.3 °C
     12: 300,  # VF1 flow temperature -> 30.0 °C
     19: 200,  # RF1 room temperature -> 20.0 °C
     22: 450,  # SF1 storage temperature -> 45.0 °C
     23: 0x7FFF,  # SF2 invalid-value marker
+    27: 15,  # AE3/FG3 -> 1.5
+    28: 120,  # pulse rate -> 120 Imp/h
+    41: 523,  # analog input -> 5.23 V
+    42: 175,  # summer outside average -> 17.5 °C
     98: 900,  # maximum flow setpoint -> 90.0 °C
     99: 1430,  # controller time -> 14:30
     100: 2106,  # controller date -> 21.06
@@ -75,6 +80,18 @@ HOLDING: dict[int, int] = {
     105: 1,  # Rk1 operation mode -> automatic
     106: 42,  # Rk1 valve setpoint -> 42 %
     112: 1505,  # summer operation start -> 15.05
+    113: 1509,  # summer operation end -> 15.09
+    114: 2,  # summer activation days
+    115: 3,  # summer deactivation days
+    116: 180,  # summer outside limit -> 18.0 °C
+    117: 25,  # outside-temperature delay -> 2.5 K/h
+    120: 20,  # temperature monitoring deviation -> 2.0 K
+    121: 30,  # temperature monitoring window -> 30 min
+    122: 0xFFE2,  # frost limit -> -3.0 °C
+    123: 0xFE0C,  # outside input range start -> -50.0 °C
+    124: 500,  # outside input range end -> 50.0 °C
+    142: 246,  # station address
+    153: 4,  # error count
     149: 0,  # no controller error
     999: 550,  # Rk1 flow setpoint -> 55.0 °C
     1000: 800,  # Rk1 maximum flow temperature -> 80.0 °C
@@ -84,24 +101,72 @@ HOLDING: dict[int, int] = {
     1004: 210,  # Rk1 active room setpoint -> 21.0 °C
     1005: 12,  # Rk1 slope -> 1.2
     1006: 0,  # Rk1 level -> 0.0 K
+    1008: 5,  # Rk1 return slope -> 0.5
+    1009: 20,  # Rk1 return level -> 2.0 K
+    1010: 550,  # Rk1 maximum return temperature -> 55.0 °C
+    1011: 300,  # Rk1 return base point -> 30.0 °C
+    1032: 450,  # Rk1 return setpoint -> 45.0 °C
+    1041: 600,  # Rk1 fixed setpoint day -> 60.0 °C
+    1042: 500,  # Rk1 fixed setpoint night -> 50.0 °C
+    1062: 0xFFF1,  # Rk1 flow deviation -> -1.5 K
     1199: 480,  # Rk2 flow setpoint -> 48.0 °C
     1799: 500,  # domestic-hot-water setpoint -> 50.0 °C
     1800: 600,  # domestic-hot-water maximum -> 60.0 °C
     1801: 450,  # domestic-hot-water minimum -> 45.0 °C
+    1802: 50,  # domestic-hot-water hysteresis -> 5.0 K
+    1803: 100,  # domestic-hot-water charge overshoot -> 10.0 K
+    1804: 15,  # charge-pump overrun factor -> 1.5
+    1805: 750,  # maximum charge temperature -> 75.0 °C
     1807: 500,  # active domestic-hot-water setpoint -> 50.0 °C
+    1808: 600,  # special domestic-hot-water setpoint -> 60.0 °C
+    1812: 1234,  # solar operating hours
+    1826: 4,  # storage status -> charging
+    1827: 550,  # domestic-hot-water maximum return -> 55.0 °C
+    1829: 700,  # disinfection temperature -> 70.0 °C
     1830: 3,  # disinfection weekday -> Wednesday
     1831: 1900,  # disinfection start -> 19:00
     1832: 2100,  # disinfection end -> 21:00
     1837: 670,  # active charge setpoint -> 67.0 °C
+    1838: 20,  # disinfection hold time -> 20 min
+    1862: 0xFFF6,  # domestic-hot-water control deviation -> -1.0 K
 }
 
 COILS: dict[int, bool] = {
+    1: True,  # data entry active
+    2: True,  # data entry performed
     3: True,  # controller initially operates autonomously
+    4: False,  # Rk1 manual operation
+    61: False,  # Rk1 valve closing
+    62: True,  # Rk1 valve opening
+    87: True,  # outside-temperature control autonomous
+    88: True,  # Rk1 mode control autonomous
+    89: True,  # Rk1 valve control autonomous
+    95: True,  # Rk1 pump control autonomous
+    115: True,  # Rk1 flow-setpoint control autonomous
+    116: True,  # Rk1 return-setpoint control autonomous
+    121: True,  # Rk1 room-setpoint control autonomous
+    149: False,  # manual-operation levels not locked
+    150: False,  # rotary switches not locked
+    158: False,  # supervisory-system timeout inactive
     56: True,  # Rk1 pump running
     59: True,  # domestic-hot-water charge pump running
+    7: False,  # domestic-hot-water manual operation
+    94: True,  # domestic-hot-water mode control autonomous
+    98: True,  # charge-pump control autonomous
+    99: True,  # circulation-pump control autonomous
+    111: True,  # special-setpoint control autonomous
     999: True,  # Rk1 automatic mode
     1000: True,  # Rk1 day mode active
     1799: True,  # domestic hot water automatic mode
+    1801: True,  # domestic-hot-water priority
+    1802: False,  # max charge-temperature limit inactive
+    1803: False,  # return-temperature limit inactive
+    1806: False,  # forced charge inactive
+    1807: True,  # solar pump running
+    1808: False,  # forced charge uses sensor 1
+    1809: True,  # storage charging active
+    1810: True,  # storage charging enabled
+    1811: False,  # storage charging not locked
 }
 
 

@@ -1,4 +1,4 @@
-"""Select entities for Trovis 557x."""
+"""Select entities for enum-backed TROVIS values."""
 
 from __future__ import annotations
 
@@ -13,15 +13,15 @@ from trovis_modbus.metadata import EnumMetadata
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
 from .entity import TrovisEntity
-from .metadata import require_enum_metadata
+from .metadata import component_supports_datapoint, require_enum_metadata
 
 
 @dataclass(frozen=True, kw_only=True)
 class TrovisSelectDescription(SelectEntityDescription):
-    """Description of a Trovis select entity.
+    """Describe a Trovis select entity.
 
-    Options come from trovis-modbus metadata. This description only selects
-    the field and stores HA-specific presentation values.
+    Options and enum values come from trovis-modbus. This description only
+    selects the field and stores Home Assistant presentation values.
     """
 
     component: str
@@ -51,6 +51,15 @@ _SELECTS: tuple[TrovisSelectDescription, ...] = (
     _operation_mode("heating_circuit_2", "rk2_operation_mode", "Rk2"),
     _operation_mode("heating_circuit_3", "rk3_operation_mode", "Rk3"),
     _operation_mode("hot_water", "rk4dhw_operation_mode", "Rk4"),
+    TrovisSelectDescription(
+        key="rk4dhw_disinfection_weekday",
+        translation_key="disinfection_weekday",
+        name="Rk4 disinfection weekday",
+        component="hot_water",
+        field="disinfection_weekday",
+        entity_category=EntityCategory.CONFIG,
+        translation_placeholders={"rk": "Rk4"},
+    ),
 )
 
 
@@ -72,6 +81,10 @@ async def async_setup_entry(
         TrovisSelect(coordinator, description)
         for description in _SELECTS
         if description.component in active_components
+        and component_supports_datapoint(
+            getattr(coordinator.device, description.component),
+            description.field,
+        )
     )
 
 

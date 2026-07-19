@@ -32,6 +32,10 @@ DETECTED_SENSORS = [
     "vf1",
     "rf1",
     "sf1",
+    "ae3_fg3",
+    "pulse_rate",
+    "analog_input_voltage",
+    "summer_outside_average",
 ]
 
 
@@ -112,9 +116,76 @@ async def test_setup_entry_creates_entities(
     assert disinfection_stop is not None
     assert disinfection_stop.state == "21:00:00"
 
+    summer_start = hass.states.get(f"sensor.{SLUG}_summer_start")
+    summer_end = hass.states.get(f"sensor.{SLUG}_summer_end")
+    assert summer_start is not None
+    assert summer_start.state == "05-15"
+    assert summer_start.attributes["month"] == 5
+    assert summer_start.attributes["day"] == 15
+    assert summer_end is not None
+    assert summer_end.state == "09-15"
+
+    analog_input = hass.states.get(f"sensor.{SLUG}_analog_input_voltage")
+    pulse_rate = hass.states.get(f"sensor.{SLUG}_pulse_rate")
+    assert analog_input is not None
+    assert float(analog_input.state) == pytest.approx(5.23)
+    assert pulse_rate is not None
+    assert float(pulse_rate.state) == pytest.approx(120)
+
+    flow_setpoint = hass.states.get(f"sensor.{SLUG}_rk1_flow_setpoint")
+    return_setpoint = hass.states.get(f"sensor.{SLUG}_rk1_return_setpoint")
+    assert flow_setpoint is not None
+    assert float(flow_setpoint.state) == pytest.approx(55.0)
+    assert return_setpoint is not None
+    assert float(return_setpoint.state) == pytest.approx(45.0)
+
+    flow_min = hass.states.get(f"number.{SLUG}_rk1_flow_min")
+    return_max = hass.states.get(f"number.{SLUG}_rk1_return_max")
+    assert flow_min is not None
+    assert float(flow_min.state) == pytest.approx(20.0)
+    assert return_max is not None
+    assert float(return_max.state) == pytest.approx(55.0)
+
+    storage_status = hass.states.get(f"sensor.{SLUG}_rk4dhw_storage_status")
+    solar_hours = hass.states.get(f"sensor.{SLUG}_rk4dhw_solar_operating_hours")
+    assert storage_status is not None
+    assert storage_status.state == "charging"
+    assert solar_hours is not None
+    assert float(solar_hours.state) == pytest.approx(1234)
+
+    disinfection_weekday = hass.states.get(f"select.{SLUG}_rk4dhw_disinfection_weekday")
+    assert disinfection_weekday is not None
+    assert disinfection_weekday.state == "wednesday"
+
     pump = hass.states.get(f"binary_sensor.{SLUG}_rk1_pump_running")
     assert pump is not None
     assert pump.state == "on"
+
+    automatic = hass.states.get(f"binary_sensor.{SLUG}_rk1_automatic")
+    valve_opening = hass.states.get(f"binary_sensor.{SLUG}_rk1_valve_opening")
+    dhw_priority = hass.states.get(f"binary_sensor.{SLUG}_rk4dhw_priority")
+    assert automatic is not None
+    assert automatic.state == "on"
+    assert valve_opening is not None
+    assert valve_opening.state == "on"
+    assert dhw_priority is not None
+    assert dhw_priority.state == "on"
+
+    manual_lock = hass.states.get(f"switch.{SLUG}_manual_levels_locked")
+    storage_enabled = hass.states.get(f"switch.{SLUG}_rk4dhw_storage_charging_enabled")
+    heating_pump = hass.states.get(f"switch.{SLUG}_rk1_pump_control")
+    charge_pump = hass.states.get(f"switch.{SLUG}_rk4dhw_charge_pump_control")
+    circulation_pump = hass.states.get(f"switch.{SLUG}_rk4dhw_circulation_pump_control")
+    assert manual_lock is not None
+    assert manual_lock.state == "off"
+    assert storage_enabled is not None
+    assert storage_enabled.state == "on"
+    assert heating_pump is not None
+    assert heating_pump.state == "on"
+    assert charge_pump is not None
+    assert charge_pump.state == "on"
+    assert circulation_pump is not None
+    assert circulation_pump.state == "off"
 
     climate = hass.states.get(f"climate.{SLUG}_rk1")
     assert climate is not None
@@ -206,6 +277,44 @@ async def test_register_and_coil_writes(
     daylight_saving = hass.states.get(f"switch.{SLUG}_automatic_daylight_saving_time")
     assert daylight_saving is not None
     assert daylight_saving.state == "on"
+
+    await hass.services.async_call(
+        "number",
+        "set_value",
+        {
+            "entity_id": f"number.{SLUG}_rk1_flow_max",
+            "value": 75.0,
+        },
+        blocking=True,
+    )
+    assert modbus_provider.unit.holding[1000] == 750
+
+    await hass.services.async_call(
+        "select",
+        "select_option",
+        {
+            "entity_id": f"select.{SLUG}_rk4dhw_disinfection_weekday",
+            "option": "friday",
+        },
+        blocking=True,
+    )
+    assert modbus_provider.unit.holding[1830] == 5
+
+    await hass.services.async_call(
+        "switch",
+        "turn_off",
+        {"entity_id": f"switch.{SLUG}_rk4dhw_storage_charging_enabled"},
+        blocking=True,
+    )
+    assert modbus_provider.unit.coils[1810] is False
+
+    await hass.services.async_call(
+        "switch",
+        "turn_off",
+        {"entity_id": f"switch.{SLUG}_rk1_pump_control"},
+        blocking=True,
+    )
+    assert modbus_provider.unit.coils[56] is False
 
 
 async def test_config_flow_uses_existing_connection(

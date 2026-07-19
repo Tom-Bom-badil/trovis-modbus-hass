@@ -139,13 +139,103 @@
         "name": "Max flow setpoint"
       },
       "switch_top": {
-        "name": "Switch top"
+        "name": "Switch top",
+        "state": {
+          "program": "Program",
+          "automatic": "Automatic",
+          "standby": "Standby",
+          "manual": "Manual",
+          "day": "Sun",
+          "night": "Moon"
+        }
       },
       "switch_middle": {
-        "name": "Switch middle"
+        "name": "Switch middle",
+        "state": {
+          "program": "Program",
+          "automatic": "Automatic",
+          "standby": "Standby",
+          "manual": "Manual",
+          "day": "Sun",
+          "night": "Moon"
+        }
       },
       "switch_bottom": {
-        "name": "Switch bottom"
+        "name": "Switch bottom",
+        "state": {
+          "program": "Program",
+          "automatic": "Automatic",
+          "standby": "Standby",
+          "manual": "Manual",
+          "day": "Sun",
+          "night": "Moon"
+        }
+      },
+      "analog_remote_input_3": {
+        "name": "AE3/FG3 analog input / remote control 3"
+      },
+      "pulse_rate": {
+        "name": "Pulse rate"
+      },
+      "analog_input_voltage": {
+        "name": "Analog input voltage"
+      },
+      "summer_outside_average": {
+        "name": "Summer outside-temperature average"
+      },
+      "special_functions": {
+        "name": "Special functions"
+      },
+      "station_address": {
+        "name": "Station address"
+      },
+      "error_count": {
+        "name": "Error count"
+      },
+      "summer_start": {
+        "name": "Summer period start"
+      },
+      "summer_end": {
+        "name": "Summer period end"
+      },
+      "flow_setpoint": {
+        "name": "{rk} flow setpoint"
+      },
+      "return_slope": {
+        "name": "{rk} return slope"
+      },
+      "return_level": {
+        "name": "{rk} return level"
+      },
+      "return_base_point": {
+        "name": "{rk} return base point"
+      },
+      "return_setpoint": {
+        "name": "{rk} return setpoint"
+      },
+      "flow_deviation": {
+        "name": "{rk} flow deviation"
+      },
+      "solar_operating_hours": {
+        "name": "{rk} solar operating hours"
+      },
+      "storage_status": {
+        "name": "{rk} storage status",
+        "state": {
+          "standby": "Standby",
+          "monitoring": "Monitoring",
+          "circulation": "Circulation",
+          "demand": "Demand",
+          "charging": "Charging",
+          "pump_overrun": "Pump overrun",
+          "discharge_protection": "Discharge protection"
+        }
+      },
+      "active_charge_setpoint": {
+        "name": "{rk} active charge setpoint"
+      },
+      "control_deviation": {
+        "name": "{rk} control deviation"
       }
     },
     "binary_sensor": {
@@ -172,6 +262,99 @@
       },
       "circulation_pump_running": {
         "name": "{rk} circulation pump"
+      },
+      "data_entry_active": {
+        "name": "Data entry active"
+      },
+      "data_entry_performed": {
+        "name": "Data entry performed"
+      },
+      "global_level_autark": {
+        "name": "Global control autonomous"
+      },
+      "outside_temperature_control_autonomous": {
+        "name": "Outside-temperature control autonomous"
+      },
+      "any_circuit_not_automatic": {
+        "name": "At least one circuit not automatic"
+      },
+      "rotary_switch_not_automatic": {
+        "name": "At least one rotary switch not automatic"
+      },
+      "manual_active": {
+        "name": "{rk} manual operation"
+      },
+      "automatic": {
+        "name": "{rk} automatic operation"
+      },
+      "day_active": {
+        "name": "{rk} day operation"
+      },
+      "night_active": {
+        "name": "{rk} night operation"
+      },
+      "hold_active": {
+        "name": "{rk} hold operation"
+      },
+      "setback_active": {
+        "name": "{rk} setback operation"
+      },
+      "heat_up_active": {
+        "name": "{rk} heat-up operation"
+      },
+      "return_limit_active": {
+        "name": "{rk} return-temperature limit"
+      },
+      "outside_shutdown": {
+        "name": "{rk} outside-temperature shutdown"
+      },
+      "valve_closing": {
+        "name": "{rk} valve closing"
+      },
+      "valve_opening": {
+        "name": "{rk} valve opening"
+      },
+      "mode_control_autonomous": {
+        "name": "{rk} mode control autonomous"
+      },
+      "valve_control_autonomous": {
+        "name": "{rk} valve control autonomous"
+      },
+      "pump_control_autonomous": {
+        "name": "{rk} pump control autonomous"
+      },
+      "flow_setpoint_control_autonomous": {
+        "name": "{rk} flow-setpoint control autonomous"
+      },
+      "return_setpoint_control_autonomous": {
+        "name": "{rk} return-setpoint control autonomous"
+      },
+      "room_setpoint_control_autonomous": {
+        "name": "{rk} room-setpoint control autonomous"
+      },
+      "priority": {
+        "name": "{rk} domestic-hot-water priority"
+      },
+      "max_charge_limit_active": {
+        "name": "{rk} maximum charge-temperature limit"
+      },
+      "solar_pump_running": {
+        "name": "{rk} solar pump"
+      },
+      "storage_charging_active": {
+        "name": "{rk} storage charging active"
+      },
+      "storage_charging_locked": {
+        "name": "{rk} storage charging locked"
+      },
+      "charge_pump_control_autonomous": {
+        "name": "{rk} charge-pump control autonomous"
+      },
+      "circulation_pump_control_autonomous": {
+        "name": "{rk} circulation-pump control autonomous"
+      },
+      "special_setpoint_control_autonomous": {
+        "name": "{rk} special-setpoint control autonomous"
       }
     },
     "climate": {
@@ -217,6 +400,72 @@
       },
       "dhw_setpoint_max": {
         "name": "{rk} maximum dhw setpoint"
+      },
+      "summer_days_on": {
+        "name": "Summer mode activation days"
+      },
+      "summer_days_off": {
+        "name": "Summer mode deactivation days"
+      },
+      "summer_outside_limit": {
+        "name": "Summer outside-temperature limit"
+      },
+      "outside_delay": {
+        "name": "Outside-temperature delay"
+      },
+      "frost_limit": {
+        "name": "Frost-protection limit"
+      },
+      "temperature_monitoring_deviation": {
+        "name": "Temperature-monitoring deviation"
+      },
+      "temperature_monitoring_window": {
+        "name": "Temperature-monitoring window"
+      },
+      "outside_input_range_start": {
+        "name": "Outside-temperature input range start"
+      },
+      "outside_input_range_end": {
+        "name": "Outside-temperature input range end"
+      },
+      "flow_min": {
+        "name": "{rk} minimum flow setpoint"
+      },
+      "flow_max": {
+        "name": "{rk} maximum flow setpoint"
+      },
+      "return_max": {
+        "name": "{rk} maximum return temperature"
+      },
+      "fixed_setpoint_day": {
+        "name": "{rk} fixed setpoint day"
+      },
+      "fixed_setpoint_night": {
+        "name": "{rk} fixed setpoint night"
+      },
+      "hysteresis": {
+        "name": "{rk} switching differential"
+      },
+      "charge_overshoot": {
+        "name": "{rk} charge temperature increase"
+      },
+      "charge_pump_overrun_factor": {
+        "name": "{rk} charge-pump overrun factor"
+      },
+      "max_charge_temp": {
+        "name": "{rk} maximum charge temperature"
+      },
+      "dhw_return_max": {
+        "name": "{rk} maximum return temperature"
+      },
+      "disinfection_temp": {
+        "name": "{rk} disinfection temperature"
+      },
+      "disinfection_hold": {
+        "name": "{rk} disinfection hold time"
+      },
+      "special_setpoint": {
+        "name": "{rk} special setpoint"
       }
     },
     "date": {
@@ -246,6 +495,19 @@
           "day": "Sun",
           "night": "Moon"
         }
+      },
+      "disinfection_weekday": {
+        "name": "{rk} disinfection weekday",
+        "state": {
+          "off": "Off",
+          "monday": "Monday",
+          "tuesday": "Tuesday",
+          "wednesday": "Wednesday",
+          "thursday": "Thursday",
+          "friday": "Friday",
+          "saturday": "Saturday",
+          "sunday": "Sunday"
+        }
       }
     },
     "switch": {
@@ -272,6 +534,36 @@
       },
       "intermediate_heating_operation": {
         "name": "{rk} intermediate heating operation"
+      },
+      "manual_levels_locked": {
+        "name": "Manual-operation levels locked"
+      },
+      "rotary_switch_locked": {
+        "name": "Rotary switches locked"
+      },
+      "glt_timeout_active": {
+        "name": "Supervisory-system timeout"
+      },
+      "forced_charge": {
+        "name": "{rk} forced charge"
+      },
+      "forced_charge_uses_sensor_2": {
+        "name": "{rk} forced charge using sensor 2"
+      },
+      "storage_charging_enabled": {
+        "name": "{rk} storage charging enabled"
+      },
+      "intermediate_heating_function_enabled": {
+        "name": "{rk} intermediate heating function"
+      },
+      "pump_control": {
+        "name": "{rk} pump control"
+      },
+      "charge_pump_control": {
+        "name": "{rk} charge-pump control"
+      },
+      "circulation_pump_control": {
+        "name": "{rk} circulation-pump control"
       }
     }
   }

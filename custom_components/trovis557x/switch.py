@@ -1,4 +1,4 @@
-"""Switch entities for Trovis 557x."""
+"""Switch entities for writable TROVIS boolean values."""
 
 from __future__ import annotations
 
@@ -15,17 +15,18 @@ from trovis_modbus.metadata import BooleanMetadata
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
 from .entity import TrovisEntity
-from .metadata import require_boolean_metadata
+from .metadata import component_supports_datapoint, require_boolean_metadata
 
 _LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True, kw_only=True)
 class TrovisSwitchDescription(SwitchEntityDescription):
-    """Description of a Trovis switch entity.
+    """Describe a Trovis switch entity.
 
-    Boolean semantics come from trovis-modbus. This description only selects
-    the field and stores HA-specific presentation values.
+    Boolean semantics and writeability come from trovis-modbus. This
+    description only selects the field and stores Home Assistant presentation
+    values.
     """
 
     component: str
@@ -33,80 +34,165 @@ class TrovisSwitchDescription(SwitchEntityDescription):
     translation_placeholders: dict[str, str] | None = None
 
 
+def _switch(
+    component: str,
+    field: str,
+    name: str,
+    *,
+    key: str | None = None,
+    translation_key: str | None = None,
+    translation_placeholders: dict[str, str] | None = None,
+    enabled: bool = True,
+) -> TrovisSwitchDescription:
+    """Return a metadata-driven switch description."""
+    return TrovisSwitchDescription(
+        key=key or field,
+        translation_key=translation_key,
+        translation_placeholders=translation_placeholders,
+        name=name,
+        component=component,
+        field=field,
+        entity_category=EntityCategory.CONFIG,
+        entity_registry_enabled_default=enabled,
+    )
+
+
 _CONTROLLER: tuple[TrovisSwitchDescription, ...] = (
-    TrovisSwitchDescription(
-        key="delayed_outside_temp_adjustment_falling",
-        translation_key="delayed_outside_temp_adjustment_falling",
-        name="Delayed outside-temperature adjustment falling",
-        component="controller",
-        field="delayed_outside_temp_adjustment_falling",
-        entity_category=EntityCategory.CONFIG,
+    _switch(
+        "controller",
+        "delayed_outside_temp_adjustment_falling",
+        "Delayed outside-temperature adjustment falling",
     ),
-    TrovisSwitchDescription(
-        key="delayed_outside_temp_adjustment_rising",
-        translation_key="delayed_outside_temp_adjustment_rising",
-        name="Delayed outside-temperature adjustment rising",
-        component="controller",
-        field="delayed_outside_temp_adjustment_rising",
-        entity_category=EntityCategory.CONFIG,
+    _switch(
+        "controller",
+        "delayed_outside_temp_adjustment_rising",
+        "Delayed outside-temperature adjustment rising",
     ),
-    TrovisSwitchDescription(
+    _switch(
+        "controller",
+        "auto_daylight_saving",
+        "Automatic daylight-saving time",
         key="automatic_daylight_saving_time",
         translation_key="automatic_daylight_saving_time",
-        name="Automatic daylight-saving time",
-        component="controller",
-        field="auto_daylight_saving",
-        entity_category=EntityCategory.CONFIG,
+    ),
+    _switch(
+        "controller",
+        "manual_levels_locked",
+        "Manual-operation levels locked",
+    ),
+    _switch(
+        "controller",
+        "rotary_switch_locked",
+        "Rotary switches locked",
+    ),
+    _switch(
+        "controller",
+        "glt_timeout_active",
+        "Supervisory-system timeout",
+        enabled=False,
     ),
 )
 
 
 def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
-    """Return switch descriptions for one regulation circuit."""
+    """Return switch descriptions for one heating circuit."""
     component = f"heating_circuit_{index}"
-    key_prefix = f"rk{index}"
+    prefix = f"rk{index}"
     placeholders = {"rk": f"Rk{index}"}
 
     return (
-        TrovisSwitchDescription(
-            key=f"{key_prefix}_optimization",
+        _switch(
+            component,
+            "optimization",
+            f"Rk{index} optimization",
+            key=f"{prefix}_optimization",
             translation_key="optimization",
-            name=f"Rk{index} optimization",
-            component=component,
-            field="optimization",
-            entity_category=EntityCategory.CONFIG,
             translation_placeholders=placeholders,
         ),
-        TrovisSwitchDescription(
-            key=f"{key_prefix}_adaptation",
+        _switch(
+            component,
+            "adaptation",
+            f"Rk{index} adaptation",
+            key=f"{prefix}_adaptation",
             translation_key="adaptation",
-            name=f"Rk{index} adaptation",
-            component=component,
-            field="adaptation",
-            entity_category=EntityCategory.CONFIG,
             translation_placeholders=placeholders,
         ),
-        TrovisSwitchDescription(
-            key=f"{key_prefix}_room_control_unit",
+        _switch(
+            component,
+            "room_control_unit",
+            f"Rk{index} room control unit",
+            key=f"{prefix}_room_control_unit",
             translation_key="room_control_unit",
-            name=f"Rk{index} room control unit",
-            component=component,
-            field="room_control_unit",
-            entity_category=EntityCategory.CONFIG,
+            translation_placeholders=placeholders,
+        ),
+        _switch(
+            component,
+            "pump_running",
+            f"Rk{index} pump control",
+            key=f"{prefix}_pump_control",
+            translation_key="pump_control",
             translation_placeholders=placeholders,
         ),
     )
 
 
 _HOT_WATER: tuple[TrovisSwitchDescription, ...] = (
-    TrovisSwitchDescription(
+    _switch(
+        "hot_water",
+        "charge_pump_running",
+        "Rk4 charge-pump control",
+        key="rk4dhw_charge_pump_control",
+        translation_key="charge_pump_control",
+        translation_placeholders={"rk": "Rk4"},
+    ),
+    _switch(
+        "hot_water",
+        "circulation_pump_running",
+        "Rk4 circulation-pump control",
+        key="rk4dhw_circulation_pump_control",
+        translation_key="circulation_pump_control",
+        translation_placeholders={"rk": "Rk4"},
+    ),
+    _switch(
+        "hot_water",
+        "intermediate_heating_operation",
+        "Rk4 intermediate heating operation",
         key="rk4dhw_intermediate_heating_operation",
         translation_key="intermediate_heating_operation",
-        name="Rk4 intermediate heating operation",
-        component="hot_water",
-        field="intermediate_heating_operation",
-        entity_category=EntityCategory.CONFIG,
         translation_placeholders={"rk": "Rk4"},
+    ),
+    _switch(
+        "hot_water",
+        "forced_charge",
+        "Rk4 forced charge",
+        key="rk4dhw_forced_charge",
+        translation_key="forced_charge",
+        translation_placeholders={"rk": "Rk4"},
+    ),
+    _switch(
+        "hot_water",
+        "forced_charge_uses_sensor_2",
+        "Rk4 forced charge using sensor 2",
+        key="rk4dhw_forced_charge_uses_sensor_2",
+        translation_key="forced_charge_uses_sensor_2",
+        translation_placeholders={"rk": "Rk4"},
+    ),
+    _switch(
+        "hot_water",
+        "storage_charging_enabled",
+        "Rk4 storage charging enabled",
+        key="rk4dhw_storage_charging_enabled",
+        translation_key="storage_charging_enabled",
+        translation_placeholders={"rk": "Rk4"},
+    ),
+    _switch(
+        "hot_water",
+        "intermediate_heating_function_enabled",
+        "Rk4 intermediate heating function",
+        key="rk4dhw_intermediate_heating_function_enabled",
+        translation_key="intermediate_heating_function_enabled",
+        translation_placeholders={"rk": "Rk4"},
+        enabled=False,
     ),
 )
 
@@ -120,19 +206,19 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
 
     entities: list[SwitchEntity] = [TrovisWriteAccessSwitch(coordinator)]
-
-    entities.extend(
-        TrovisSwitch(coordinator, description) for description in _CONTROLLER
-    )
+    descriptions = list(_CONTROLLER)
 
     for index in coordinator.device.heating_circuit_indices:
-        entities.extend(
-            TrovisSwitch(coordinator, description)
-            for description in _rk_switch_descriptions(index)
-        )
+        descriptions.extend(_rk_switch_descriptions(index))
 
+    descriptions.extend(_HOT_WATER)
     entities.extend(
-        TrovisSwitch(coordinator, description) for description in _HOT_WATER
+        TrovisSwitch(coordinator, description)
+        for description in descriptions
+        if component_supports_datapoint(
+            getattr(coordinator.device, description.component),
+            description.field,
+        )
     )
 
     async_add_entities(entities)
@@ -201,12 +287,10 @@ class TrovisSwitch(TrovisEntity, SwitchEntity):
             translation_placeholders=description.translation_placeholders,
         )
         self.entity_description = description
-
         self._boolean_metadata: BooleanMetadata = require_boolean_metadata(
             self._subsystem,
             description.field,
         )
-
         self._attr_entity_category = description.entity_category
         self._attr_entity_registry_enabled_default = (
             description.entity_registry_enabled_default

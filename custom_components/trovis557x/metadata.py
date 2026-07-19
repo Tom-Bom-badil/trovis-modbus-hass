@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from homeassistant.components.number import NumberDeviceClass
+from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.const import UnitOfTemperature
 from trovis_modbus.metadata import (
     BooleanMetadata,
@@ -16,15 +17,27 @@ from trovis_modbus.metadata import (
 
 def require_datapoint_metadata(component: Any, field: str) -> DatapointMetadata:
     """Return neutral TROVIS metadata for a component field."""
-    if hasattr(component, "require_metadata_for"):
-        return component.require_metadata_for(field)
-
     if hasattr(component, "metadata_for"):
         metadata = component.metadata_for(field)
         if metadata is not None:
             return metadata
 
+    if hasattr(component, "require_metadata_for"):
+        try:
+            return component.require_metadata_for(field)
+        except (AttributeError, KeyError) as err:
+            raise ValueError(f"TROVIS field {field!r} has no metadata") from err
+
     raise ValueError(f"TROVIS field {field!r} has no metadata")
+
+
+def component_supports_datapoint(component: Any, field: str) -> bool:
+    """Return whether a component exposes metadata for a datapoint."""
+    try:
+        require_datapoint_metadata(component, field)
+    except ValueError:
+        return False
+    return True
 
 
 def require_number_metadata(component: Any, field: str) -> NumberMetadata:
@@ -76,4 +89,18 @@ def number_device_class_from_number(
 
     # Do not map "K" automatically. In TROVIS this is often a temperature
     # difference / curve offset, not an absolute temperature.
+    return None
+
+
+def sensor_device_class_from_number(
+    number: NumberMetadata,
+) -> SensorDeviceClass | None:
+    """Infer a Home Assistant sensor device class from neutral metadata."""
+    if number.unit == "°C":
+        return SensorDeviceClass.TEMPERATURE
+
+    if number.unit == "V":
+        return SensorDeviceClass.VOLTAGE
+
+    # As for number entities, K commonly represents a difference or offset.
     return None
