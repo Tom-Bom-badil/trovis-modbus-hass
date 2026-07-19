@@ -10,6 +10,8 @@ This repository contains a native Home Assistant custom integration for Samson T
 
 The integration exposes TROVIS controllers as Home Assistant devices and entities. Physical Modbus connections are configured and owned by the separate Home Assistant `modbus_connection` integration. No YAML Modbus configuration is required.
 
+<br/><img width=30% alt="pic1" src="custom_components/trovis557x/frontend/examples/readme-pic1.png" />&nbsp;<img width=30% alt="pic3" src="custom_components/trovis557x/frontend/examples/readme-pic3.png" />&nbsp;<img width=30% alt="pic2" src="custom_components/trovis557x/frontend/examples/readme-pic2.png" />
+
 ## Features
 
 - UI-based setup
