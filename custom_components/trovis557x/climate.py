@@ -1,4 +1,4 @@
-"""Climate platform - one entity per room heating circuit (Rk1-3)."""
+"""Climate platform - one entity per room heating circuit (Hk1-3)."""
 
 from __future__ import annotations
 
@@ -70,9 +70,9 @@ class TrovisHeatingCircuitClimate(TrovisEntity, ClimateEntity):
 
     def __init__(self, coordinator: TrovisCoordinator, index: int) -> None:
         description = TrovisClimateDescription(
-            key=f"rk{index}",
-            translation_key=f"rk{index}",
-            component=f"heating_circuit_{index}",
+            key=f"hk{index}",
+            translation_key=f"hk{index}",
+            component=f"hk{index}",
         )
         super().__init__(
             coordinator,

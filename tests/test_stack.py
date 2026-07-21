@@ -34,9 +34,9 @@ async def test_library_stack_with_mock_unit() -> None:
 
     assert device.info.model == "Trovis 5579"
     assert device.sensors.af1 == pytest.approx(12.3)
-    assert device.heating_circuit_1.pump_running is True
-    assert device.heating_circuit_1.mode is OperatingMode.AUTOMATIC
-    assert device.hot_water.setpoint_active == pytest.approx(50.0)
+    assert device.hk1.pump_running is True
+    assert device.hk1.mode is OperatingMode.AUTOMATIC
+    assert device.ww.setpoint_active == pytest.approx(50.0)
 
 
 def test_manifest_valid() -> None:

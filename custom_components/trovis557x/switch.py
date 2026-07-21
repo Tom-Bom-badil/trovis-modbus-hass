@@ -60,20 +60,20 @@ def _switch(
 _CONTROLLER: tuple[TrovisSwitchDescription, ...] = (
     _switch(
         "controller",
-        "delayed_outside_temp_adjustment_falling",
-        "Delayed outside-temperature adjustment falling",
+        "delayed_outdoor_temperature_adaptation_falling",
+        "Delayed outdoor-temperature adaptation (falling)",
     ),
     _switch(
         "controller",
-        "delayed_outside_temp_adjustment_rising",
-        "Delayed outside-temperature adjustment rising",
+        "delayed_outdoor_temperature_adaptation_rising",
+        "Delayed outdoor-temperature adaptation (rising)",
     ),
     _switch(
         "controller",
-        "auto_daylight_saving",
-        "Automatic daylight-saving time",
-        key="automatic_daylight_saving_time",
-        translation_key="automatic_daylight_saving_time",
+        "automatic_summer_standard_time_switchover",
+        "Automatic summer/standard time switchover",
+        key="automatic_summer_standard_time_switchover",
+        translation_key="automatic_summer_standard_time_switchover",
     ),
     _switch(
         "controller",
@@ -94,17 +94,17 @@ _CONTROLLER: tuple[TrovisSwitchDescription, ...] = (
 )
 
 
-def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
+def _hk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
     """Return switch descriptions for one heating circuit."""
-    component = f"heating_circuit_{index}"
-    prefix = f"rk{index}"
-    placeholders = {"rk": f"Rk{index}"}
+    component = f"hk{index}"
+    prefix = f"hk{index}"
+    placeholders = {"component": f"Hk{index}"}
 
     return (
         _switch(
             component,
             "optimization",
-            f"Rk{index} optimization",
+            f"Hk{index} optimization",
             key=f"{prefix}_optimization",
             translation_key="optimization",
             translation_placeholders=placeholders,
@@ -112,7 +112,7 @@ def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
         _switch(
             component,
             "adaptation",
-            f"Rk{index} adaptation",
+            f"Hk{index} adaptation",
             key=f"{prefix}_adaptation",
             translation_key="adaptation",
             translation_placeholders=placeholders,
@@ -120,7 +120,7 @@ def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
         _switch(
             component,
             "room_control_unit",
-            f"Rk{index} room control unit",
+            f"Hk{index} room control unit",
             key=f"{prefix}_room_control_unit",
             translation_key="room_control_unit",
             translation_placeholders=placeholders,
@@ -128,7 +128,7 @@ def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
         _switch(
             component,
             "pump_running",
-            f"Rk{index} pump control",
+            f"Hk{index} pump control",
             key=f"{prefix}_pump_control",
             translation_key="pump_control",
             translation_placeholders=placeholders,
@@ -136,62 +136,62 @@ def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
     )
 
 
-_HOT_WATER: tuple[TrovisSwitchDescription, ...] = (
+_WW: tuple[TrovisSwitchDescription, ...] = (
     _switch(
-        "hot_water",
-        "charge_pump_running",
-        "Rk4 charge-pump control",
-        key="rk4dhw_charge_pump_control",
-        translation_key="charge_pump_control",
-        translation_placeholders={"rk": "Rk4"},
+        "ww",
+        "storage_tank_charging_pump_running",
+        "WW storage-tank-charging-pump control",
+        key="ww_storage_tank_charging_pump_control",
+        translation_key="storage_tank_charging_pump_control",
+        translation_placeholders={"component": "WW"},
     ),
     _switch(
-        "hot_water",
+        "ww",
         "circulation_pump_running",
-        "Rk4 circulation-pump control",
-        key="rk4dhw_circulation_pump_control",
+        "WW circulation-pump control",
+        key="ww_circulation_pump_control",
         translation_key="circulation_pump_control",
-        translation_placeholders={"rk": "Rk4"},
+        translation_placeholders={"component": "WW"},
     ),
     _switch(
-        "hot_water",
+        "ww",
         "intermediate_heating_operation",
-        "Rk4 intermediate heating operation",
-        key="rk4dhw_intermediate_heating_operation",
+        "WW intermediate heating operation",
+        key="ww_intermediate_heating_operation",
         translation_key="intermediate_heating_operation",
-        translation_placeholders={"rk": "Rk4"},
+        translation_placeholders={"component": "WW"},
     ),
     _switch(
-        "hot_water",
-        "forced_charge",
-        "Rk4 forced charge",
-        key="rk4dhw_forced_charge",
-        translation_key="forced_charge",
-        translation_placeholders={"rk": "Rk4"},
+        "ww",
+        "forced_charging",
+        "WW forced charging",
+        key="ww_forced_charging",
+        translation_key="forced_charging",
+        translation_placeholders={"component": "WW"},
     ),
     _switch(
-        "hot_water",
-        "forced_charge_uses_sensor_2",
-        "Rk4 forced charge using sensor 2",
-        key="rk4dhw_forced_charge_uses_sensor_2",
-        translation_key="forced_charge_uses_sensor_2",
-        translation_placeholders={"rk": "Rk4"},
+        "ww",
+        "forced_charging_uses_storage_tank_sensor_2",
+        "WW forced charging using storage tank sensor 2",
+        key="ww_forced_charging_uses_storage_tank_sensor_2",
+        translation_key="forced_charging_uses_storage_tank_sensor_2",
+        translation_placeholders={"component": "WW"},
     ),
     _switch(
-        "hot_water",
-        "storage_charging_enabled",
-        "Rk4 storage charging enabled",
-        key="rk4dhw_storage_charging_enabled",
-        translation_key="storage_charging_enabled",
-        translation_placeholders={"rk": "Rk4"},
+        "ww",
+        "storage_tank_charging_enabled",
+        "WW storage tank charging enabled",
+        key="ww_storage_tank_charging_enabled",
+        translation_key="storage_tank_charging_enabled",
+        translation_placeholders={"component": "WW"},
     ),
     _switch(
-        "hot_water",
+        "ww",
         "intermediate_heating_function_enabled",
-        "Rk4 intermediate heating function",
-        key="rk4dhw_intermediate_heating_function_enabled",
+        "WW intermediate heating function",
+        key="ww_intermediate_heating_function_enabled",
         translation_key="intermediate_heating_function_enabled",
-        translation_placeholders={"rk": "Rk4"},
+        translation_placeholders={"component": "WW"},
         enabled=False,
     ),
 )
@@ -209,9 +209,9 @@ async def async_setup_entry(
     descriptions = list(_CONTROLLER)
 
     for index in coordinator.device.heating_circuit_indices:
-        descriptions.extend(_rk_switch_descriptions(index))
+        descriptions.extend(_hk_switch_descriptions(index))
 
-    descriptions.extend(_HOT_WATER)
+    descriptions.extend(_WW)
     entities.extend(
         TrovisSwitch(coordinator, description)
         for description in descriptions

@@ -1,7 +1,7 @@
 """Base entity for Trovis 557x.
 
-Each heating circuit, the hot water tank, and the physical measurement inputs
-are their own (sub-)devices, linked to the controller via ``via_device``.
+Each heating circuit, the domestic hot-water circuit, and the physical measurement
+inputs are their own (sub-)devices, linked to the controller via ``via_device``.
 """
 
 from __future__ import annotations
@@ -29,16 +29,16 @@ def _sub_device(component: str) -> tuple[str, str, str] | None:
     if component == "sensors":
         return "measurements", "Measurements", "measurements"
 
-    if component.startswith("heating_circuit_"):
-        number = component.rsplit("_", 1)[1]
+    if component.startswith("hk") and component[2:].isdigit():
+        number = component[2:]
         return (
-            f"rk{number}",
-            f"Rk{number} - Heating circuit {number}",
-            f"rk{number}",
+            f"hk{number}",
+            f"Hk{number} - Heating circuit {number}",
+            f"hk{number}",
         )
 
-    if component == "hot_water":
-        return "rk4dhw", "Rk4 - Domestic hot water", "rk4dhw"
+    if component == "ww":
+        return "ww", "WW - Domestic hot water", "ww"
 
     return None
 

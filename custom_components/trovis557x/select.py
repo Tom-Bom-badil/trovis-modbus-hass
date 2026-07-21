@@ -42,23 +42,23 @@ def _operation_mode(
         component=component,
         field="mode",
         entity_category=EntityCategory.CONFIG,
-        translation_placeholders={"rk": placeholder},
+        translation_placeholders={"component": placeholder},
     )
 
 
 _SELECTS: tuple[TrovisSelectDescription, ...] = (
-    _operation_mode("heating_circuit_1", "rk1_operation_mode", "Rk1"),
-    _operation_mode("heating_circuit_2", "rk2_operation_mode", "Rk2"),
-    _operation_mode("heating_circuit_3", "rk3_operation_mode", "Rk3"),
-    _operation_mode("hot_water", "rk4dhw_operation_mode", "Rk4"),
+    _operation_mode("hk1", "hk1_operation_mode", "Hk1"),
+    _operation_mode("hk2", "hk2_operation_mode", "Hk2"),
+    _operation_mode("hk3", "hk3_operation_mode", "Hk3"),
+    _operation_mode("ww", "ww_operation_mode", "WW"),
     TrovisSelectDescription(
-        key="rk4dhw_disinfection_weekday",
+        key="ww_disinfection_weekday",
         translation_key="disinfection_weekday",
-        name="Rk4 disinfection weekday",
-        component="hot_water",
+        name="WW disinfection weekday",
+        component="ww",
         field="disinfection_weekday",
         entity_category=EntityCategory.CONFIG,
-        translation_placeholders={"rk": "Rk4"},
+        translation_placeholders={"component": "WW"},
     ),
 )
 
@@ -72,10 +72,9 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
 
     active_components = {
-        f"heating_circuit_{index}"
-        for index in coordinator.device.heating_circuit_indices
+        f"hk{index}" for index in coordinator.device.heating_circuit_indices
     }
-    active_components.add("hot_water")
+    active_components.add("ww")
 
     async_add_entities(
         TrovisSelect(coordinator, description)

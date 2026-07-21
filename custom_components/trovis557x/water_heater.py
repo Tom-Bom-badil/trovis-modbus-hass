@@ -1,4 +1,4 @@
-"""Water heater platform - the domestic hot water circuit (Rk4)."""
+"""Water heater platform - the domestic hot-water circuit (WW)."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-from trovis_modbus import HotWater, OperatingMode
+from trovis_modbus import DomesticHotWater, OperatingMode
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
 from .entity import TrovisEntity
@@ -45,11 +45,11 @@ async def async_setup_entry(
     entry: TrovisConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up the hot water entity."""
-    async_add_entities([TrovisHotWaterEntity(entry.runtime_data)])
+    """Set up the domestic hot-water entity."""
+    async_add_entities([TrovisDomesticHotWaterEntity(entry.runtime_data)])
 
 
-class TrovisHotWaterEntity(TrovisEntity, WaterHeaterEntity):
+class TrovisDomesticHotWaterEntity(TrovisEntity, WaterHeaterEntity):
     """Domestic hot water as a water heater."""
 
     _attr_name = None
@@ -62,9 +62,9 @@ class TrovisHotWaterEntity(TrovisEntity, WaterHeaterEntity):
 
     def __init__(self, coordinator: TrovisCoordinator) -> None:
         description = TrovisWaterHeaterDescription(
-            key="rk4dhw",
-            translation_key="rk4dhw",
-            component="hot_water",
+            key="ww",
+            translation_key="ww",
+            component="ww",
         )
         super().__init__(
             coordinator,
@@ -74,8 +74,10 @@ class TrovisHotWaterEntity(TrovisEntity, WaterHeaterEntity):
             translation_key=description.translation_key,
         )
         self.entity_description = description
-        temperature_metadata = require_number_metadata(self._hot_water, "setpoint_day")
-        enum_metadata = require_enum_metadata(self._hot_water, "mode")
+        temperature_metadata = require_number_metadata(
+            self._domestic_hot_water, "setpoint_day"
+        )
+        enum_metadata = require_enum_metadata(self._domestic_hot_water, "mode")
 
         self._enum_metadata = enum_metadata
         self._option_by_key = {option.key: option for option in enum_metadata.options}
@@ -92,7 +94,7 @@ class TrovisHotWaterEntity(TrovisEntity, WaterHeaterEntity):
         )
 
     @property
-    def _hot_water(self) -> HotWater:
+    def _domestic_hot_water(self) -> DomesticHotWater:
         return self._subsystem  # type: ignore[return-value]
 
     @property
@@ -101,20 +103,20 @@ class TrovisHotWaterEntity(TrovisEntity, WaterHeaterEntity):
 
     @property
     def target_temperature(self) -> float | None:
-        return self._hot_water.setpoint_active
+        return self._domestic_hot_water.setpoint_active
 
     @property
     def min_temp(self) -> float:
-        return self._hot_water.setpoint_min or 20.0
+        return self._domestic_hot_water.setpoint_min or 20.0
 
     @property
     def max_temp(self) -> float:
-        return self._hot_water.setpoint_max or 90.0
+        return self._domestic_hot_water.setpoint_max or 90.0
 
     @property
     def current_operation(self) -> str | None:
         """Return the current operation mode."""
-        mode = self._hot_water.mode
+        mode = self._domestic_hot_water.mode
         if mode is None:
             return None
 

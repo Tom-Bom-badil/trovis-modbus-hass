@@ -64,9 +64,13 @@ _CONTROLLER: tuple[TrovisNumberDescription, ...] = (
     _number("clock", "year", "Controller year"),
     _number("controller", "summer_days_on", "Summer mode activation days"),
     _number("controller", "summer_days_off", "Summer mode deactivation days"),
-    _number("controller", "summer_outside_limit", "Summer outside-temperature limit"),
-    _number("controller", "outside_delay", "Outside-temperature delay"),
-    _number("controller", "frost_limit", "Frost-protection limit"),
+    _number(
+        "controller",
+        "summer_outdoor_temperature_limit",
+        "Summer outdoor-temperature limit",
+    ),
+    _number("controller", "outdoor_temperature_delay", "Outdoor-temperature delay"),
+    _number("controller", "frost_protection_limit", "Frost-protection limit"),
     _number(
         "controller",
         "temperature_monitoring_deviation",
@@ -81,30 +85,30 @@ _CONTROLLER: tuple[TrovisNumberDescription, ...] = (
     ),
     _number(
         "controller",
-        "outside_input_range_start",
-        "Outside-temperature input range start",
+        "outdoor_temperature_input_range_start",
+        "Outdoor-temperature input range start",
         enabled=False,
     ),
     _number(
         "controller",
-        "outside_input_range_end",
-        "Outside-temperature input range end",
+        "outdoor_temperature_input_range_end",
+        "Outdoor-temperature input range end",
         enabled=False,
     ),
 )
 
 
-def _rk_number_descriptions(index: int) -> tuple[TrovisNumberDescription, ...]:
+def _hk_number_descriptions(index: int) -> tuple[TrovisNumberDescription, ...]:
     """Return number descriptions for one heating circuit."""
-    component = f"heating_circuit_{index}"
-    prefix = f"rk{index}"
-    placeholders = {"rk": f"Rk{index}"}
+    component = f"hk{index}"
+    prefix = f"hk{index}"
+    placeholders = {"component": f"Hk{index}"}
 
     def description(field: str, name: str) -> TrovisNumberDescription:
         return _number(
             component,
             field,
-            f"Rk{index} {name}",
+            f"Hk{index} {name}",
             key=f"{prefix}_{field}",
             translation_key=field,
             translation_placeholders=placeholders,
@@ -113,53 +117,65 @@ def _rk_number_descriptions(index: int) -> tuple[TrovisNumberDescription, ...]:
     return (
         description("room_setpoint_day", "room setpoint day"),
         description("room_setpoint_night", "room setpoint night"),
-        description("slope", "slope"),
+        description("gradient", "gradient"),
         description("level", "level"),
-        description("flow_min", "minimum flow setpoint"),
-        description("flow_max", "maximum flow setpoint"),
-        description("return_max", "maximum return temperature"),
+        description("minimum_flow_temperature", "minimum flow setpoint"),
+        description("maximum_flow_temperature", "maximum flow setpoint"),
+        description("maximum_return_flow_temperature", "maximum return temperature"),
         description("fixed_setpoint_day", "fixed setpoint day"),
         description("fixed_setpoint_night", "fixed setpoint night"),
     )
 
 
-_HOT_WATER_FIELDS: tuple[tuple[str, str, str], ...] = (
-    ("setpoint_day", "rk4dhw_setpoint", "dhw_setpoint"),
-    ("hold_value", "rk4dhw_hold_value", "dhw_hold_value"),
-    ("setpoint_min", "rk4dhw_setpoint_min", "dhw_setpoint_min"),
-    ("setpoint_max", "rk4dhw_setpoint_max", "dhw_setpoint_max"),
-    ("hysteresis", "rk4dhw_hysteresis", "hysteresis"),
-    ("charge_overshoot", "rk4dhw_charge_overshoot", "charge_overshoot"),
+_WW_FIELDS: tuple[tuple[str, str, str], ...] = (
+    ("setpoint_day", "ww_setpoint", "ww_setpoint"),
+    ("setpoint_night", "ww_setpoint_night", "ww_setpoint_night"),
+    ("setpoint_min", "ww_setpoint_min", "ww_setpoint_min"),
+    ("setpoint_max", "ww_setpoint_max", "ww_setpoint_max"),
+    ("hysteresis", "ww_hysteresis", "hysteresis"),
     (
-        "charge_pump_overrun_factor",
-        "rk4dhw_charge_pump_overrun_factor",
-        "charge_pump_overrun_factor",
-    ),
-    ("max_charge_temp", "rk4dhw_max_charge_temp", "max_charge_temp"),
-    ("return_max", "rk4dhw_return_max", "dhw_return_max"),
-    (
-        "disinfection_temp",
-        "rk4dhw_disinfection_temp",
-        "disinfection_temp",
+        "charging_temperature_boost",
+        "ww_charging_temperature_boost",
+        "charging_temperature_boost",
     ),
     (
-        "disinfection_hold",
-        "rk4dhw_disinfection_hold",
-        "disinfection_hold",
+        "storage_tank_charging_pump_lag_factor",
+        "ww_storage_tank_charging_pump_lag_factor",
+        "storage_tank_charging_pump_lag_factor",
     ),
-    ("special_setpoint", "rk4dhw_special_setpoint", "special_setpoint"),
+    (
+        "maximum_charging_temperature",
+        "ww_maximum_charging_temperature",
+        "maximum_charging_temperature",
+    ),
+    (
+        "maximum_return_flow_temperature",
+        "ww_maximum_return_flow_temperature",
+        "ww_maximum_return_flow_temperature",
+    ),
+    (
+        "disinfection_temperature",
+        "ww_disinfection_temperature",
+        "disinfection_temperature",
+    ),
+    (
+        "disinfection_hold_time",
+        "ww_disinfection_hold_time",
+        "disinfection_hold_time",
+    ),
+    ("special_setpoint", "ww_special_setpoint", "special_setpoint"),
 )
 
-_HOT_WATER: tuple[TrovisNumberDescription, ...] = tuple(
+_WW: tuple[TrovisNumberDescription, ...] = tuple(
     _number(
-        "hot_water",
+        "ww",
         field,
-        f"Rk4 {field.replace('_', ' ')}",
+        f"WW {field.replace('_', ' ')}",
         key=key,
         translation_key=translation_key,
-        translation_placeholders={"rk": "Rk4"},
+        translation_placeholders={"component": "WW"},
     )
-    for field, key, translation_key in _HOT_WATER_FIELDS
+    for field, key, translation_key in _WW_FIELDS
 )
 
 
@@ -182,8 +198,8 @@ async def async_setup_entry(
 
     descriptions = list(_CONTROLLER)
     for index in coordinator.device.heating_circuit_indices:
-        descriptions.extend(_rk_number_descriptions(index))
-    descriptions.extend(_HOT_WATER)
+        descriptions.extend(_hk_number_descriptions(index))
+    descriptions.extend(_WW)
 
     async_add_entities(
         TrovisNumber(coordinator, description)

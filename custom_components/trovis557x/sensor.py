@@ -120,57 +120,62 @@ def _month_day_sensor(
 
 _GLOBAL: tuple[TrovisSensorDescription, ...] = (
     TrovisSensorDescription(
-        key="system",
-        translation_key="system",
-        name="Hydraulic system",
+        key="system_code",
+        translation_key="system_code",
+        name="System code number",
         component="info",
-        field="system",
+        field="system_code",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     _number_sensor(
-        "sensors", "af1", "AF1 outside sensor 1", key="outside_temperature_1"
+        "sensors", "af1", "AF1 outdoor sensor 1", key="outdoor_temperature_1"
     ),
     _number_sensor(
-        "sensors", "af2", "AF2 outside sensor 2", key="outside_temperature_2"
+        "sensors", "af2", "AF2 outdoor sensor 2", key="outdoor_temperature_2"
     ),
     _number_sensor("sensors", "vf1", "VF1 flow sensor 1", key="flow_temperature_1"),
     _number_sensor("sensors", "vf2", "VF2 flow sensor 2", key="flow_temperature_2"),
     _number_sensor("sensors", "vf3", "VF3 flow sensor 3", key="flow_temperature_3"),
     _number_sensor("sensors", "vf4", "VF4 flow sensor 4", key="flow_temperature_4"),
     _number_sensor(
-        "sensors", "ruef1", "RüF1 return sensor 1", key="return_temperature_1"
+        "sensors", "ruef1", "RüF1 return flow sensor 1", key="return_temperature_1"
     ),
     _number_sensor(
-        "sensors", "ruef2", "RüF2 return sensor 2", key="return_temperature_2"
+        "sensors", "ruef2", "RüF2 return flow sensor 2", key="return_temperature_2"
     ),
     _number_sensor(
-        "sensors", "ruef3", "RüF3 return sensor 3", key="return_temperature_3"
+        "sensors", "ruef3", "RüF3 return flow sensor 3", key="return_temperature_3"
     ),
     _number_sensor("sensors", "rf1", "RF1 room sensor 1", key="room_temperature_1"),
     _number_sensor("sensors", "rf2", "RF2 room sensor 2", key="room_temperature_2"),
     _number_sensor("sensors", "rf3", "RF3 room sensor 3", key="room_temperature_3"),
     _number_sensor(
-        "sensors", "sf1", "SF1 hot water sensor 1", key="dhw_storage_temperature"
+        "sensors", "sf1", "SF1 storage tank sensor 1", key="ww_storage_temperature"
     ),
     _number_sensor(
         "sensors",
         "sf2",
-        "SF2 hot water sensor 2",
-        key="dhw_storage_temperature_lower",
+        "SF2 storage tank sensor 2",
+        key="ww_storage_temperature_lower",
     ),
-    _number_sensor("sensors", "fg1", "FG1 remote control 1", key="remote_adjustment_1"),
-    _number_sensor("sensors", "fg2", "FG2 remote control 2", key="remote_adjustment_2"),
+    _number_sensor("sensors", "sf3", "SF3 storage tank sensor 3", key="sf3"),
     _number_sensor(
         "sensors",
-        "sf3_fg3",
-        "SF3/FG3 hot water sensor / remote control 3",
-        key="storage_remote_temperature",
+        "ae1_fg1",
+        "AE1/FG1 analog input / potentiometer 1",
+        key="ae1_fg1",
+    ),
+    _number_sensor(
+        "sensors",
+        "ae2_fg2",
+        "AE2/FG2 analog input / potentiometer 2",
+        key="ae2_fg2",
     ),
     _number_sensor(
         "sensors",
         "ae3_fg3",
-        "AE3/FG3 analog input / remote control 3",
-        key="analog_remote_input_3",
+        "AE3/FG3 analog input / potentiometer 3",
+        key="ae3_fg3",
     ),
     _number_sensor(
         "sensors",
@@ -186,9 +191,9 @@ _GLOBAL: tuple[TrovisSensorDescription, ...] = (
     ),
     _number_sensor(
         "sensors",
-        "summer_outside_average",
-        "Summer outside-temperature average",
-        key="summer_outside_average",
+        "summer_outdoor_temperature_average",
+        "Summer outdoor-temperature average",
+        key="summer_outdoor_temperature_average",
     ),
     _number_sensor(
         "controller",
@@ -230,17 +235,17 @@ _GLOBAL: tuple[TrovisSensorDescription, ...] = (
 )
 
 
-def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
+def _hk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
     """Return read-only sensor descriptions for one heating circuit."""
-    component = f"heating_circuit_{index}"
-    prefix = f"rk{index}"
-    placeholders = {"rk": f"Rk{index}"}
+    component = f"hk{index}"
+    prefix = f"hk{index}"
+    placeholders = {"component": f"Hk{index}"}
 
     return (
         _number_sensor(
             component,
             "valve_setpoint",
-            f"Rk{index} valve setpoint",
+            f"Hk{index} valve setpoint",
             key=f"{prefix}_valve_setpoint",
             translation_key="valve_setpoint",
             translation_placeholders=placeholders,
@@ -248,7 +253,7 @@ def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
         _number_sensor(
             component,
             "room_setpoint_active",
-            f"Rk{index} active room setpoint",
+            f"Hk{index} active room setpoint",
             key=f"{prefix}_room_setpoint_active",
             translation_key="room_setpoint_active",
             entity_category=None,
@@ -258,7 +263,7 @@ def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
         _number_sensor(
             component,
             "flow_setpoint",
-            f"Rk{index} flow setpoint",
+            f"Hk{index} flow setpoint",
             key=f"{prefix}_flow_setpoint",
             translation_key="flow_setpoint",
             state_class=None,
@@ -266,96 +271,96 @@ def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
         ),
         _number_sensor(
             component,
-            "return_slope",
-            f"Rk{index} return slope",
-            key=f"{prefix}_return_slope",
-            translation_key="return_slope",
+            "return_flow_gradient",
+            f"Hk{index} return gradient",
+            key=f"{prefix}_return_flow_gradient",
+            translation_key="return_flow_gradient",
             state_class=None,
             translation_placeholders=placeholders,
         ),
         _number_sensor(
             component,
-            "return_level",
-            f"Rk{index} return level",
-            key=f"{prefix}_return_level",
-            translation_key="return_level",
+            "return_flow_level",
+            f"Hk{index} return level",
+            key=f"{prefix}_return_flow_level",
+            translation_key="return_flow_level",
             state_class=None,
             translation_placeholders=placeholders,
         ),
         _number_sensor(
             component,
-            "return_base_point",
-            f"Rk{index} return base point",
-            key=f"{prefix}_return_base_point",
-            translation_key="return_base_point",
+            "return_flow_base_point",
+            f"Hk{index} return base point",
+            key=f"{prefix}_return_flow_base_point",
+            translation_key="return_flow_base_point",
             state_class=None,
             translation_placeholders=placeholders,
         ),
         _number_sensor(
             component,
-            "return_setpoint",
-            f"Rk{index} return setpoint",
-            key=f"{prefix}_return_setpoint",
-            translation_key="return_setpoint",
+            "return_flow_temperature_setpoint",
+            f"Hk{index} return setpoint",
+            key=f"{prefix}_return_flow_temperature_setpoint",
+            translation_key="return_flow_temperature_setpoint",
             state_class=None,
             translation_placeholders=placeholders,
         ),
         _number_sensor(
             component,
-            "flow_deviation",
-            f"Rk{index} flow deviation",
-            key=f"{prefix}_flow_deviation",
-            translation_key="flow_deviation",
+            "flow_control_deviation",
+            f"Hk{index} flow deviation",
+            key=f"{prefix}_flow_control_deviation",
+            translation_key="flow_control_deviation",
             translation_placeholders=placeholders,
         ),
     )
 
 
-_HOT_WATER: tuple[TrovisSensorDescription, ...] = (
+_WW: tuple[TrovisSensorDescription, ...] = (
     _number_sensor(
-        "hot_water",
+        "ww",
         "setpoint_active",
-        "Rk4 active domestic-hot-water setpoint",
-        key="rk4dhw_setpoint_active",
-        translation_key="dhw_setpoint_active",
+        "WW active domestic hot-water setpoint",
+        key="ww_setpoint_active",
+        translation_key="ww_setpoint_active",
         entity_category=None,
         state_class=None,
-        translation_placeholders={"rk": "Rk4"},
+        translation_placeholders={"component": "WW"},
     ),
     _number_sensor(
-        "hot_water",
+        "ww",
         "solar_operating_hours",
-        "Rk4 solar operating hours",
-        key="rk4dhw_solar_operating_hours",
+        "WW solar operating hours",
+        key="ww_solar_operating_hours",
         translation_key="solar_operating_hours",
         device_class=SensorDeviceClass.DURATION,
         state_class=SensorStateClass.TOTAL_INCREASING,
-        translation_placeholders={"rk": "Rk4"},
+        translation_placeholders={"component": "WW"},
     ),
     _enum_sensor(
-        "hot_water",
+        "ww",
         "storage_status",
-        "Rk4 storage status",
-        key="rk4dhw_storage_status",
+        "WW storage status",
+        key="ww_storage_status",
         translation_key="storage_status",
-        translation_placeholders={"rk": "Rk4"},
+        translation_placeholders={"component": "WW"},
     ),
     _number_sensor(
-        "hot_water",
-        "active_charge_setpoint",
-        "Rk4 active charge setpoint",
-        key="rk4dhw_active_charge_setpoint",
-        translation_key="active_charge_setpoint",
+        "ww",
+        "active_charging_setpoint",
+        "WW active charging set point",
+        key="ww_active_charging_setpoint",
+        translation_key="active_charging_setpoint",
         state_class=None,
-        translation_placeholders={"rk": "Rk4"},
+        translation_placeholders={"component": "WW"},
     ),
     _number_sensor(
-        "hot_water",
+        "ww",
         "control_deviation",
-        "Rk4 control deviation",
-        key="rk4dhw_control_deviation",
+        "WW control deviation",
+        key="ww_control_deviation",
         translation_key="control_deviation",
-        translation_placeholders={"rk": "Rk4"},
+        translation_placeholders={"component": "WW"},
     ),
 )
 
@@ -386,8 +391,8 @@ async def async_setup_entry(
 
     descriptions = list(_GLOBAL)
     for index in coordinator.device.heating_circuit_indices:
-        descriptions.extend(_rk_sensor_descriptions(index))
-    descriptions.extend(_HOT_WATER)
+        descriptions.extend(_hk_sensor_descriptions(index))
+    descriptions.extend(_WW)
 
     async_add_entities(
         TrovisSensor(coordinator, description)
