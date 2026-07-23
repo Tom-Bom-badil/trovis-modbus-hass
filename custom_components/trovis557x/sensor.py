@@ -146,6 +146,12 @@ _GLOBAL: tuple[TrovisSensorDescription, ...] = (
     _number_sensor(
         "sensors", "ruef3", "RüF3 return flow sensor 3", key="return_temperature_3"
     ),
+    _number_sensor(
+        "sensors",
+        "ruef4",
+        "RüF4 return flow sensor 4",
+        key="return_temperature_4",
+    ),
     _number_sensor("sensors", "rf1", "RF1 room sensor 1", key="room_temperature_1"),
     _number_sensor("sensors", "rf2", "RF2 room sensor 2", key="room_temperature_2"),
     _number_sensor("sensors", "rf3", "RF3 room sensor 3", key="room_temperature_3"),
@@ -161,21 +167,39 @@ _GLOBAL: tuple[TrovisSensorDescription, ...] = (
     _number_sensor("sensors", "sf3", "SF3 storage tank sensor 3", key="sf3"),
     _number_sensor(
         "sensors",
-        "ae1_fg1",
-        "AE1/FG1 analog input / potentiometer 1",
-        key="ae1_fg1",
+        "ae1",
+        "AE1 analog input 1",
+        key="ae1",
     ),
     _number_sensor(
         "sensors",
-        "ae2_fg2",
-        "AE2/FG2 analog input / potentiometer 2",
-        key="ae2_fg2",
+        "fg1",
+        "FG1 potentiometer 1",
+        key="fg1",
     ),
     _number_sensor(
         "sensors",
-        "ae3_fg3",
-        "AE3/FG3 analog input / potentiometer 3",
-        key="ae3_fg3",
+        "ae2",
+        "AE2 analog input 2",
+        key="ae2",
+    ),
+    _number_sensor(
+        "sensors",
+        "fg2",
+        "FG2 potentiometer 2",
+        key="fg2",
+    ),
+    _number_sensor(
+        "sensors",
+        "ae3",
+        "AE3 analog input 3",
+        key="ae3",
+    ),
+    _number_sensor(
+        "sensors",
+        "fg3",
+        "FG3 potentiometer 3",
+        key="fg3",
     ),
     _number_sensor(
         "sensors",
@@ -188,6 +212,12 @@ _GLOBAL: tuple[TrovisSensorDescription, ...] = (
         "analog_input_voltage",
         "Analog input voltage",
         key="analog_input_voltage",
+    ),
+    _number_sensor(
+        "sensors",
+        "analog_input_current",
+        "Analog input current",
+        key="analog_input_current",
     ),
     _number_sensor(
         "sensors",
