@@ -74,7 +74,8 @@ async def async_setup_entry(
     active_components = {
         f"hk{index}" for index in coordinator.device.heating_circuit_indices
     }
-    active_components.add("ww")
+    if coordinator.device.has_rk4:
+        active_components.add("ww")
 
     async_add_entities(
         TrovisSelect(coordinator, description)

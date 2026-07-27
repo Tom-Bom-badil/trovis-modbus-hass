@@ -299,7 +299,9 @@ async def async_setup_entry(
 ) -> None:
     """Set up Trovis binary sensors."""
     coordinator = entry.runtime_data
-    descriptions = [*_CONTROLLER, *_WW]
+    descriptions = list(_CONTROLLER)
+    if coordinator.device.has_rk4:
+        descriptions.extend(_WW)
 
     for index in coordinator.device.heating_circuit_indices:
         component = f"hk{index}"

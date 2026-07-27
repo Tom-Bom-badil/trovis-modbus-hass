@@ -252,6 +252,36 @@ async def test_subdevices_are_linked_to_controller(
     assert measurements.via_device_id == controller.id
 
 
+async def test_system_without_rk4_omits_ww_entities_and_device(
+    hass: HomeAssistant,
+    modbus_provider: MockProvider,
+) -> None:
+    """Do not expose Rk4 entities for a hydronic system without hot water."""
+    modbus_provider.unit.holding[1] = 10  # hydraulic system / Anlage 1.0
+
+    entry = await _setup(hass, modbus_provider)
+
+    assert entry.runtime_data.device.has_rk4 is False
+
+    assert hass.states.get(f"sensor.{SLUG}_ww_setpoint_active") is None
+    assert hass.states.get(f"binary_sensor.{SLUG}_ww_priority") is None
+    assert hass.states.get(f"number.{SLUG}_ww_setpoint") is None
+    assert hass.states.get(f"select.{SLUG}_ww_operation_mode") is None
+    assert (
+        hass.states.get(f"switch.{SLUG}_ww_storage_tank_charging_enabled")
+        is None
+    )
+    assert hass.states.get(f"time.{SLUG}_ww_disinfection_start") is None
+    assert hass.states.get(f"water_heater.{SLUG}_ww") is None
+
+    registry = dr.async_get(hass)
+    assert registry.async_get_device({(DOMAIN, f"{entry.entry_id}_ww")}) is None
+
+    # Physical sensor entities stay on the Measurements sub-device and are
+    # intentionally independent of the Rk4 role.
+    assert hass.states.get(f"sensor.{SLUG}_ww_storage_temperature") is not None
+
+
 async def test_register_and_coil_writes(
     hass: HomeAssistant,
     modbus_provider: MockProvider,

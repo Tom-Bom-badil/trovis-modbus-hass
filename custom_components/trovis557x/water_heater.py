@@ -46,7 +46,11 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up the domestic hot-water entity."""
-    async_add_entities([TrovisDomesticHotWaterEntity(entry.runtime_data)])
+    coordinator = entry.runtime_data
+    if not coordinator.device.has_rk4:
+        return
+
+    async_add_entities([TrovisDomesticHotWaterEntity(coordinator)])
 
 
 class TrovisDomesticHotWaterEntity(TrovisEntity, WaterHeaterEntity):

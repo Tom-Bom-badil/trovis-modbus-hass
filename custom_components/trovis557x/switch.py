@@ -211,7 +211,8 @@ async def async_setup_entry(
     for index in coordinator.device.heating_circuit_indices:
         descriptions.extend(_hk_switch_descriptions(index))
 
-    descriptions.extend(_WW)
+    if coordinator.device.has_rk4:
+        descriptions.extend(_WW)
     entities.extend(
         TrovisSwitch(coordinator, description)
         for description in descriptions

@@ -59,8 +59,11 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up native TROVIS time entities."""
+    coordinator = entry.runtime_data
     async_add_entities(
-        TrovisTime(entry.runtime_data, description) for description in _TIMES
+        TrovisTime(coordinator, description)
+        for description in _TIMES
+        if description.component != "ww" or coordinator.device.has_rk4
     )
 
 

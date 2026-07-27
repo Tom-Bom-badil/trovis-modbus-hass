@@ -199,7 +199,8 @@ async def async_setup_entry(
     descriptions = list(_CONTROLLER)
     for index in coordinator.device.heating_circuit_indices:
         descriptions.extend(_hk_number_descriptions(index))
-    descriptions.extend(_WW)
+    if coordinator.device.has_rk4:
+        descriptions.extend(_WW)
 
     async_add_entities(
         TrovisNumber(coordinator, description)
