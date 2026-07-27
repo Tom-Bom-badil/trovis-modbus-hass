@@ -22,7 +22,7 @@
         },
         "data_description": {
           "name": "Unique display name for this controller, e.g. 'SAMSON TROVIS'. Use a different name for each controller.",
-          "slug": "Prefix for generated entity IDs, e.g. 't5578'. This results in IDs such as 'sensor.t5578_outdoor_temperature_1'.",
+          "slug": "Prefix for generated entity IDs, e.g. 't5578'. This results in IDs such as 'sensor.t5578_sensor_af1'.",
           "access_code": "The number code for write access (see the last page in the device manual)."
         }
       },
@@ -81,8 +81,8 @@
       "fg1": { "name": "FG1 potentiometer 1" },
       "fg2": { "name": "FG2 potentiometer 2" },
       "fg3": { "name": "FG3 potentiometer 3" },
-      "analog_input_voltage": { "name": "AE analog input" },
-      "analog_input_current": { "name": "Analog input current" },
+      "analog_input_voltage": { "name": "AE analog input voltage" },
+      "analog_input_current": { "name": "AE analog input current" },
       "pulse_rate": { "name": "IMP pulse rate" },
       "summer_outdoor_temperature_average": { "name": "Summer outdoor-temperature average" },
       "valve_setpoint": { "name": "{component} valve set point" },

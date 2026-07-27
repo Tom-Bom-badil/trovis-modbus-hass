@@ -33,9 +33,9 @@ DETECTED_SENSORS = [
     "rf1",
     "sf1",
     "sf3",
-    "ae1_fg1",
-    "ae2_fg2",
-    "ae3_fg3",
+    "fg1",
+    "fg2",
+    "fg3",
     "pulse_rate",
     "analog_input_voltage",
     "summer_outdoor_temperature_average",
@@ -82,7 +82,7 @@ async def test_setup_entry_creates_entities(
 
     assert entry.state is ConfigEntryState.LOADED
 
-    outdoor_temperature = hass.states.get(f"sensor.{SLUG}_outdoor_temperature_1")
+    outdoor_temperature = hass.states.get(f"sensor.{SLUG}_sensor_af1")
     assert outdoor_temperature is not None
     assert float(outdoor_temperature.state) == pytest.approx(12.3)
 
@@ -91,22 +91,22 @@ async def test_setup_entry_creates_entities(
     assert float(system.state) == pytest.approx(2.1)
     assert hass.states.get(f"number.{SLUG}_system_code") is None
 
-    sf3 = hass.states.get(f"sensor.{SLUG}_sf3")
-    ae1_fg1 = hass.states.get(f"sensor.{SLUG}_ae1_fg1")
-    ae2_fg2 = hass.states.get(f"sensor.{SLUG}_ae2_fg2")
-    ae3_fg3 = hass.states.get(f"sensor.{SLUG}_ae3_fg3")
+    sf3 = hass.states.get(f"sensor.{SLUG}_sensor_sf3")
+    fg1 = hass.states.get(f"sensor.{SLUG}_sensor_fg1")
+    fg2 = hass.states.get(f"sensor.{SLUG}_sensor_fg2")
+    fg3 = hass.states.get(f"sensor.{SLUG}_sensor_fg3")
     assert sf3 is not None
     assert float(sf3.state) == pytest.approx(65.0)
     assert sf3.attributes["unit_of_measurement"] == "°C"
-    assert ae1_fg1 is not None
-    assert ae2_fg2 is not None
-    assert ae3_fg3 is not None
-    assert float(ae1_fg1.state) == pytest.approx(95.2)
-    assert float(ae2_fg2.state) == pytest.approx(325.0)
-    assert float(ae3_fg3.state) == pytest.approx(1.5)
-    assert "unit_of_measurement" not in ae1_fg1.attributes
-    assert "unit_of_measurement" not in ae2_fg2.attributes
-    assert "unit_of_measurement" not in ae3_fg3.attributes
+    assert fg1 is not None
+    assert fg2 is not None
+    assert fg3 is not None
+    assert float(fg1.state) == pytest.approx(95.2)
+    assert float(fg2.state) == pytest.approx(325.0)
+    assert float(fg3.state) == pytest.approx(1.5)
+    assert "unit_of_measurement" not in fg1.attributes
+    assert "unit_of_measurement" not in fg2.attributes
+    assert "unit_of_measurement" not in fg3.attributes
 
     active_room_setpoint = hass.states.get(f"sensor.{SLUG}_hk1_room_setpoint_active")
     assert active_room_setpoint is not None
@@ -145,8 +145,8 @@ async def test_setup_entry_creates_entities(
     assert summer_end is not None
     assert summer_end.state == "09-15"
 
-    analog_input = hass.states.get(f"sensor.{SLUG}_analog_input_voltage")
-    pulse_rate = hass.states.get(f"sensor.{SLUG}_pulse_rate")
+    analog_input = hass.states.get(f"sensor.{SLUG}_sensor_ae_voltage")
+    pulse_rate = hass.states.get(f"sensor.{SLUG}_sensor_imp")
     assert analog_input is not None
     assert float(analog_input.state) == pytest.approx(5.23)
     assert pulse_rate is not None
@@ -279,7 +279,7 @@ async def test_system_without_rk4_omits_ww_entities_and_device(
 
     # Physical sensor entities stay on the Measurements sub-device and are
     # intentionally independent of the Rk4 role.
-    assert hass.states.get(f"sensor.{SLUG}_ww_storage_temperature") is not None
+    assert hass.states.get(f"sensor.{SLUG}_sensor_sf1") is not None
 
 
 async def test_register_and_coil_writes(
