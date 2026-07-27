@@ -1,7 +1,7 @@
 """Base entity for Trovis 557x.
 
-Each heating circuit, the domestic hot-water circuit, and the physical measurement
-inputs are their own (sub-)devices, linked to the controller via ``via_device``.
+Each active Rk slot and the physical measurement inputs are their own
+(sub-)devices, linked to the controller via ``via_device``.
 """
 
 from __future__ import annotations
@@ -14,6 +14,7 @@ from homeassistant.helpers.entity import DeviceInfo, async_generate_entity_id
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
 from trovis_modbus import (
+    ControlCircuitRole,
     TrovisValueValidationError,
     TrovisWriteAccessDisabledError,
     TrovisWriteAccessError,
@@ -24,21 +25,55 @@ from .const import CONF_SLUG, DEFAULT_SLUG, DOMAIN
 from .coordinator import TrovisCoordinator
 
 
-def _sub_device(component: str) -> tuple[str, str, str] | None:
+def rk1_to_rk3_indices(coordinator: TrovisCoordinator) -> tuple[int, ...]:
+    """Return active technical Rk1-Rk3 slots for this hydronic system."""
+    return tuple(
+        index
+        for index in coordinator.device.control_circuit_indices
+        if index <= 3
+    )
+
+
+def _rk_sub_device(
+    coordinator: TrovisCoordinator,
+    index: int,
+) -> tuple[str, str, str]:
+    """Return identity and role-aware presentation for one Rk sub-device."""
+    role = coordinator.device.control_circuit_role(index)
+    component = f"rk{index}"
+
+    if role is ControlCircuitRole.HEATING:
+        return (
+            component,
+            f"Rk{index} – Heating circuit {index}",
+            f"{component}_heating",
+        )
+    if role is ControlCircuitRole.PRECONTROL:
+        return component, f"Rk{index} – Precontrol circuit", f"{component}_precontrol"
+    if role is ControlCircuitRole.BUFFER_TANK:
+        return (
+            component,
+            f"Rk{index} – Buffer tank circuit",
+            f"{component}_buffer_tank",
+        )
+    if role is ControlCircuitRole.DOMESTIC_HOT_WATER:
+        return component, "Rk4 – Domestic hot water", "rk4_dhw"
+
+    return component, f"Rk{index} – Control circuit {index}", component
+
+
+def _sub_device(
+    coordinator: TrovisCoordinator,
+    component: str,
+) -> tuple[str, str, str] | None:
     """Return (sub-device id, fallback name, translation key), or None."""
     if component == "sensors":
         return "measurements", "Measurements", "measurements"
 
-    if component.startswith("hk") and component[2:].isdigit():
-        number = component[2:]
-        return (
-            f"hk{number}",
-            f"Hk{number} - Heating circuit {number}",
-            f"hk{number}",
-        )
-
-    if component == "ww":
-        return "ww", "WW - Domestic hot water", "ww"
+    if component.startswith("rk") and component[2:].isdigit():
+        index = int(component[2:])
+        if 1 <= index <= 4:
+            return _rk_sub_device(coordinator, index)
 
     return None
 
@@ -81,7 +116,7 @@ class TrovisEntity(CoordinatorEntity[TrovisCoordinator]):
         )
 
         info = coordinator.device.info
-        sub = _sub_device(component)
+        sub = _sub_device(coordinator, component)
         if sub is None:
             self._attr_device_info = DeviceInfo(
                 identifiers={(DOMAIN, entry.entry_id)},

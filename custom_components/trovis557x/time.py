@@ -33,22 +33,22 @@ _TIMES: tuple[TrovisTimeDescription, ...] = (
         entity_category=EntityCategory.CONFIG,
     ),
     TrovisTimeDescription(
-        key="ww_disinfection_start",
+        key="rk4_disinfection_start",
         translation_key="disinfection_start",
-        name="WW disinfection start",
-        component="ww",
+        name="Rk4 disinfection start",
+        component="rk4",
         field="disinfection_start",
         entity_category=EntityCategory.CONFIG,
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     TrovisTimeDescription(
-        key="ww_disinfection_stop",
+        key="rk4_disinfection_stop",
         translation_key="disinfection_stop",
-        name="WW disinfection end",
-        component="ww",
+        name="Rk4 disinfection end",
+        component="rk4",
         field="disinfection_stop",
         entity_category=EntityCategory.CONFIG,
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
 )
 
@@ -63,7 +63,7 @@ async def async_setup_entry(
     async_add_entities(
         TrovisTime(coordinator, description)
         for description in _TIMES
-        if description.component != "ww" or coordinator.device.has_rk4
+        if description.component != "rk4" or coordinator.device.has_rk4
     )
 
 

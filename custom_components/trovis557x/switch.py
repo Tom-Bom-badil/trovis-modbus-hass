@@ -14,7 +14,7 @@ from trovis_modbus import TrovisWriteAccessError
 from trovis_modbus.metadata import BooleanMetadata
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
-from .entity import TrovisEntity
+from .entity import TrovisEntity, rk1_to_rk3_indices
 from .metadata import component_supports_datapoint, require_boolean_metadata
 
 _LOGGER = logging.getLogger(__name__)
@@ -94,17 +94,17 @@ _CONTROLLER: tuple[TrovisSwitchDescription, ...] = (
 )
 
 
-def _hk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
+def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
     """Return switch descriptions for one heating circuit."""
-    component = f"hk{index}"
-    prefix = f"hk{index}"
-    placeholders = {"component": f"Hk{index}"}
+    component = f"rk{index}"
+    prefix = f"rk{index}"
+    placeholders = {"component": f"Rk{index}"}
 
     return (
         _switch(
             component,
             "optimization",
-            f"Hk{index} optimization",
+            f"Rk{index} optimization",
             key=f"{prefix}_optimization",
             translation_key="optimization",
             translation_placeholders=placeholders,
@@ -112,7 +112,7 @@ def _hk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
         _switch(
             component,
             "adaptation",
-            f"Hk{index} adaptation",
+            f"Rk{index} adaptation",
             key=f"{prefix}_adaptation",
             translation_key="adaptation",
             translation_placeholders=placeholders,
@@ -120,7 +120,7 @@ def _hk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
         _switch(
             component,
             "room_control_unit",
-            f"Hk{index} room control unit",
+            f"Rk{index} room control unit",
             key=f"{prefix}_room_control_unit",
             translation_key="room_control_unit",
             translation_placeholders=placeholders,
@@ -128,7 +128,7 @@ def _hk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
         _switch(
             component,
             "pump_running",
-            f"Hk{index} pump control",
+            f"Rk{index} pump control",
             key=f"{prefix}_pump_control",
             translation_key="pump_control",
             translation_placeholders=placeholders,
@@ -136,62 +136,62 @@ def _hk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
     )
 
 
-_WW: tuple[TrovisSwitchDescription, ...] = (
+_RK4: tuple[TrovisSwitchDescription, ...] = (
     _switch(
-        "ww",
+        "rk4",
         "storage_tank_charging_pump_running",
-        "WW storage-tank-charging-pump control",
-        key="ww_storage_tank_charging_pump_control",
+        "Rk4 storage-tank-charging-pump control",
+        key="rk4_storage_tank_charging_pump_control",
         translation_key="storage_tank_charging_pump_control",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _switch(
-        "ww",
+        "rk4",
         "circulation_pump_running",
-        "WW circulation-pump control",
-        key="ww_circulation_pump_control",
+        "Rk4 circulation-pump control",
+        key="rk4_circulation_pump_control",
         translation_key="circulation_pump_control",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _switch(
-        "ww",
+        "rk4",
         "intermediate_heating_operation",
-        "WW intermediate heating operation",
-        key="ww_intermediate_heating_operation",
+        "Rk4 intermediate heating operation",
+        key="rk4_intermediate_heating_operation",
         translation_key="intermediate_heating_operation",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _switch(
-        "ww",
+        "rk4",
         "forced_charging",
-        "WW forced charging",
-        key="ww_forced_charging",
+        "Rk4 forced charging",
+        key="rk4_forced_charging",
         translation_key="forced_charging",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _switch(
-        "ww",
+        "rk4",
         "forced_charging_uses_storage_tank_sensor_2",
-        "WW forced charging using storage tank sensor 2",
-        key="ww_forced_charging_uses_storage_tank_sensor_2",
+        "Rk4 forced charging using storage tank sensor 2",
+        key="rk4_forced_charging_uses_storage_tank_sensor_2",
         translation_key="forced_charging_uses_storage_tank_sensor_2",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _switch(
-        "ww",
+        "rk4",
         "storage_tank_charging_enabled",
-        "WW storage tank charging enabled",
-        key="ww_storage_tank_charging_enabled",
+        "Rk4 storage tank charging enabled",
+        key="rk4_storage_tank_charging_enabled",
         translation_key="storage_tank_charging_enabled",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _switch(
-        "ww",
+        "rk4",
         "intermediate_heating_function_enabled",
-        "WW intermediate heating function",
-        key="ww_intermediate_heating_function_enabled",
+        "Rk4 intermediate heating function",
+        key="rk4_intermediate_heating_function_enabled",
         translation_key="intermediate_heating_function_enabled",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
         enabled=False,
     ),
 )
@@ -208,11 +208,11 @@ async def async_setup_entry(
     entities: list[SwitchEntity] = [TrovisWriteAccessSwitch(coordinator)]
     descriptions = list(_CONTROLLER)
 
-    for index in coordinator.device.heating_circuit_indices:
-        descriptions.extend(_hk_switch_descriptions(index))
+    for index in rk1_to_rk3_indices(coordinator):
+        descriptions.extend(_rk_switch_descriptions(index))
 
     if coordinator.device.has_rk4:
-        descriptions.extend(_WW)
+        descriptions.extend(_RK4)
     entities.extend(
         TrovisSwitch(coordinator, description)
         for description in descriptions

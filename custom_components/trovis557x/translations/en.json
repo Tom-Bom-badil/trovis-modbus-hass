@@ -51,45 +51,141 @@
     }
   },
   "device": {
-    "hk1": { "name": "Hk1 - Heating circuit 1" },
-    "hk2": { "name": "Hk2 - Heating circuit 2" },
-    "hk3": { "name": "Hk3 - Heating circuit 3" },
-    "ww": { "name": "WW - Domestic hot water" },
-    "measurements": { "name": "Measurements" }
+    "rk1": {
+      "name": "Rk1 – Control circuit 1"
+    },
+    "rk1_heating": {
+      "name": "Rk1 – Heating circuit 1"
+    },
+    "rk1_precontrol": {
+      "name": "Rk1 – Precontrol circuit"
+    },
+    "rk1_buffer_tank": {
+      "name": "Rk1 – Buffer tank circuit"
+    },
+    "rk2": {
+      "name": "Rk2 – Control circuit 2"
+    },
+    "rk2_heating": {
+      "name": "Rk2 – Heating circuit 2"
+    },
+    "rk2_precontrol": {
+      "name": "Rk2 – Precontrol circuit"
+    },
+    "rk3": {
+      "name": "Rk3 – Control circuit 3"
+    },
+    "rk3_heating": {
+      "name": "Rk3 – Heating circuit 3"
+    },
+    "rk3_precontrol": {
+      "name": "Rk3 – Precontrol circuit"
+    },
+    "rk4": {
+      "name": "Rk4 – Control circuit 4"
+    },
+    "rk4_dhw": {
+      "name": "Rk4 – Domestic hot water"
+    },
+    "measurements": {
+      "name": "Measurements"
+    }
   },
   "entity": {
     "sensor": {
-      "system_code": { "name": "System code number" },
-      "outdoor_temperature_1": { "name": "AF1 outdoor sensor 1" },
-      "outdoor_temperature_2": { "name": "AF2 outdoor sensor 2" },
-      "flow_temperature_1": { "name": "VF1 flow sensor 1" },
-      "flow_temperature_2": { "name": "VF2 flow sensor 2" },
-      "flow_temperature_3": { "name": "VF3 flow sensor 3" },
-      "flow_temperature_4": { "name": "VF4 flow sensor 4" },
-      "return_temperature_1": { "name": "RüF1 return flow sensor 1" },
-      "return_temperature_2": { "name": "RüF2 return flow sensor 2" },
-      "return_temperature_3": { "name": "RüF3 return flow sensor 3" },
-      "room_temperature_1": { "name": "RF1 room sensor 1" },
-      "room_temperature_2": { "name": "RF2 room sensor 2" },
-      "room_temperature_3": { "name": "RF3 room sensor 3" },
-      "ww_storage_temperature": { "name": "SF1 storage tank sensor 1" },
-      "ww_storage_temperature_lower": { "name": "SF2 storage tank sensor 2" },
-      "sf3": { "name": "SF3 storage tank sensor 3" },
-      "ae1": { "name": "AE1 analog input 1" },
-      "ae2": { "name": "AE2 analog input 2" },
-      "ae3": { "name": "AE3 analog input 3" },
-      "fg1": { "name": "FG1 potentiometer 1" },
-      "fg2": { "name": "FG2 potentiometer 2" },
-      "fg3": { "name": "FG3 potentiometer 3" },
-      "analog_input_voltage": { "name": "AE analog input voltage" },
-      "analog_input_current": { "name": "AE analog input current" },
-      "pulse_rate": { "name": "IMP pulse rate" },
-      "summer_outdoor_temperature_average": { "name": "Summer outdoor-temperature average" },
-      "valve_setpoint": { "name": "{component} valve set point" },
-      "room_setpoint_active": { "name": "{component} active room set point" },
-      "ww_setpoint_active": { "name": "{component} active domestic-hot-water set point" },
-      "error_status": { "name": "Error status" },
-      "max_flow_setpoint": { "name": "Maximum flow set point" },
+      "system_code": {
+        "name": "System code number"
+      },
+      "outdoor_temperature_1": {
+        "name": "AF1 outdoor sensor 1"
+      },
+      "outdoor_temperature_2": {
+        "name": "AF2 outdoor sensor 2"
+      },
+      "flow_temperature_1": {
+        "name": "VF1 flow sensor 1"
+      },
+      "flow_temperature_2": {
+        "name": "VF2 flow sensor 2"
+      },
+      "flow_temperature_3": {
+        "name": "VF3 flow sensor 3"
+      },
+      "flow_temperature_4": {
+        "name": "VF4 flow sensor 4"
+      },
+      "return_temperature_1": {
+        "name": "RüF1 return flow sensor 1"
+      },
+      "return_temperature_2": {
+        "name": "RüF2 return flow sensor 2"
+      },
+      "return_temperature_3": {
+        "name": "RüF3 return flow sensor 3"
+      },
+      "room_temperature_1": {
+        "name": "RF1 room sensor 1"
+      },
+      "room_temperature_2": {
+        "name": "RF2 room sensor 2"
+      },
+      "room_temperature_3": {
+        "name": "RF3 room sensor 3"
+      },
+      "ww_storage_temperature": {
+        "name": "SF1 storage tank sensor 1"
+      },
+      "ww_storage_temperature_lower": {
+        "name": "SF2 storage tank sensor 2"
+      },
+      "sf3": {
+        "name": "SF3 storage tank sensor 3"
+      },
+      "ae1": {
+        "name": "AE1 analog input 1"
+      },
+      "ae2": {
+        "name": "AE2 analog input 2"
+      },
+      "ae3": {
+        "name": "AE3 analog input 3"
+      },
+      "fg1": {
+        "name": "FG1 potentiometer 1"
+      },
+      "fg2": {
+        "name": "FG2 potentiometer 2"
+      },
+      "fg3": {
+        "name": "FG3 potentiometer 3"
+      },
+      "analog_input_voltage": {
+        "name": "AE analog input voltage"
+      },
+      "analog_input_current": {
+        "name": "AE analog input current"
+      },
+      "pulse_rate": {
+        "name": "IMP pulse rate"
+      },
+      "summer_outdoor_temperature_average": {
+        "name": "Summer outdoor-temperature average"
+      },
+      "valve_setpoint": {
+        "name": "{component} valve set point"
+      },
+      "room_setpoint_active": {
+        "name": "{component} active room set point"
+      },
+      "rk4_setpoint_active": {
+        "name": "{component} active domestic-hot-water set point"
+      },
+      "error_status": {
+        "name": "Error status"
+      },
+      "max_flow_setpoint": {
+        "name": "Maximum flow set point"
+      },
       "switch_top": {
         "name": "Top rotary switch",
         "state": {
@@ -123,18 +219,42 @@
           "night": "Night"
         }
       },
-      "special_functions": { "name": "Special functions" },
-      "station_address": { "name": "Station address" },
-      "error_count": { "name": "Error count" },
-      "summer_start": { "name": "Summer period start" },
-      "summer_end": { "name": "Summer period end" },
-      "flow_setpoint": { "name": "{component} flow set point" },
-      "return_flow_gradient": { "name": "{component} return flow characteristic gradient" },
-      "return_flow_level": { "name": "{component} return flow characteristic level" },
-      "return_flow_base_point": { "name": "{component} return flow base point" },
-      "return_flow_temperature_setpoint": { "name": "{component} return flow set point" },
-      "flow_control_deviation": { "name": "{component} flow control deviation" },
-      "solar_operating_hours": { "name": "{component} solar operating hours" },
+      "special_functions": {
+        "name": "Special functions"
+      },
+      "station_address": {
+        "name": "Station address"
+      },
+      "error_count": {
+        "name": "Error count"
+      },
+      "summer_start": {
+        "name": "Summer period start"
+      },
+      "summer_end": {
+        "name": "Summer period end"
+      },
+      "flow_setpoint": {
+        "name": "{component} flow set point"
+      },
+      "return_flow_gradient": {
+        "name": "{component} return flow characteristic gradient"
+      },
+      "return_flow_level": {
+        "name": "{component} return flow characteristic level"
+      },
+      "return_flow_base_point": {
+        "name": "{component} return flow base point"
+      },
+      "return_flow_temperature_setpoint": {
+        "name": "{component} return flow set point"
+      },
+      "flow_control_deviation": {
+        "name": "{component} flow control deviation"
+      },
+      "solar_operating_hours": {
+        "name": "{component} solar operating hours"
+      },
       "storage_status": {
         "name": "{component} storage tank status",
         "state": {
@@ -147,98 +267,258 @@
           "discharge_protection": "Discharging protection"
         }
       },
-      "active_charging_setpoint": { "name": "{component} active charging set point" },
-      "control_deviation": { "name": "{component} control deviation" }
+      "active_charging_setpoint": {
+        "name": "{component} active charging set point"
+      },
+      "control_deviation": {
+        "name": "{component} control deviation"
+      }
     },
     "binary_sensor": {
-      "general_fault": { "name": "Fault" },
-      "summer_active": { "name": "Summer mode" },
-      "pump_running": { "name": "{component} circulation pump (heating)" },
-      "frost_protection": { "name": "{component} frost protection" },
-      "standby": { "name": "{component} standby" },
-      "storage_tank_charging_pump_running": { "name": "{component} storage tank charging pump" },
-      "disinfection_active": { "name": "{component} thermal disinfection" },
-      "circulation_pump_running": { "name": "{component} circulation pump (domestic hot water)" },
-      "data_entry_active": { "name": "Data entry active" },
-      "data_entry_performed": { "name": "Data entry performed" },
-      "global_level_autark": { "name": "Global control autonomous" },
-      "outdoor_temperature_control_autonomous": { "name": "Outdoor-temperature control autonomous" },
-      "any_circuit_not_automatic": { "name": "At least one control circuit not in automatic mode" },
-      "rotary_switch_not_automatic": { "name": "At least one rotary switch not in automatic mode" },
-      "manual_active": { "name": "{component} manual mode" },
-      "automatic": { "name": "{component} automatic mode" },
-      "day_active": { "name": "{component} day mode" },
-      "night_active": { "name": "{component} night mode" },
-      "hold_active": { "name": "{component} hold operation" },
-      "setback_active": { "name": "{component} set-back operation" },
-      "heat_up_active": { "name": "{component} heat-up operation" },
-      "return_limit_active": { "name": "{component} return flow temperature limitation" },
-      "outdoor_temperature_deactivation": { "name": "{component} outdoor-temperature-dependent deactivation" },
-      "valve_closing": { "name": "{component} valve closing" },
-      "valve_opening": { "name": "{component} valve opening" },
-      "mode_control_autonomous": { "name": "{component} operating-mode control autonomous" },
-      "valve_control_autonomous": { "name": "{component} valve control autonomous" },
-      "pump_control_autonomous": { "name": "{component} pump control autonomous" },
-      "flow_setpoint_control_autonomous": { "name": "{component} flow-set-point control autonomous" },
-      "return_flow_temperature_setpoint_control_autonomous": { "name": "{component} return-flow-set-point control autonomous" },
-      "room_setpoint_control_autonomous": { "name": "{component} room-set-point control autonomous" },
-      "priority": { "name": "{component} priority circuit" },
-      "maximum_charging_temperature_limit_active": { "name": "{component} maximum charging-temperature limit" },
-      "solar_circuit_pump_running": { "name": "{component} solar circuit pump" },
-      "storage_tank_charging_active": { "name": "{component} storage tank charging active" },
-      "storage_tank_charging_locked": { "name": "{component} storage tank charging locked" },
-      "storage_tank_charging_pump_control_autonomous": { "name": "{component} storage-tank-charging-pump control autonomous" },
-      "circulation_pump_control_autonomous": { "name": "{component} circulation-pump control autonomous" },
-      "special_setpoint_control_autonomous": { "name": "{component} special-set-point control autonomous" }
+      "general_fault": {
+        "name": "Fault"
+      },
+      "summer_active": {
+        "name": "Summer mode"
+      },
+      "pump_running": {
+        "name": "{component} circulation pump (heating)"
+      },
+      "frost_protection": {
+        "name": "{component} frost protection"
+      },
+      "standby": {
+        "name": "{component} standby"
+      },
+      "storage_tank_charging_pump_running": {
+        "name": "{component} storage tank charging pump"
+      },
+      "disinfection_active": {
+        "name": "{component} thermal disinfection"
+      },
+      "circulation_pump_running": {
+        "name": "{component} circulation pump (domestic hot water)"
+      },
+      "data_entry_active": {
+        "name": "Data entry active"
+      },
+      "data_entry_performed": {
+        "name": "Data entry performed"
+      },
+      "global_level_autark": {
+        "name": "Global control autonomous"
+      },
+      "outdoor_temperature_control_autonomous": {
+        "name": "Outdoor-temperature control autonomous"
+      },
+      "any_circuit_not_automatic": {
+        "name": "At least one control circuit not in automatic mode"
+      },
+      "rotary_switch_not_automatic": {
+        "name": "At least one rotary switch not in automatic mode"
+      },
+      "manual_active": {
+        "name": "{component} manual mode"
+      },
+      "automatic": {
+        "name": "{component} automatic mode"
+      },
+      "day_active": {
+        "name": "{component} day mode"
+      },
+      "night_active": {
+        "name": "{component} night mode"
+      },
+      "hold_active": {
+        "name": "{component} hold operation"
+      },
+      "setback_active": {
+        "name": "{component} set-back operation"
+      },
+      "heat_up_active": {
+        "name": "{component} heat-up operation"
+      },
+      "return_limit_active": {
+        "name": "{component} return flow temperature limitation"
+      },
+      "outdoor_temperature_deactivation": {
+        "name": "{component} outdoor-temperature-dependent deactivation"
+      },
+      "valve_closing": {
+        "name": "{component} valve closing"
+      },
+      "valve_opening": {
+        "name": "{component} valve opening"
+      },
+      "mode_control_autonomous": {
+        "name": "{component} operating-mode control autonomous"
+      },
+      "valve_control_autonomous": {
+        "name": "{component} valve control autonomous"
+      },
+      "pump_control_autonomous": {
+        "name": "{component} pump control autonomous"
+      },
+      "flow_setpoint_control_autonomous": {
+        "name": "{component} flow-set-point control autonomous"
+      },
+      "return_flow_temperature_setpoint_control_autonomous": {
+        "name": "{component} return-flow-set-point control autonomous"
+      },
+      "room_setpoint_control_autonomous": {
+        "name": "{component} room-set-point control autonomous"
+      },
+      "priority": {
+        "name": "{component} priority circuit"
+      },
+      "maximum_charging_temperature_limit_active": {
+        "name": "{component} maximum charging-temperature limit"
+      },
+      "solar_circuit_pump_running": {
+        "name": "{component} solar circuit pump"
+      },
+      "storage_tank_charging_active": {
+        "name": "{component} storage tank charging active"
+      },
+      "storage_tank_charging_locked": {
+        "name": "{component} storage tank charging locked"
+      },
+      "storage_tank_charging_pump_control_autonomous": {
+        "name": "{component} storage-tank-charging-pump control autonomous"
+      },
+      "circulation_pump_control_autonomous": {
+        "name": "{component} circulation-pump control autonomous"
+      },
+      "special_setpoint_control_autonomous": {
+        "name": "{component} special-set-point control autonomous"
+      }
     },
     "climate": {
-      "hk1": { "name": "Hk1 - Heating circuit 1" },
-      "hk2": { "name": "Hk2 - Heating circuit 2" },
-      "hk3": { "name": "Hk3 - Heating circuit 3" }
+      "rk1": {
+        "name": "Rk1 – Heating circuit 1"
+      },
+      "rk2": {
+        "name": "Rk2 – Heating circuit 2"
+      },
+      "rk3": {
+        "name": "Rk3 – Heating circuit 3"
+      }
     },
     "water_heater": {
-      "ww": { "name": "WW - Domestic hot water" }
+      "rk4": {
+        "name": "Rk4 – Domestic hot water"
+      }
     },
     "number": {
-      "year": { "name": "Current year" },
-      "room_setpoint_day": { "name": "{component} day room set point" },
-      "room_setpoint_night": { "name": "{component} night room set point" },
-      "gradient": { "name": "{component} gradient" },
-      "level": { "name": "{component} level" },
-      "ww_setpoint": { "name": "{component} day set point" },
-      "ww_setpoint_night": { "name": "{component} night set point" },
-      "ww_setpoint_min": { "name": "{component} minimum set point" },
-      "ww_setpoint_max": { "name": "{component} maximum set point" },
-      "summer_days_on": { "name": "Summer-mode activation days" },
-      "summer_days_off": { "name": "Summer-mode deactivation days" },
-      "summer_outdoor_temperature_limit": { "name": "Summer outdoor-temperature limit" },
-      "outdoor_temperature_delay": { "name": "Outdoor-temperature adaptation delay" },
-      "frost_protection_limit": { "name": "Frost-protection limit" },
-      "temperature_monitoring_deviation": { "name": "Temperature-monitoring deviation" },
-      "temperature_monitoring_window": { "name": "Temperature-monitoring window" },
-      "outdoor_temperature_input_range_start": { "name": "Outdoor-temperature input range start" },
-      "outdoor_temperature_input_range_end": { "name": "Outdoor-temperature input range end" },
-      "minimum_flow_temperature": { "name": "{component} minimum flow temperature" },
-      "maximum_flow_temperature": { "name": "{component} maximum flow temperature" },
-      "maximum_return_flow_temperature": { "name": "{component} maximum return flow temperature" },
-      "fixed_setpoint_day": { "name": "{component} fixed set point day" },
-      "fixed_setpoint_night": { "name": "{component} fixed set point night" },
-      "hysteresis": { "name": "{component} hysteresis" },
-      "charging_temperature_boost": { "name": "{component} charging temperature boost" },
-      "storage_tank_charging_pump_lag_factor": { "name": "{component} storage-tank-charging-pump lag-time factor" },
-      "maximum_charging_temperature": { "name": "{component} maximum charging temperature" },
-      "ww_maximum_return_flow_temperature": { "name": "{component} maximum return flow temperature" },
-      "disinfection_temperature": { "name": "{component} disinfection temperature" },
-      "disinfection_hold_time": { "name": "{component} disinfection hold time" },
-      "special_setpoint": { "name": "{component} special set point" }
+      "year": {
+        "name": "Current year"
+      },
+      "room_setpoint_day": {
+        "name": "{component} day room set point"
+      },
+      "room_setpoint_night": {
+        "name": "{component} night room set point"
+      },
+      "gradient": {
+        "name": "{component} gradient"
+      },
+      "level": {
+        "name": "{component} level"
+      },
+      "rk4_setpoint": {
+        "name": "{component} day set point"
+      },
+      "rk4_setpoint_night": {
+        "name": "{component} night set point"
+      },
+      "rk4_setpoint_min": {
+        "name": "{component} minimum set point"
+      },
+      "rk4_setpoint_max": {
+        "name": "{component} maximum set point"
+      },
+      "summer_days_on": {
+        "name": "Summer-mode activation days"
+      },
+      "summer_days_off": {
+        "name": "Summer-mode deactivation days"
+      },
+      "summer_outdoor_temperature_limit": {
+        "name": "Summer outdoor-temperature limit"
+      },
+      "outdoor_temperature_delay": {
+        "name": "Outdoor-temperature adaptation delay"
+      },
+      "frost_protection_limit": {
+        "name": "Frost-protection limit"
+      },
+      "temperature_monitoring_deviation": {
+        "name": "Temperature-monitoring deviation"
+      },
+      "temperature_monitoring_window": {
+        "name": "Temperature-monitoring window"
+      },
+      "outdoor_temperature_input_range_start": {
+        "name": "Outdoor-temperature input range start"
+      },
+      "outdoor_temperature_input_range_end": {
+        "name": "Outdoor-temperature input range end"
+      },
+      "minimum_flow_temperature": {
+        "name": "{component} minimum flow temperature"
+      },
+      "maximum_flow_temperature": {
+        "name": "{component} maximum flow temperature"
+      },
+      "maximum_return_flow_temperature": {
+        "name": "{component} maximum return flow temperature"
+      },
+      "fixed_setpoint_day": {
+        "name": "{component} fixed set point day"
+      },
+      "fixed_setpoint_night": {
+        "name": "{component} fixed set point night"
+      },
+      "hysteresis": {
+        "name": "{component} hysteresis"
+      },
+      "charging_temperature_boost": {
+        "name": "{component} charging temperature boost"
+      },
+      "storage_tank_charging_pump_lag_factor": {
+        "name": "{component} storage-tank-charging-pump lag-time factor"
+      },
+      "maximum_charging_temperature": {
+        "name": "{component} maximum charging temperature"
+      },
+      "rk4_maximum_return_flow_temperature": {
+        "name": "{component} maximum return flow temperature"
+      },
+      "disinfection_temperature": {
+        "name": "{component} disinfection temperature"
+      },
+      "disinfection_hold_time": {
+        "name": "{component} disinfection hold time"
+      },
+      "special_setpoint": {
+        "name": "{component} special set point"
+      }
     },
     "date": {
-      "controller_date": { "name": "Controller date" }
+      "controller_date": {
+        "name": "Controller date"
+      }
     },
     "time": {
-      "controller_time": { "name": "Controller time" },
-      "disinfection_start": { "name": "{component} disinfection start" },
-      "disinfection_stop": { "name": "{component} disinfection end" }
+      "controller_time": {
+        "name": "Controller time"
+      },
+      "disinfection_start": {
+        "name": "{component} disinfection start"
+      },
+      "disinfection_stop": {
+        "name": "{component} disinfection end"
+      }
     },
     "select": {
       "operation_mode": {
@@ -267,24 +547,60 @@
       }
     },
     "switch": {
-      "write_access": { "name": "Write access" },
-      "delayed_outdoor_temperature_adaptation_falling": { "name": "Delayed outdoor temperature adaptation (falling)" },
-      "delayed_outdoor_temperature_adaptation_rising": { "name": "Delayed outdoor temperature adaptation (rising)" },
-      "automatic_summer_standard_time_switchover": { "name": "Automatic summer/standard time switchover" },
-      "optimization": { "name": "{component} optimization" },
-      "adaptation": { "name": "{component} adaptation" },
-      "room_control_unit": { "name": "{component} room panel 5570" },
-      "intermediate_heating_operation": { "name": "{component} intermediate heating" },
-      "manual_levels_locked": { "name": "Manual level locked" },
-      "rotary_switch_locked": { "name": "Rotary switch locked" },
-      "glt_timeout_active": { "name": "Supervisory-system timeout" },
-      "forced_charging": { "name": "{component} forced charging" },
-      "forced_charging_uses_storage_tank_sensor_2": { "name": "{component} forced charging using storage tank sensor 2" },
-      "storage_tank_charging_enabled": { "name": "{component} storage tank charging enabled" },
-      "intermediate_heating_function_enabled": { "name": "{component} intermediate-heating function" },
-      "pump_control": { "name": "{component} circulation-pump control" },
-      "storage_tank_charging_pump_control": { "name": "{component} storage-tank-charging-pump control" },
-      "circulation_pump_control": { "name": "{component} circulation-pump control" }
+      "write_access": {
+        "name": "Write access"
+      },
+      "delayed_outdoor_temperature_adaptation_falling": {
+        "name": "Delayed outdoor temperature adaptation (falling)"
+      },
+      "delayed_outdoor_temperature_adaptation_rising": {
+        "name": "Delayed outdoor temperature adaptation (rising)"
+      },
+      "automatic_summer_standard_time_switchover": {
+        "name": "Automatic summer/standard time switchover"
+      },
+      "optimization": {
+        "name": "{component} optimization"
+      },
+      "adaptation": {
+        "name": "{component} adaptation"
+      },
+      "room_control_unit": {
+        "name": "{component} room panel 5570"
+      },
+      "intermediate_heating_operation": {
+        "name": "{component} intermediate heating"
+      },
+      "manual_levels_locked": {
+        "name": "Manual level locked"
+      },
+      "rotary_switch_locked": {
+        "name": "Rotary switch locked"
+      },
+      "glt_timeout_active": {
+        "name": "Supervisory-system timeout"
+      },
+      "forced_charging": {
+        "name": "{component} forced charging"
+      },
+      "forced_charging_uses_storage_tank_sensor_2": {
+        "name": "{component} forced charging using storage tank sensor 2"
+      },
+      "storage_tank_charging_enabled": {
+        "name": "{component} storage tank charging enabled"
+      },
+      "intermediate_heating_function_enabled": {
+        "name": "{component} intermediate-heating function"
+      },
+      "pump_control": {
+        "name": "{component} circulation-pump control"
+      },
+      "storage_tank_charging_pump_control": {
+        "name": "{component} storage-tank-charging-pump control"
+      },
+      "circulation_pump_control": {
+        "name": "{component} circulation-pump control"
+      }
     }
   }
 }

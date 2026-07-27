@@ -12,7 +12,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from trovis_modbus.metadata import EnumMetadata
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
-from .entity import TrovisEntity
+from .entity import TrovisEntity, rk1_to_rk3_indices
 from .metadata import component_supports_datapoint, require_enum_metadata
 
 
@@ -47,18 +47,18 @@ def _operation_mode(
 
 
 _SELECTS: tuple[TrovisSelectDescription, ...] = (
-    _operation_mode("hk1", "hk1_operation_mode", "Hk1"),
-    _operation_mode("hk2", "hk2_operation_mode", "Hk2"),
-    _operation_mode("hk3", "hk3_operation_mode", "Hk3"),
-    _operation_mode("ww", "ww_operation_mode", "WW"),
+    _operation_mode("rk1", "rk1_operation_mode", "Rk1"),
+    _operation_mode("rk2", "rk2_operation_mode", "Rk2"),
+    _operation_mode("rk3", "rk3_operation_mode", "Rk3"),
+    _operation_mode("rk4", "rk4_operation_mode", "Rk4"),
     TrovisSelectDescription(
-        key="ww_disinfection_weekday",
+        key="rk4_disinfection_weekday",
         translation_key="disinfection_weekday",
-        name="WW disinfection weekday",
-        component="ww",
+        name="Rk4 disinfection weekday",
+        component="rk4",
         field="disinfection_weekday",
         entity_category=EntityCategory.CONFIG,
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
 )
 
@@ -72,10 +72,10 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
 
     active_components = {
-        f"hk{index}" for index in coordinator.device.heating_circuit_indices
+        f"rk{index}" for index in rk1_to_rk3_indices(coordinator)
     }
     if coordinator.device.has_rk4:
-        active_components.add("ww")
+        active_components.add("rk4")
 
     async_add_entities(
         TrovisSelect(coordinator, description)

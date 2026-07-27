@@ -14,7 +14,7 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
-from .entity import TrovisEntity
+from .entity import TrovisEntity, rk1_to_rk3_indices
 from .metadata import (
     component_supports_datapoint,
     ha_unit_from_number,
@@ -98,17 +98,17 @@ _CONTROLLER: tuple[TrovisNumberDescription, ...] = (
 )
 
 
-def _hk_number_descriptions(index: int) -> tuple[TrovisNumberDescription, ...]:
+def _rk_number_descriptions(index: int) -> tuple[TrovisNumberDescription, ...]:
     """Return number descriptions for one heating circuit."""
-    component = f"hk{index}"
-    prefix = f"hk{index}"
-    placeholders = {"component": f"Hk{index}"}
+    component = f"rk{index}"
+    prefix = f"rk{index}"
+    placeholders = {"component": f"Rk{index}"}
 
     def description(field: str, name: str) -> TrovisNumberDescription:
         return _number(
             component,
             field,
-            f"Hk{index} {name}",
+            f"Rk{index} {name}",
             key=f"{prefix}_{field}",
             translation_key=field,
             translation_placeholders=placeholders,
@@ -127,55 +127,55 @@ def _hk_number_descriptions(index: int) -> tuple[TrovisNumberDescription, ...]:
     )
 
 
-_WW_FIELDS: tuple[tuple[str, str, str], ...] = (
-    ("setpoint_day", "ww_setpoint", "ww_setpoint"),
-    ("setpoint_night", "ww_setpoint_night", "ww_setpoint_night"),
-    ("setpoint_min", "ww_setpoint_min", "ww_setpoint_min"),
-    ("setpoint_max", "ww_setpoint_max", "ww_setpoint_max"),
-    ("hysteresis", "ww_hysteresis", "hysteresis"),
+_RK4_FIELDS: tuple[tuple[str, str, str], ...] = (
+    ("setpoint_day", "rk4_setpoint", "rk4_setpoint"),
+    ("setpoint_night", "rk4_setpoint_night", "rk4_setpoint_night"),
+    ("setpoint_min", "rk4_setpoint_min", "rk4_setpoint_min"),
+    ("setpoint_max", "rk4_setpoint_max", "rk4_setpoint_max"),
+    ("hysteresis", "rk4_hysteresis", "hysteresis"),
     (
         "charging_temperature_boost",
-        "ww_charging_temperature_boost",
+        "rk4_charging_temperature_boost",
         "charging_temperature_boost",
     ),
     (
         "storage_tank_charging_pump_lag_factor",
-        "ww_storage_tank_charging_pump_lag_factor",
+        "rk4_storage_tank_charging_pump_lag_factor",
         "storage_tank_charging_pump_lag_factor",
     ),
     (
         "maximum_charging_temperature",
-        "ww_maximum_charging_temperature",
+        "rk4_maximum_charging_temperature",
         "maximum_charging_temperature",
     ),
     (
         "maximum_return_flow_temperature",
-        "ww_maximum_return_flow_temperature",
-        "ww_maximum_return_flow_temperature",
+        "rk4_maximum_return_flow_temperature",
+        "rk4_maximum_return_flow_temperature",
     ),
     (
         "disinfection_temperature",
-        "ww_disinfection_temperature",
+        "rk4_disinfection_temperature",
         "disinfection_temperature",
     ),
     (
         "disinfection_hold_time",
-        "ww_disinfection_hold_time",
+        "rk4_disinfection_hold_time",
         "disinfection_hold_time",
     ),
-    ("special_setpoint", "ww_special_setpoint", "special_setpoint"),
+    ("special_setpoint", "rk4_special_setpoint", "special_setpoint"),
 )
 
-_WW: tuple[TrovisNumberDescription, ...] = tuple(
+_RK4: tuple[TrovisNumberDescription, ...] = tuple(
     _number(
-        "ww",
+        "rk4",
         field,
-        f"WW {field.replace('_', ' ')}",
+        f"Rk4 {field.replace('_', ' ')}",
         key=key,
         translation_key=translation_key,
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     )
-    for field, key, translation_key in _WW_FIELDS
+    for field, key, translation_key in _RK4_FIELDS
 )
 
 
@@ -197,10 +197,10 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
 
     descriptions = list(_CONTROLLER)
-    for index in coordinator.device.heating_circuit_indices:
-        descriptions.extend(_hk_number_descriptions(index))
+    for index in rk1_to_rk3_indices(coordinator):
+        descriptions.extend(_rk_number_descriptions(index))
     if coordinator.device.has_rk4:
-        descriptions.extend(_WW)
+        descriptions.extend(_RK4)
 
     async_add_entities(
         TrovisNumber(coordinator, description)

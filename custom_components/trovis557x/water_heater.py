@@ -1,4 +1,4 @@
-"""Water heater platform - the domestic hot-water circuit (WW)."""
+"""Water heater platform - the domestic-hot-water control circuit Rk4."""
 
 from __future__ import annotations
 
@@ -66,9 +66,9 @@ class TrovisDomesticHotWaterEntity(TrovisEntity, WaterHeaterEntity):
 
     def __init__(self, coordinator: TrovisCoordinator) -> None:
         description = TrovisWaterHeaterDescription(
-            key="ww",
-            translation_key="ww",
-            component="ww",
+            key="rk4",
+            translation_key="rk4",
+            component="rk4",
         )
         super().__init__(
             coordinator,

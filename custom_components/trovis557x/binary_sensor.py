@@ -14,7 +14,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
-from .entity import TrovisEntity
+from .entity import TrovisEntity, rk1_to_rk3_indices
 from .metadata import component_supports_datapoint
 
 
@@ -142,151 +142,151 @@ _CIRCUIT_STATES: tuple[tuple[str, str, BinarySensorDeviceClass | None, bool], ..
 )
 
 
-_WW: tuple[TrovisBinaryDescription, ...] = (
+_RK4: tuple[TrovisBinaryDescription, ...] = (
     _binary(
-        "ww",
+        "rk4",
         "storage_tank_charging_pump_running",
         "Storage tank charging pump",
         BinarySensorDeviceClass.HEAT,
-        key="ww_storage_tank_charging_pump_running",
+        key="rk4_storage_tank_charging_pump_running",
         translation_key="storage_tank_charging_pump_running",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _binary(
-        "ww",
+        "rk4",
         "disinfection_active",
         "Disinfection",
         BinarySensorDeviceClass.RUNNING,
-        key="ww_disinfection_active",
+        key="rk4_disinfection_active",
         translation_key="disinfection_active",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _binary(
-        "ww",
+        "rk4",
         "circulation_pump_running",
         "Circulation pump",
         BinarySensorDeviceClass.RUNNING,
-        key="ww_circulation_pump_running",
+        key="rk4_circulation_pump_running",
         translation_key="circulation_pump_running",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _binary(
-        "ww",
+        "rk4",
         "manual_active",
         "Manual operation",
-        key="ww_manual_active",
+        key="rk4_manual_active",
         translation_key="manual_active",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _binary(
-        "ww",
+        "rk4",
         "automatic",
         "Automatic operation",
-        key="ww_automatic",
+        key="rk4_automatic",
         translation_key="automatic",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _binary(
-        "ww",
+        "rk4",
         "priority",
         "Domestic hot-water priority",
-        key="ww_priority",
+        key="rk4_priority",
         translation_key="priority",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _binary(
-        "ww",
+        "rk4",
         "maximum_charging_temperature_limit_active",
         "Maximum charging-temperature limit",
-        key="ww_maximum_charging_temperature_limit_active",
+        key="rk4_maximum_charging_temperature_limit_active",
         translation_key="maximum_charging_temperature_limit_active",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _binary(
-        "ww",
+        "rk4",
         "return_limit_active",
         "Return-temperature limit",
-        key="ww_return_limit_active",
+        key="rk4_return_limit_active",
         translation_key="return_limit_active",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _binary(
-        "ww",
+        "rk4",
         "standby",
         "Standby",
-        key="ww_standby",
+        key="rk4_standby",
         translation_key="standby",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _binary(
-        "ww",
+        "rk4",
         "frost_protection",
         "Frost protection",
         BinarySensorDeviceClass.COLD,
-        key="ww_frost_protection",
+        key="rk4_frost_protection",
         translation_key="frost_protection",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _binary(
-        "ww",
+        "rk4",
         "solar_circuit_pump_running",
         "Solar circuit pump",
         BinarySensorDeviceClass.RUNNING,
-        key="ww_solar_circuit_pump_running",
+        key="rk4_solar_circuit_pump_running",
         translation_key="solar_circuit_pump_running",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _binary(
-        "ww",
+        "rk4",
         "storage_tank_charging_active",
         "Storage charging active",
         BinarySensorDeviceClass.RUNNING,
-        key="ww_storage_tank_charging_active",
+        key="rk4_storage_tank_charging_active",
         translation_key="storage_tank_charging_active",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _binary(
-        "ww",
+        "rk4",
         "storage_tank_charging_locked",
         "Storage charging locked",
-        key="ww_storage_tank_charging_locked",
+        key="rk4_storage_tank_charging_locked",
         translation_key="storage_tank_charging_locked",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
     ),
     _binary(
-        "ww",
+        "rk4",
         "mode_control_autonomous",
         "Mode control autonomous",
-        key="ww_mode_control_autonomous",
+        key="rk4_mode_control_autonomous",
         translation_key="mode_control_autonomous",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
         enabled=False,
     ),
     _binary(
-        "ww",
+        "rk4",
         "storage_tank_charging_pump_control_autonomous",
         "Storage-tank-charging-pump control autonomous",
-        key="ww_storage_tank_charging_pump_control_autonomous",
+        key="rk4_storage_tank_charging_pump_control_autonomous",
         translation_key="storage_tank_charging_pump_control_autonomous",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
         enabled=False,
     ),
     _binary(
-        "ww",
+        "rk4",
         "circulation_pump_control_autonomous",
         "Circulation-pump control autonomous",
-        key="ww_circulation_pump_control_autonomous",
+        key="rk4_circulation_pump_control_autonomous",
         translation_key="circulation_pump_control_autonomous",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
         enabled=False,
     ),
     _binary(
-        "ww",
+        "rk4",
         "special_setpoint_control_autonomous",
         "Special-setpoint control autonomous",
-        key="ww_special_setpoint_control_autonomous",
+        key="rk4_special_setpoint_control_autonomous",
         translation_key="special_setpoint_control_autonomous",
-        translation_placeholders={"component": "WW"},
+        translation_placeholders={"component": "Rk4"},
         enabled=False,
     ),
 )
@@ -301,18 +301,18 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     descriptions = list(_CONTROLLER)
     if coordinator.device.has_rk4:
-        descriptions.extend(_WW)
+        descriptions.extend(_RK4)
 
-    for index in coordinator.device.heating_circuit_indices:
-        component = f"hk{index}"
-        placeholders = {"component": f"Hk{index}"}
+    for index in rk1_to_rk3_indices(coordinator):
+        component = f"rk{index}"
+        placeholders = {"component": f"Rk{index}"}
         descriptions.extend(
             _binary(
                 component,
                 field,
                 name,
                 device_class,
-                key=f"hk{index}_{field}",
+                key=f"rk{index}_{field}",
                 translation_key=field,
                 translation_placeholders=placeholders,
                 enabled=enabled,

@@ -108,25 +108,25 @@ async def test_setup_entry_creates_entities(
     assert "unit_of_measurement" not in fg2.attributes
     assert "unit_of_measurement" not in fg3.attributes
 
-    active_room_setpoint = hass.states.get(f"sensor.{SLUG}_hk1_room_setpoint_active")
+    active_room_setpoint = hass.states.get(f"sensor.{SLUG}_rk1_room_setpoint_active")
     assert active_room_setpoint is not None
     assert float(active_room_setpoint.state) == pytest.approx(21.0)
 
-    active_ww_setpoint = hass.states.get(f"sensor.{SLUG}_ww_setpoint_active")
-    assert active_ww_setpoint is not None
-    assert float(active_ww_setpoint.state) == pytest.approx(50.0)
+    active_rk4_setpoint = hass.states.get(f"sensor.{SLUG}_rk4_setpoint_active")
+    assert active_rk4_setpoint is not None
+    assert float(active_rk4_setpoint.state) == pytest.approx(50.0)
 
-    ww_min = hass.states.get(f"number.{SLUG}_ww_setpoint_min")
-    ww_max = hass.states.get(f"number.{SLUG}_ww_setpoint_max")
-    assert ww_min is not None
-    assert ww_max is not None
-    assert float(ww_min.state) == pytest.approx(45.0)
-    assert float(ww_max.state) == pytest.approx(60.0)
+    rk4_min = hass.states.get(f"number.{SLUG}_rk4_setpoint_min")
+    rk4_max = hass.states.get(f"number.{SLUG}_rk4_setpoint_max")
+    assert rk4_min is not None
+    assert rk4_max is not None
+    assert float(rk4_min.state) == pytest.approx(45.0)
+    assert float(rk4_max.state) == pytest.approx(60.0)
 
     controller_date = hass.states.get(f"date.{SLUG}_controller_date")
     controller_time = hass.states.get(f"time.{SLUG}_controller_time")
-    disinfection_start = hass.states.get(f"time.{SLUG}_ww_disinfection_start")
-    disinfection_stop = hass.states.get(f"time.{SLUG}_ww_disinfection_stop")
+    disinfection_start = hass.states.get(f"time.{SLUG}_rk4_disinfection_start")
+    disinfection_stop = hass.states.get(f"time.{SLUG}_rk4_disinfection_stop")
     assert controller_date is not None
     assert controller_date.state == "2026-06-21"
     assert controller_time is not None
@@ -152,9 +152,9 @@ async def test_setup_entry_creates_entities(
     assert pulse_rate is not None
     assert float(pulse_rate.state) == pytest.approx(120)
 
-    flow_setpoint = hass.states.get(f"sensor.{SLUG}_hk1_flow_setpoint")
+    flow_setpoint = hass.states.get(f"sensor.{SLUG}_rk1_flow_setpoint")
     return_flow_temperature_setpoint = hass.states.get(
-        f"sensor.{SLUG}_hk1_return_flow_temperature_setpoint"
+        f"sensor.{SLUG}_rk1_return_flow_temperature_setpoint"
     )
     assert flow_setpoint is not None
     assert float(flow_setpoint.state) == pytest.approx(55.0)
@@ -162,48 +162,50 @@ async def test_setup_entry_creates_entities(
     assert float(return_flow_temperature_setpoint.state) == pytest.approx(45.0)
 
     minimum_flow_temperature = hass.states.get(
-        f"number.{SLUG}_hk1_minimum_flow_temperature"
+        f"number.{SLUG}_rk1_minimum_flow_temperature"
     )
     maximum_return_flow_temperature = hass.states.get(
-        f"number.{SLUG}_hk1_maximum_return_flow_temperature"
+        f"number.{SLUG}_rk1_maximum_return_flow_temperature"
     )
     assert minimum_flow_temperature is not None
     assert float(minimum_flow_temperature.state) == pytest.approx(20.0)
     assert maximum_return_flow_temperature is not None
     assert float(maximum_return_flow_temperature.state) == pytest.approx(55.0)
 
-    storage_status = hass.states.get(f"sensor.{SLUG}_ww_storage_status")
-    solar_hours = hass.states.get(f"sensor.{SLUG}_ww_solar_operating_hours")
+    storage_status = hass.states.get(f"sensor.{SLUG}_rk4_storage_status")
+    solar_hours = hass.states.get(f"sensor.{SLUG}_rk4_solar_operating_hours")
     assert storage_status is not None
     assert storage_status.state == "charging"
     assert solar_hours is not None
     assert float(solar_hours.state) == pytest.approx(1234)
 
-    disinfection_weekday = hass.states.get(f"select.{SLUG}_ww_disinfection_weekday")
+    disinfection_weekday = hass.states.get(f"select.{SLUG}_rk4_disinfection_weekday")
     assert disinfection_weekday is not None
     assert disinfection_weekday.state == "wednesday"
 
-    pump = hass.states.get(f"binary_sensor.{SLUG}_hk1_pump_running")
+    pump = hass.states.get(f"binary_sensor.{SLUG}_rk1_pump_running")
     assert pump is not None
     assert pump.state == "on"
 
-    automatic = hass.states.get(f"binary_sensor.{SLUG}_hk1_automatic")
-    valve_opening = hass.states.get(f"binary_sensor.{SLUG}_hk1_valve_opening")
-    ww_priority = hass.states.get(f"binary_sensor.{SLUG}_ww_priority")
+    automatic = hass.states.get(f"binary_sensor.{SLUG}_rk1_automatic")
+    valve_opening = hass.states.get(f"binary_sensor.{SLUG}_rk1_valve_opening")
+    rk4_priority = hass.states.get(f"binary_sensor.{SLUG}_rk4_priority")
     assert automatic is not None
     assert automatic.state == "on"
     assert valve_opening is not None
     assert valve_opening.state == "on"
-    assert ww_priority is not None
-    assert ww_priority.state == "on"
+    assert rk4_priority is not None
+    assert rk4_priority.state == "on"
 
     manual_lock = hass.states.get(f"switch.{SLUG}_manual_levels_locked")
-    storage_enabled = hass.states.get(f"switch.{SLUG}_ww_storage_tank_charging_enabled")
-    heating_pump = hass.states.get(f"switch.{SLUG}_hk1_pump_control")
-    storage_tank_charging_pump = hass.states.get(
-        f"switch.{SLUG}_ww_storage_tank_charging_pump_control"
+    storage_enabled = hass.states.get(
+        f"switch.{SLUG}_rk4_storage_tank_charging_enabled"
     )
-    circulation_pump = hass.states.get(f"switch.{SLUG}_ww_circulation_pump_control")
+    heating_pump = hass.states.get(f"switch.{SLUG}_rk1_pump_control")
+    storage_tank_charging_pump = hass.states.get(
+        f"switch.{SLUG}_rk4_storage_tank_charging_pump_control"
+    )
+    circulation_pump = hass.states.get(f"switch.{SLUG}_rk4_circulation_pump_control")
     assert manual_lock is not None
     assert manual_lock.state == "off"
     assert storage_enabled is not None
@@ -215,15 +217,21 @@ async def test_setup_entry_creates_entities(
     assert circulation_pump is not None
     assert circulation_pump.state == "off"
 
-    climate = hass.states.get(f"climate.{SLUG}_hk1")
+    climate = hass.states.get(f"climate.{SLUG}_rk1")
     assert climate is not None
     assert climate.state == "auto"
     assert climate.attributes["temperature"] == pytest.approx(21.0)
 
-    water_heater = hass.states.get(f"water_heater.{SLUG}_ww")
+    water_heater = hass.states.get(f"water_heater.{SLUG}_rk4")
     assert water_heater is not None
     assert water_heater.attributes["temperature"] == pytest.approx(50.0)
     assert water_heater.attributes["current_temperature"] == pytest.approx(45.0)
+
+    # Step 5 is a deliberate beta identity cut: no legacy Hk/WW IDs remain.
+    assert hass.states.get(f"sensor.{SLUG}_hk1_flow_setpoint") is None
+    assert hass.states.get(f"sensor.{SLUG}_ww_setpoint_active") is None
+    assert hass.states.get(f"climate.{SLUG}_hk1") is None
+    assert hass.states.get(f"water_heater.{SLUG}_ww") is None
 
 
 async def test_subdevices_are_linked_to_controller(
@@ -237,13 +245,13 @@ async def test_subdevices_are_linked_to_controller(
     controller = registry.async_get_device({(DOMAIN, entry.entry_id)})
     assert controller is not None
 
-    circuit_1 = registry.async_get_device({(DOMAIN, f"{entry.entry_id}_hk1")})
+    circuit_1 = registry.async_get_device({(DOMAIN, f"{entry.entry_id}_rk1")})
     assert circuit_1 is not None
     assert circuit_1.via_device_id == controller.id
 
-    ww = registry.async_get_device({(DOMAIN, f"{entry.entry_id}_ww")})
-    assert ww is not None
-    assert ww.via_device_id == controller.id
+    rk4 = registry.async_get_device({(DOMAIN, f"{entry.entry_id}_rk4")})
+    assert rk4 is not None
+    assert rk4.via_device_id == controller.id
 
     measurements = registry.async_get_device(
         {(DOMAIN, f"{entry.entry_id}_measurements")}
@@ -252,7 +260,36 @@ async def test_subdevices_are_linked_to_controller(
     assert measurements.via_device_id == controller.id
 
 
-async def test_system_without_rk4_omits_ww_entities_and_device(
+async def test_rk_subdevices_use_hydronic_roles(
+    hass: HomeAssistant,
+    modbus_provider: MockProvider,
+) -> None:
+    """Name active Rk devices from their hydronic role."""
+    modbus_provider.unit.holding[1] = 51  # Anlage 5.1
+
+    entry = await _setup(hass, modbus_provider)
+    registry = dr.async_get(hass)
+
+    rk1 = registry.async_get_device({(DOMAIN, f"{entry.entry_id}_rk1")})
+    rk2 = registry.async_get_device({(DOMAIN, f"{entry.entry_id}_rk2")})
+    rk3 = registry.async_get_device({(DOMAIN, f"{entry.entry_id}_rk3")})
+    rk4 = registry.async_get_device({(DOMAIN, f"{entry.entry_id}_rk4")})
+
+    assert rk1 is not None
+    assert rk1.translation_key == "rk1_precontrol"
+    assert rk2 is not None
+    assert rk2.translation_key == "rk2_heating"
+    assert rk3 is not None
+    assert rk3.translation_key == "rk3_heating"
+    assert rk4 is not None
+    assert rk4.translation_key == "rk4_dhw"
+
+    assert hass.states.get(f"climate.{SLUG}_rk1") is None
+    assert hass.states.get(f"climate.{SLUG}_rk2") is not None
+    assert hass.states.get(f"climate.{SLUG}_rk3") is not None
+
+
+async def test_system_without_rk4_omits_rk4_entities_and_device(
     hass: HomeAssistant,
     modbus_provider: MockProvider,
 ) -> None:
@@ -263,19 +300,19 @@ async def test_system_without_rk4_omits_ww_entities_and_device(
 
     assert entry.runtime_data.device.has_rk4 is False
 
-    assert hass.states.get(f"sensor.{SLUG}_ww_setpoint_active") is None
-    assert hass.states.get(f"binary_sensor.{SLUG}_ww_priority") is None
-    assert hass.states.get(f"number.{SLUG}_ww_setpoint") is None
-    assert hass.states.get(f"select.{SLUG}_ww_operation_mode") is None
+    assert hass.states.get(f"sensor.{SLUG}_rk4_setpoint_active") is None
+    assert hass.states.get(f"binary_sensor.{SLUG}_rk4_priority") is None
+    assert hass.states.get(f"number.{SLUG}_rk4_setpoint") is None
+    assert hass.states.get(f"select.{SLUG}_rk4_operation_mode") is None
     assert (
-        hass.states.get(f"switch.{SLUG}_ww_storage_tank_charging_enabled")
+        hass.states.get(f"switch.{SLUG}_rk4_storage_tank_charging_enabled")
         is None
     )
-    assert hass.states.get(f"time.{SLUG}_ww_disinfection_start") is None
-    assert hass.states.get(f"water_heater.{SLUG}_ww") is None
+    assert hass.states.get(f"time.{SLUG}_rk4_disinfection_start") is None
+    assert hass.states.get(f"water_heater.{SLUG}_rk4") is None
 
     registry = dr.async_get(hass)
-    assert registry.async_get_device({(DOMAIN, f"{entry.entry_id}_ww")}) is None
+    assert registry.async_get_device({(DOMAIN, f"{entry.entry_id}_rk4")}) is None
 
     # Physical sensor entities stay on the Measurements sub-device and are
     # intentionally independent of the Rk4 role.
@@ -342,7 +379,7 @@ async def test_register_and_coil_writes(
         "number",
         "set_value",
         {
-            "entity_id": f"number.{SLUG}_hk1_maximum_flow_temperature",
+            "entity_id": f"number.{SLUG}_rk1_maximum_flow_temperature",
             "value": 75.0,
         },
         blocking=True,
@@ -353,7 +390,7 @@ async def test_register_and_coil_writes(
         "select",
         "select_option",
         {
-            "entity_id": f"select.{SLUG}_ww_disinfection_weekday",
+            "entity_id": f"select.{SLUG}_rk4_disinfection_weekday",
             "option": "friday",
         },
         blocking=True,
@@ -363,7 +400,7 @@ async def test_register_and_coil_writes(
     await hass.services.async_call(
         "switch",
         "turn_off",
-        {"entity_id": f"switch.{SLUG}_ww_storage_tank_charging_enabled"},
+        {"entity_id": f"switch.{SLUG}_rk4_storage_tank_charging_enabled"},
         blocking=True,
     )
     assert modbus_provider.unit.coils[1810] is False
@@ -371,7 +408,7 @@ async def test_register_and_coil_writes(
     await hass.services.async_call(
         "switch",
         "turn_off",
-        {"entity_id": f"switch.{SLUG}_hk1_pump_control"},
+        {"entity_id": f"switch.{SLUG}_rk1_pump_control"},
         blocking=True,
     )
     assert modbus_provider.unit.coils[56] is False
