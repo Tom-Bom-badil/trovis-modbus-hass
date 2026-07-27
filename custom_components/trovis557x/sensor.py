@@ -146,12 +146,6 @@ _GLOBAL: tuple[TrovisSensorDescription, ...] = (
     _number_sensor(
         "sensors", "ruef3", "RüF3 return flow sensor 3", key="return_temperature_3"
     ),
-    _number_sensor(
-        "sensors",
-        "ruef4",
-        "RüF4 return flow sensor 4",
-        key="return_temperature_4",
-    ),
     _number_sensor("sensors", "rf1", "RF1 room sensor 1", key="room_temperature_1"),
     _number_sensor("sensors", "rf2", "RF2 room sensor 2", key="room_temperature_2"),
     _number_sensor("sensors", "rf3", "RF3 room sensor 3", key="room_temperature_3"),
@@ -401,7 +395,7 @@ def _description_supported(
 ) -> bool:
     """Return whether a sensor description applies to this device."""
     if description.component == "sensors":
-        if description.field not in coordinator.device.detected_sensors:
+        if description.field not in coordinator.device.available_sensor_keys:
             return False
 
     if description.value_kind == "plain":
