@@ -97,10 +97,12 @@ async def test_setup_entry_creates_entities(
     fg3 = hass.states.get(f"sensor.{SLUG}_sensor_fg3")
 
     # SF3, FG3, analog input and IMP are alternative views of the same
-    # configurable input on TROVIS 5579. Without selector evidence the
-    # library deliberately exposes none of these ambiguous roles.
+    # configurable input on TROVIS 5579. The test fixture selects FG3, so
+    # the other alternative views must remain hidden.
     assert sf3 is None
-    assert fg3 is None
+    assert fg3 is not None
+    assert float(fg3.state) == pytest.approx(1.5)
+    assert "unit_of_measurement" not in fg3.attributes
 
     assert fg1 is not None
     assert fg2 is not None
