@@ -71,9 +71,7 @@ async def async_setup_entry(
     """Set up Trovis select entities."""
     coordinator = entry.runtime_data
 
-    active_components = {
-        f"rk{index}" for index in rk1_to_rk3_indices(coordinator)
-    }
+    active_components = {f"rk{index}" for index in rk1_to_rk3_indices(coordinator)}
     if coordinator.device.has_rk4:
         active_components.add("rk4")
 

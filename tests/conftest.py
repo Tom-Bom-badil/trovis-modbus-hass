@@ -112,6 +112,11 @@ HOLDING: dict[int, int] = {
     1041: 600,  # Hk1 fixed setpoint day -> 60.0 °C
     1042: 500,  # Hk1 fixed setpoint night -> 50.0 °C
     1062: 0xFFF1,  # Hk1 flow deviation -> -1.5 K
+    1099: 0,  # minimum buffer charging setpoint -> AUTO
+    1100: 0,  # end buffer charging temperature -> AUTO
+    1101: 60,  # buffer charging temperature boost -> 6.0 K
+    1102: 10,  # buffer charging pump lag factor -> 1.0
+    1103: 4,  # buffer tank status -> charging
     1199: 480,  # Hk2 flow setpoint -> 48.0 °C
     1799: 500,  # domestic hot-water setpoint -> 50.0 °C
     1800: 600,  # domestic hot-water maximum -> 60.0 °C

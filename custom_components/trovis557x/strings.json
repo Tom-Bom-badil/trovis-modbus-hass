@@ -275,6 +275,18 @@
       },
       "control_deviation": {
         "name": "{component} control deviation"
+      },
+      "buffer_tank_status": {
+        "name": "Buffer tank status",
+        "state": {
+          "standby": "Standby",
+          "monitoring": "Monitoring",
+          "reserved": "Reserved / not documented",
+          "demand": "Demand",
+          "charging": "Charging",
+          "pump_overrun": "Pump overrun",
+          "discharge_protection": "Discharge protection"
+        }
       }
     },
     "binary_sensor": {
@@ -514,6 +526,18 @@
       },
       "solar_maximum_storage_temperature": {
         "name": "Maximum storage temperature"
+      },
+      "buffer_tank_minimum_charging_setpoint": {
+        "name": "Minimum buffer charging setpoint (0 = automatic)"
+      },
+      "buffer_tank_charging_end_temperature": {
+        "name": "Buffer charging end temperature (0 = automatic)"
+      },
+      "buffer_tank_charging_temperature_boost": {
+        "name": "Buffer charging temperature boost"
+      },
+      "buffer_tank_charging_pump_lag_factor": {
+        "name": "Buffer charging pump lag factor"
       }
     },
     "date": {

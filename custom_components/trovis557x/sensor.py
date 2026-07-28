@@ -461,6 +461,17 @@ _RK4: tuple[TrovisSensorDescription, ...] = (
 )
 
 
+_BUFFER_TANK: tuple[TrovisSensorDescription, ...] = (
+    _enum_sensor(
+        "buffer_tank",
+        "status",
+        "Rk1 buffer tank status",
+        key="rk1_buffer_tank_status",
+        translation_key="buffer_tank_status",
+    ),
+)
+
+
 _SOLAR: tuple[TrovisSensorDescription, ...] = (
     _number_sensor(
         "solar",
@@ -503,6 +514,8 @@ async def async_setup_entry(
         descriptions.extend(_rk_sensor_descriptions(index))
     if coordinator.device.has_rk4:
         descriptions.extend(_RK4)
+    if coordinator.device.has_buffer_tank_circuit:
+        descriptions.extend(_BUFFER_TANK)
     if coordinator.device.has_solar:
         descriptions.extend(_SOLAR)
 

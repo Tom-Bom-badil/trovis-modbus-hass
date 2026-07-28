@@ -275,6 +275,18 @@
       },
       "control_deviation": {
         "name": "{component} Regelabweichung"
+      },
+      "buffer_tank_status": {
+        "name": "Pufferspeicherstatus",
+        "state": {
+          "standby": "Standby",
+          "monitoring": "Überwachung",
+          "reserved": "Reserviert / nicht dokumentiert",
+          "demand": "Anforderung",
+          "charging": "Laden",
+          "pump_overrun": "Nachlauf",
+          "discharge_protection": "Entladeschutz"
+        }
       }
     },
     "binary_sensor": {
@@ -514,6 +526,18 @@
       },
       "solar_maximum_storage_temperature": {
         "name": "Maximale Speichertemperatur"
+      },
+      "buffer_tank_minimum_charging_setpoint": {
+        "name": "Minimaler Sollwert Pufferladung (0 = AUTO/AT)"
+      },
+      "buffer_tank_charging_end_temperature": {
+        "name": "Pufferladung beenden (0 = AUTO/AT)"
+      },
+      "buffer_tank_charging_temperature_boost": {
+        "name": "Überhöhung Ladetemperatur"
+      },
+      "buffer_tank_charging_pump_lag_factor": {
+        "name": "Nachlauf Ladepumpe"
       }
     },
     "date": {

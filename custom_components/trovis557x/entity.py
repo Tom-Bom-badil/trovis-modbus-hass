@@ -28,9 +28,7 @@ from .coordinator import TrovisCoordinator
 def rk1_to_rk3_indices(coordinator: TrovisCoordinator) -> tuple[int, ...]:
     """Return active technical Rk1-Rk3 slots for this hydronic system."""
     return tuple(
-        index
-        for index in coordinator.device.control_circuit_indices
-        if index <= 3
+        index for index in coordinator.device.control_circuit_indices if index <= 3
     )
 
 
@@ -72,6 +70,9 @@ def _sub_device(
 
     if component == "solar":
         return "solar", "Solar – Solar circuit", "solar"
+
+    if component == "buffer_tank":
+        return _rk_sub_device(coordinator, 1)
 
     if component.startswith("rk") and component[2:].isdigit():
         index = int(component[2:])

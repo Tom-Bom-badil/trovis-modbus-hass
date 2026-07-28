@@ -273,12 +273,8 @@ async def test_solar_system_creates_dedicated_solar_device_and_entities(
 
     operating_hours = hass.states.get(f"sensor.{SLUG}_solar_operating_hours")
     pump = hass.states.get(f"binary_sensor.{SLUG}_solar_pump_running")
-    pump_on = hass.states.get(
-        f"number.{SLUG}_solar_pump_on_temperature_difference"
-    )
-    pump_off = hass.states.get(
-        f"number.{SLUG}_solar_pump_off_temperature_difference"
-    )
+    pump_on = hass.states.get(f"number.{SLUG}_solar_pump_on_temperature_difference")
+    pump_off = hass.states.get(f"number.{SLUG}_solar_pump_off_temperature_difference")
     maximum_storage = hass.states.get(
         f"number.{SLUG}_solar_maximum_storage_temperature"
     )
@@ -295,9 +291,9 @@ async def test_solar_system_creates_dedicated_solar_device_and_entities(
     assert float(maximum_storage.state) == pytest.approx(80.0)
 
     assert hass.states.get(f"sensor.{SLUG}_rk4_solar_operating_hours") is None
-    assert hass.states.get(
-        f"binary_sensor.{SLUG}_rk4_solar_circuit_pump_running"
-    ) is None
+    assert (
+        hass.states.get(f"binary_sensor.{SLUG}_rk4_solar_circuit_pump_running") is None
+    )
 
     registry = dr.async_get(hass)
     controller = registry.async_get_device({(DOMAIN, entry.entry_id)})
@@ -352,10 +348,7 @@ async def test_system_without_rk4_omits_rk4_entities_and_device(
     assert hass.states.get(f"binary_sensor.{SLUG}_rk4_priority") is None
     assert hass.states.get(f"number.{SLUG}_rk4_setpoint") is None
     assert hass.states.get(f"select.{SLUG}_rk4_operation_mode") is None
-    assert (
-        hass.states.get(f"switch.{SLUG}_rk4_storage_tank_charging_enabled")
-        is None
-    )
+    assert hass.states.get(f"switch.{SLUG}_rk4_storage_tank_charging_enabled") is None
     assert hass.states.get(f"time.{SLUG}_rk4_disinfection_start") is None
     assert hass.states.get(f"water_heater.{SLUG}_rk4") is None
 
@@ -524,3 +517,111 @@ async def test_config_flow_cannot_get_unit(
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "user"
     assert result["errors"] == {"base": "cannot_connect"}
+
+
+async def test_buffer_tank_system_adds_rk1_buffer_entities(
+    hass: HomeAssistant,
+    modbus_provider: MockProvider,
+) -> None:
+    """Add buffer-tank extensions to the role-aware Rk1 sub-device."""
+    modbus_provider.unit.holding[1] = 161  # Anlage 16.1
+
+    entry = await _setup(hass, modbus_provider)
+
+    assert entry.runtime_data.device.has_buffer_tank_circuit is True
+
+    status = hass.states.get(f"sensor.{SLUG}_rk1_buffer_tank_status")
+    minimum = hass.states.get(
+        f"number.{SLUG}_rk1_buffer_tank_minimum_charging_setpoint"
+    )
+    charging_end = hass.states.get(
+        f"number.{SLUG}_rk1_buffer_tank_charging_end_temperature"
+    )
+    boost = hass.states.get(f"number.{SLUG}_rk1_buffer_tank_charging_temperature_boost")
+    lag = hass.states.get(f"number.{SLUG}_rk1_buffer_tank_charging_pump_lag_factor")
+
+    assert status is not None
+    assert status.state == "charging"
+    assert minimum is not None
+    assert float(minimum.state) == pytest.approx(0.0)
+    assert charging_end is not None
+    assert float(charging_end.state) == pytest.approx(0.0)
+    assert boost is not None
+    assert float(boost.state) == pytest.approx(6.0)
+    assert lag is not None
+    assert float(lag.state) == pytest.approx(1.0)
+
+    registry = dr.async_get(hass)
+    rk1 = registry.async_get_device({(DOMAIN, f"{entry.entry_id}_rk1")})
+    assert rk1 is not None
+    assert rk1.translation_key == "rk1_buffer_tank"
+    assert (
+        registry.async_get_device({(DOMAIN, f"{entry.entry_id}_buffer_tank")}) is None
+    )
+
+    assert hass.states.get(f"climate.{SLUG}_rk1") is None
+
+
+async def test_fixed_loading_buffer_system_adds_status_without_pa1_p16_to_p19(
+    hass: HomeAssistant,
+    modbus_provider: MockProvider,
+) -> None:
+    """Expose buffer status but not unsupported charging parameters for 14.1."""
+    modbus_provider.unit.holding[1] = 141  # Anlage 14.1
+
+    entry = await _setup(hass, modbus_provider)
+
+    assert entry.runtime_data.device.has_buffer_tank_circuit is True
+    assert entry.runtime_data.device.has_buffer_tank_charging_parameters is False
+    assert hass.states.get(f"sensor.{SLUG}_rk1_buffer_tank_status") is not None
+    assert (
+        hass.states.get(f"number.{SLUG}_rk1_buffer_tank_minimum_charging_setpoint")
+        is None
+    )
+    assert (
+        hass.states.get(f"number.{SLUG}_rk1_buffer_tank_charging_temperature_boost")
+        is None
+    )
+
+
+async def test_non_buffer_system_omits_buffer_tank_entities(
+    hass: HomeAssistant,
+    modbus_provider: MockProvider,
+) -> None:
+    """Do not add buffer-tank extensions to a normal heating circuit."""
+    modbus_provider.unit.holding[1] = 21  # Anlage 2.1
+
+    await _setup(hass, modbus_provider)
+
+    assert hass.states.get(f"sensor.{SLUG}_rk1_buffer_tank_status") is None
+    assert (
+        hass.states.get(f"number.{SLUG}_rk1_buffer_tank_charging_temperature_boost")
+        is None
+    )
+
+
+async def test_buffer_tank_number_write(
+    hass: HomeAssistant,
+    modbus_provider: MockProvider,
+) -> None:
+    """Write a buffer-tank PA1 value through the Rk1 sub-device."""
+    modbus_provider.unit.holding[1] = 161  # Anlage 16.1
+    await _setup(hass, modbus_provider)
+
+    await hass.services.async_call(
+        "switch",
+        "turn_on",
+        {"entity_id": f"switch.{SLUG}_write_access"},
+        blocking=True,
+    )
+    await hass.services.async_call(
+        "number",
+        "set_value",
+        {
+            "entity_id": (f"number.{SLUG}_rk1_buffer_tank_charging_temperature_boost"),
+            "value": 7.5,
+        },
+        blocking=True,
+    )
+
+    assert modbus_provider.unit.holding[1101] == 75

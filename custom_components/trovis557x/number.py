@@ -179,6 +179,38 @@ _RK4: tuple[TrovisNumberDescription, ...] = tuple(
 )
 
 
+_BUFFER_TANK: tuple[TrovisNumberDescription, ...] = (
+    _number(
+        "buffer_tank",
+        "minimum_charging_setpoint",
+        "Rk1 minimum buffer charging setpoint",
+        key="rk1_buffer_tank_minimum_charging_setpoint",
+        translation_key="buffer_tank_minimum_charging_setpoint",
+    ),
+    _number(
+        "buffer_tank",
+        "charging_end_temperature",
+        "Rk1 buffer charging end temperature",
+        key="rk1_buffer_tank_charging_end_temperature",
+        translation_key="buffer_tank_charging_end_temperature",
+    ),
+    _number(
+        "buffer_tank",
+        "charging_temperature_boost",
+        "Rk1 buffer charging temperature boost",
+        key="rk1_buffer_tank_charging_temperature_boost",
+        translation_key="buffer_tank_charging_temperature_boost",
+    ),
+    _number(
+        "buffer_tank",
+        "charging_pump_lag_factor",
+        "Rk1 buffer charging pump lag factor",
+        key="rk1_buffer_tank_charging_pump_lag_factor",
+        translation_key="buffer_tank_charging_pump_lag_factor",
+    ),
+)
+
+
 _SOLAR: tuple[TrovisNumberDescription, ...] = (
     _number(
         "solar",
@@ -226,6 +258,8 @@ async def async_setup_entry(
         descriptions.extend(_rk_number_descriptions(index))
     if coordinator.device.has_rk4:
         descriptions.extend(_RK4)
+    if coordinator.device.has_buffer_tank_charging_parameters:
+        descriptions.extend(_BUFFER_TANK)
     if coordinator.device.has_solar:
         descriptions.extend(_SOLAR)
 

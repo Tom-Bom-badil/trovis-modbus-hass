@@ -6,9 +6,10 @@ import json
 from pathlib import Path
 
 import pytest
-from custom_components.trovis557x.sensor import _GLOBAL
 from modbus_connection.mock import MockModbusConnection
 from trovis_modbus import OperatingMode, Trovis557x
+
+from custom_components.trovis557x.sensor import _GLOBAL
 
 from .conftest import COILS, HOLDING, UNIT_ID
 
@@ -144,4 +145,3 @@ def test_physical_sensor_identity_uses_documented_abbreviations() -> None:
         descriptions["summer_outdoor_temperature_average"].key
         == "summer_outdoor_temperature_average"
     )
-
