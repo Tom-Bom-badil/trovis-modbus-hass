@@ -34,7 +34,7 @@ async def test_library_stack_with_mock_unit() -> None:
     )
     await device.async_update()
 
-    assert device.info.model == "Trovis 5579"
+    assert device.info.model == "TROVIS 5579"
     assert device.sensors.af1 == pytest.approx(12.3)
     assert device.rk1.pump_running is True
     assert device.rk1.mode is OperatingMode.AUTOMATIC
@@ -50,7 +50,7 @@ def test_manifest_valid() -> None:
     assert "modbus_connection" in manifest["dependencies"]
 
     requirements = manifest["requirements"]
-    assert "trovis-modbus>=1.1.1,<2" in requirements
+    assert "trovis-modbus>=2.0.0,<3" in requirements
     assert not any(
         "modbus-connection" in requirement
         or "tmodbus" in requirement

@@ -95,18 +95,19 @@ async def test_setup_entry_creates_entities(
     fg1 = hass.states.get(f"sensor.{SLUG}_sensor_fg1")
     fg2 = hass.states.get(f"sensor.{SLUG}_sensor_fg2")
     fg3 = hass.states.get(f"sensor.{SLUG}_sensor_fg3")
-    assert sf3 is not None
-    assert float(sf3.state) == pytest.approx(65.0)
-    assert sf3.attributes["unit_of_measurement"] == "°C"
+
+    # SF3, FG3, analog input and IMP are alternative views of the same
+    # configurable input on TROVIS 5579. Without selector evidence the
+    # library deliberately exposes none of these ambiguous roles.
+    assert sf3 is None
+    assert fg3 is None
+
     assert fg1 is not None
     assert fg2 is not None
-    assert fg3 is not None
     assert float(fg1.state) == pytest.approx(95.2)
     assert float(fg2.state) == pytest.approx(325.0)
-    assert float(fg3.state) == pytest.approx(1.5)
     assert "unit_of_measurement" not in fg1.attributes
     assert "unit_of_measurement" not in fg2.attributes
-    assert "unit_of_measurement" not in fg3.attributes
 
     active_room_setpoint = hass.states.get(f"sensor.{SLUG}_rk1_room_setpoint_active")
     assert active_room_setpoint is not None
@@ -147,10 +148,8 @@ async def test_setup_entry_creates_entities(
 
     analog_input = hass.states.get(f"sensor.{SLUG}_sensor_ae_voltage")
     pulse_rate = hass.states.get(f"sensor.{SLUG}_sensor_imp")
-    assert analog_input is not None
-    assert float(analog_input.state) == pytest.approx(5.23)
-    assert pulse_rate is not None
-    assert float(pulse_rate.state) == pytest.approx(120)
+    assert analog_input is None
+    assert pulse_rate is None
 
     flow_setpoint = hass.states.get(f"sensor.{SLUG}_rk1_flow_setpoint")
     return_flow_temperature_setpoint = hass.states.get(
@@ -300,7 +299,7 @@ async def test_solar_system_creates_dedicated_solar_device_and_entities(
     solar = registry.async_get_device({(DOMAIN, f"{entry.entry_id}_solar")})
     assert controller is not None
     assert solar is not None
-    assert solar.translation_key == "solar"
+    assert solar.name == "Solar – Solar circuit"
     assert solar.via_device_id == controller.id
 
 
@@ -320,13 +319,13 @@ async def test_rk_subdevices_use_hydronic_roles(
     rk4 = registry.async_get_device({(DOMAIN, f"{entry.entry_id}_rk4")})
 
     assert rk1 is not None
-    assert rk1.translation_key == "rk1_precontrol"
+    assert rk1.name == "Rk1 – Precontrol circuit"
     assert rk2 is not None
-    assert rk2.translation_key == "rk2_heating"
+    assert rk2.name == "Rk2 – Heating circuit 2"
     assert rk3 is not None
-    assert rk3.translation_key == "rk3_heating"
+    assert rk3.name == "Rk3 – Heating circuit 3"
     assert rk4 is not None
-    assert rk4.translation_key == "rk4_dhw"
+    assert rk4.name == "Rk4 – Domestic hot water"
 
     assert hass.states.get(f"climate.{SLUG}_rk1") is None
     assert hass.states.get(f"climate.{SLUG}_rk2") is not None
@@ -554,7 +553,7 @@ async def test_buffer_tank_system_adds_rk1_buffer_entities(
     registry = dr.async_get(hass)
     rk1 = registry.async_get_device({(DOMAIN, f"{entry.entry_id}_rk1")})
     assert rk1 is not None
-    assert rk1.translation_key == "rk1_buffer_tank"
+    assert rk1.name == "Rk1 – Buffer tank circuit"
     assert (
         registry.async_get_device({(DOMAIN, f"{entry.entry_id}_buffer_tank")}) is None
     )
