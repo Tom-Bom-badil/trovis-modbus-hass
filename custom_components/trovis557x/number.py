@@ -179,6 +179,31 @@ _RK4: tuple[TrovisNumberDescription, ...] = tuple(
 )
 
 
+_SOLAR: tuple[TrovisNumberDescription, ...] = (
+    _number(
+        "solar",
+        "pump_on_temperature_difference",
+        "Solar pump-on temperature difference",
+        key="solar_pump_on_temperature_difference",
+        translation_key="solar_pump_on_temperature_difference",
+    ),
+    _number(
+        "solar",
+        "pump_off_temperature_difference",
+        "Solar pump-off temperature difference",
+        key="solar_pump_off_temperature_difference",
+        translation_key="solar_pump_off_temperature_difference",
+    ),
+    _number(
+        "solar",
+        "maximum_storage_temperature",
+        "Solar maximum storage temperature",
+        key="solar_maximum_storage_temperature",
+        translation_key="solar_maximum_storage_temperature",
+    ),
+)
+
+
 def _description_supported(
     coordinator: TrovisCoordinator,
     description: TrovisNumberDescription,
@@ -201,6 +226,8 @@ async def async_setup_entry(
         descriptions.extend(_rk_number_descriptions(index))
     if coordinator.device.has_rk4:
         descriptions.extend(_RK4)
+    if coordinator.device.has_solar:
+        descriptions.extend(_SOLAR)
 
     async_add_entities(
         TrovisNumber(coordinator, description)

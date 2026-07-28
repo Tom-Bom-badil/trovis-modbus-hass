@@ -89,6 +89,9 @@
     },
     "measurements": {
       "name": "Messwerte"
+    },
+    "solar": {
+      "name": "Solar – Solarkreis"
     }
   },
   "entity": {
@@ -253,7 +256,7 @@
         "name": "{component} Regeldifferenz Vorlauf"
       },
       "solar_operating_hours": {
-        "name": "{component} Solar-Betriebsstunden"
+        "name": "Betriebsstunden"
       },
       "storage_status": {
         "name": "{component} Speicherstatus",
@@ -374,9 +377,6 @@
       "maximum_charging_temperature_limit_active": {
         "name": "{component} maximale Ladetemperaturbegrenzung"
       },
-      "solar_circuit_pump_running": {
-        "name": "{component} Solarkreispumpe"
-      },
       "storage_tank_charging_active": {
         "name": "{component} Speicherladung aktiv"
       },
@@ -391,6 +391,9 @@
       },
       "special_setpoint_control_autonomous": {
         "name": "{component} Steuerung Sondersollwert autark"
+      },
+      "solar_pump_running": {
+        "name": "Solarkreispumpe"
       }
     },
     "climate": {
@@ -502,6 +505,15 @@
       },
       "special_setpoint": {
         "name": "{component} Sondersollwert"
+      },
+      "solar_pump_on_temperature_difference": {
+        "name": "Einschaltdifferenz Solarkreispumpe"
+      },
+      "solar_pump_off_temperature_difference": {
+        "name": "Ausschaltdifferenz Solarkreispumpe"
+      },
+      "solar_maximum_storage_temperature": {
+        "name": "Maximale Speichertemperatur"
       }
     },
     "date": {

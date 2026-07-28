@@ -433,16 +433,6 @@ _RK4: tuple[TrovisSensorDescription, ...] = (
         state_class=None,
         translation_placeholders={"component": "Rk4"},
     ),
-    _number_sensor(
-        "rk4",
-        "solar_operating_hours",
-        "Rk4 solar operating hours",
-        key="rk4_solar_operating_hours",
-        translation_key="solar_operating_hours",
-        device_class=SensorDeviceClass.DURATION,
-        state_class=SensorStateClass.TOTAL_INCREASING,
-        translation_placeholders={"component": "Rk4"},
-    ),
     _enum_sensor(
         "rk4",
         "storage_status",
@@ -467,6 +457,19 @@ _RK4: tuple[TrovisSensorDescription, ...] = (
         key="rk4_control_deviation",
         translation_key="control_deviation",
         translation_placeholders={"component": "Rk4"},
+    ),
+)
+
+
+_SOLAR: tuple[TrovisSensorDescription, ...] = (
+    _number_sensor(
+        "solar",
+        "operating_hours",
+        "Solar operating hours",
+        key="solar_operating_hours",
+        translation_key="solar_operating_hours",
+        device_class=SensorDeviceClass.DURATION,
+        state_class=SensorStateClass.TOTAL_INCREASING,
     ),
 )
 
@@ -500,6 +503,8 @@ async def async_setup_entry(
         descriptions.extend(_rk_sensor_descriptions(index))
     if coordinator.device.has_rk4:
         descriptions.extend(_RK4)
+    if coordinator.device.has_solar:
+        descriptions.extend(_SOLAR)
 
     async_add_entities(
         TrovisSensor(coordinator, description)

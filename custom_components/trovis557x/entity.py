@@ -70,6 +70,9 @@ def _sub_device(
     if component == "sensors":
         return "measurements", "Measurements", "measurements"
 
+    if component == "solar":
+        return "solar", "Solar – Solar circuit", "solar"
+
     if component.startswith("rk") and component[2:].isdigit():
         index = int(component[2:])
         if 1 <= index <= 4:

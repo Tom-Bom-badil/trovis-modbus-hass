@@ -229,15 +229,6 @@ _RK4: tuple[TrovisBinaryDescription, ...] = (
     ),
     _binary(
         "rk4",
-        "solar_circuit_pump_running",
-        "Solar circuit pump",
-        BinarySensorDeviceClass.RUNNING,
-        key="rk4_solar_circuit_pump_running",
-        translation_key="solar_circuit_pump_running",
-        translation_placeholders={"component": "Rk4"},
-    ),
-    _binary(
-        "rk4",
         "storage_tank_charging_active",
         "Storage charging active",
         BinarySensorDeviceClass.RUNNING,
@@ -292,6 +283,18 @@ _RK4: tuple[TrovisBinaryDescription, ...] = (
 )
 
 
+_SOLAR: tuple[TrovisBinaryDescription, ...] = (
+    _binary(
+        "solar",
+        "pump_running",
+        "Solar circuit pump",
+        BinarySensorDeviceClass.RUNNING,
+        key="solar_pump_running",
+        translation_key="solar_pump_running",
+    ),
+)
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: TrovisConfigEntry,
@@ -302,6 +305,8 @@ async def async_setup_entry(
     descriptions = list(_CONTROLLER)
     if coordinator.device.has_rk4:
         descriptions.extend(_RK4)
+    if coordinator.device.has_solar:
+        descriptions.extend(_SOLAR)
 
     for index in rk1_to_rk3_indices(coordinator):
         component = f"rk{index}"

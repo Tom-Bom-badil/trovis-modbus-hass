@@ -173,11 +173,10 @@ async def test_setup_entry_creates_entities(
     assert float(maximum_return_flow_temperature.state) == pytest.approx(55.0)
 
     storage_status = hass.states.get(f"sensor.{SLUG}_rk4_storage_status")
-    solar_hours = hass.states.get(f"sensor.{SLUG}_rk4_solar_operating_hours")
     assert storage_status is not None
     assert storage_status.state == "charging"
-    assert solar_hours is not None
-    assert float(solar_hours.state) == pytest.approx(1234)
+    assert hass.states.get(f"sensor.{SLUG}_rk4_solar_operating_hours") is None
+    assert hass.states.get(f"sensor.{SLUG}_solar_operating_hours") is None
 
     disinfection_weekday = hass.states.get(f"select.{SLUG}_rk4_disinfection_weekday")
     assert disinfection_weekday is not None
@@ -258,6 +257,55 @@ async def test_subdevices_are_linked_to_controller(
     )
     assert measurements is not None
     assert measurements.via_device_id == controller.id
+
+    solar = registry.async_get_device({(DOMAIN, f"{entry.entry_id}_solar")})
+    assert solar is None
+
+
+async def test_solar_system_creates_dedicated_solar_device_and_entities(
+    hass: HomeAssistant,
+    modbus_provider: MockProvider,
+) -> None:
+    """Expose solar datapoints only for a hydronic system with solar."""
+    modbus_provider.unit.holding[1] = 23  # Anlage 2.3
+
+    entry = await _setup(hass, modbus_provider)
+
+    operating_hours = hass.states.get(f"sensor.{SLUG}_solar_operating_hours")
+    pump = hass.states.get(f"binary_sensor.{SLUG}_solar_pump_running")
+    pump_on = hass.states.get(
+        f"number.{SLUG}_solar_pump_on_temperature_difference"
+    )
+    pump_off = hass.states.get(
+        f"number.{SLUG}_solar_pump_off_temperature_difference"
+    )
+    maximum_storage = hass.states.get(
+        f"number.{SLUG}_solar_maximum_storage_temperature"
+    )
+
+    assert operating_hours is not None
+    assert float(operating_hours.state) == pytest.approx(1234)
+    assert pump is not None
+    assert pump.state == "on"
+    assert pump_on is not None
+    assert float(pump_on.state) == pytest.approx(10.0)
+    assert pump_off is not None
+    assert float(pump_off.state) == pytest.approx(3.0)
+    assert maximum_storage is not None
+    assert float(maximum_storage.state) == pytest.approx(80.0)
+
+    assert hass.states.get(f"sensor.{SLUG}_rk4_solar_operating_hours") is None
+    assert hass.states.get(
+        f"binary_sensor.{SLUG}_rk4_solar_circuit_pump_running"
+    ) is None
+
+    registry = dr.async_get(hass)
+    controller = registry.async_get_device({(DOMAIN, entry.entry_id)})
+    solar = registry.async_get_device({(DOMAIN, f"{entry.entry_id}_solar")})
+    assert controller is not None
+    assert solar is not None
+    assert solar.translation_key == "solar"
+    assert solar.via_device_id == controller.id
 
 
 async def test_rk_subdevices_use_hydronic_roles(

@@ -122,6 +122,9 @@ HOLDING: dict[int, int] = {
     1805: 750,  # maximum charge temperature -> 75.0 °C
     1807: 500,  # active domestic hot-water setpoint -> 50.0 °C
     1808: 600,  # special domestic hot-water setpoint -> 60.0 °C
+    1809: 100,  # solar pump-on temperature difference -> 10.0 K
+    1810: 30,  # solar pump-off temperature difference -> 3.0 K
+    1811: 800,  # maximum solar storage temperature -> 80.0 °C
     1812: 1234,  # solar operating hours
     1826: 4,  # storage status -> charging
     1827: 550,  # domestic hot-water maximum return -> 55.0 °C
