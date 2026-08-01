@@ -172,6 +172,8 @@ async def test_setup_entry_creates_entities(
     assert float(minimum_flow_temperature.state) == pytest.approx(20.0)
     assert maximum_return_flow_temperature is not None
     assert float(maximum_return_flow_temperature.state) == pytest.approx(55.0)
+    assert hass.states.get(f"number.{SLUG}_rk1_fixed_setpoint_day") is None
+    assert hass.states.get(f"number.{SLUG}_rk1_fixed_setpoint_night") is None
 
     storage_status = hass.states.get(f"sensor.{SLUG}_rk4_storage_status")
     assert storage_status is not None
@@ -232,6 +234,41 @@ async def test_setup_entry_creates_entities(
     assert hass.states.get(f"sensor.{SLUG}_ww_setpoint_active") is None
     assert hass.states.get(f"climate.{SLUG}_hk1") is None
     assert hass.states.get(f"water_heater.{SLUG}_ww") is None
+
+
+async def test_fixed_setpoint_control_uses_fixed_flow_setpoints(
+    hass: HomeAssistant,
+    modbus_provider: MockProvider,
+) -> None:
+    """Expose fixed flow setpoints instead of heating-curve controls."""
+    modbus_provider.unit.coils[1025] = False  # CL1026 / CO1 -> F02 disabled
+
+    await _setup(hass, modbus_provider)
+
+    fixed_day = hass.states.get(f"number.{SLUG}_rk1_fixed_setpoint_day")
+    fixed_night = hass.states.get(f"number.{SLUG}_rk1_fixed_setpoint_night")
+    assert fixed_day is not None
+    assert float(fixed_day.state) == pytest.approx(60.0)
+    assert fixed_night is not None
+    assert float(fixed_night.state) == pytest.approx(50.0)
+
+    for field in (
+        "room_setpoint_day",
+        "room_setpoint_night",
+        "gradient",
+        "level",
+    ):
+        assert hass.states.get(f"number.{SLUG}_rk1_{field}") is None
+
+    assert hass.states.get(f"number.{SLUG}_rk1_minimum_flow_temperature") is not None
+    assert hass.states.get(f"number.{SLUG}_rk1_maximum_flow_temperature") is not None
+    assert (
+        hass.states.get(f"number.{SLUG}_rk1_maximum_return_flow_temperature")
+        is not None
+    )
+    assert hass.states.get(f"sensor.{SLUG}_rk1_flow_setpoint") is not None
+    assert hass.states.get(f"sensor.{SLUG}_rk1_room_setpoint_active") is not None
+    assert hass.states.get(f"climate.{SLUG}_rk1") is None
 
 
 async def test_subdevices_are_linked_to_controller(

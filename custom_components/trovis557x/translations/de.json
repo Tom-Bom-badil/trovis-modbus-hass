@@ -43,152 +43,58 @@
         }
       }
     },
-    "error": {
-      "cannot_connect": "Kommunikation mit dem Regler fehlgeschlagen. Ausgewählte Modbus-Verbindung, Geräteadresse und Erreichbarkeit des Reglers prüfen."
-    },
-    "abort": {
-      "reconfigure_successful": "Die Neukonfiguration war erfolgreich."
-    }
+    "error": { "cannot_connect": "Kommunikation mit dem Regler fehlgeschlagen. Ausgewählte Modbus-Verbindung, Geräteadresse und Erreichbarkeit des Reglers prüfen." },
+    "abort": { "reconfigure_successful": "Die Neukonfiguration war erfolgreich." }
   },
   "device": {
-    "rk1": {
-      "name": "Rk1 – Regelkreis 1"
-    },
-    "rk1_heating": {
-      "name": "Rk1 – Heizkreis 1"
-    },
-    "rk1_precontrol": {
-      "name": "Rk1 – Vorregelkreis"
-    },
-    "rk1_buffer_tank": {
-      "name": "Rk1 – Pufferspeicherkreis"
-    },
-    "rk2": {
-      "name": "Rk2 – Regelkreis 2"
-    },
-    "rk2_heating": {
-      "name": "Rk2 – Heizkreis 2"
-    },
-    "rk2_precontrol": {
-      "name": "Rk2 – Vorregelkreis"
-    },
-    "rk3": {
-      "name": "Rk3 – Regelkreis 3"
-    },
-    "rk3_heating": {
-      "name": "Rk3 – Heizkreis 3"
-    },
-    "rk3_precontrol": {
-      "name": "Rk3 – Vorregelkreis"
-    },
-    "rk4": {
-      "name": "Rk4 – Regelkreis 4"
-    },
-    "rk4_dhw": {
-      "name": "Rk4 – WW / Trinkwassererwärmung"
-    },
-    "measurements": {
-      "name": "Messwerte"
-    },
-    "solar": {
-      "name": "Solar – Solarkreis"
-    }
+    "rk1": { "name": "Rk1 – Regelkreis 1" },
+    "rk1_heating": { "name": "Rk1 – Heizkreis 1" },
+    "rk1_precontrol": { "name": "Rk1 – Vorregelkreis" },
+    "rk1_buffer_tank": { "name": "Rk1 – Pufferspeicherkreis" },
+    "rk2": { "name": "Rk2 – Regelkreis 2" },
+    "rk2_heating": { "name": "Rk2 – Heizkreis 2" },
+    "rk2_precontrol": { "name": "Rk2 – Vorregelkreis" },
+    "rk3": { "name": "Rk3 – Regelkreis 3" },
+    "rk3_heating": { "name": "Rk3 – Heizkreis 3" },
+    "rk3_precontrol": { "name": "Rk3 – Vorregelkreis" },
+    "rk4": { "name": "Rk4 – Regelkreis 4" },
+    "rk4_dhw": { "name": "Rk4 – WW / Trinkwassererwärmung" },
+    "measurements": { "name": "Messwerte" },
+    "solar": { "name": "Solar – Solarkreis" }
   },
   "entity": {
     "sensor": {
-      "system_code": {
-        "name": "Anlagenkennziffer"
-      },
-      "outdoor_temperature_1": {
-        "name": "AF1 Außensensor 1"
-      },
-      "outdoor_temperature_2": {
-        "name": "AF2 Außensensor 2"
-      },
-      "flow_temperature_1": {
-        "name": "VF1 Vorlaufsensor 1"
-      },
-      "flow_temperature_2": {
-        "name": "VF2 Vorlaufsensor 2"
-      },
-      "flow_temperature_3": {
-        "name": "VF3 Vorlaufsensor 3"
-      },
-      "flow_temperature_4": {
-        "name": "VF4 Vorlaufsensor 4"
-      },
-      "return_temperature_1": {
-        "name": "RüF1 Rücklaufsensor 1"
-      },
-      "return_temperature_2": {
-        "name": "RüF2 Rücklaufsensor 2"
-      },
-      "return_temperature_3": {
-        "name": "RüF3 Rücklaufsensor 3"
-      },
-      "room_temperature_1": {
-        "name": "RF1 Raumsensor 1"
-      },
-      "room_temperature_2": {
-        "name": "RF2 Raumsensor 2"
-      },
-      "room_temperature_3": {
-        "name": "RF3 Raumsensor 3"
-      },
-      "ww_storage_temperature": {
-        "name": "SF1 Speichersensor 1"
-      },
-      "ww_storage_temperature_lower": {
-        "name": "SF2 Speichersensor 2"
-      },
-      "sf3": {
-        "name": "SF3 Speichersensor 3"
-      },
-      "ae1": {
-        "name": "AE1 Analogeingang 1"
-      },
-      "ae2": {
-        "name": "AE2 Analogeingang 2"
-      },
-      "ae3": {
-        "name": "AE3 Analogeingang 3"
-      },
-      "fg1": {
-        "name": "FG1 Ferngeber 1"
-      },
-      "fg2": {
-        "name": "FG2 Ferngeber 2"
-      },
-      "fg3": {
-        "name": "FG3 Ferngeber 3"
-      },
-      "pulse_rate": {
-        "name": "IMP Impulsrate"
-      },
-      "analog_input_voltage": {
-        "name": "AE Analogeingangsspannung"
-      },
-      "analog_input_current": {
-        "name": "AE Analogeingangsstrom"
-      },
-      "summer_outdoor_temperature_average": {
-        "name": "Außentemperaturmittelwert Sommer"
-      },
-      "valve_setpoint": {
-        "name": "{component} Stellwert Ventil"
-      },
-      "room_setpoint_active": {
-        "name": "{component} aktiver Raumsollwert"
-      },
-      "rk4_setpoint_active": {
-        "name": "{component} aktiver Trinkwassersollwert"
-      },
-      "error_status": {
-        "name": "Fehlerstatus"
-      },
-      "max_flow_setpoint": {
-        "name": "Maximaler Vorlaufsollwert"
-      },
+      "system_code": { "name": "Anlagenkennziffer" },
+      "outdoor_temperature_1": { "name": "AF1 Außensensor 1" },
+      "outdoor_temperature_2": { "name": "AF2 Außensensor 2" },
+      "flow_temperature_1": { "name": "VF1 Vorlaufsensor 1" },
+      "flow_temperature_2": { "name": "VF2 Vorlaufsensor 2" },
+      "flow_temperature_3": { "name": "VF3 Vorlaufsensor 3" },
+      "flow_temperature_4": { "name": "VF4 Vorlaufsensor 4" },
+      "return_temperature_1": { "name": "RüF1 Rücklaufsensor 1" },
+      "return_temperature_2": { "name": "RüF2 Rücklaufsensor 2" },
+      "return_temperature_3": { "name": "RüF3 Rücklaufsensor 3" },
+      "room_temperature_1": { "name": "RF1 Raumsensor 1" },
+      "room_temperature_2": { "name": "RF2 Raumsensor 2" },
+      "room_temperature_3": { "name": "RF3 Raumsensor 3" },
+      "ww_storage_temperature": { "name": "SF1 Speichersensor 1" },
+      "ww_storage_temperature_lower": { "name": "SF2 Speichersensor 2" },
+      "sf3": { "name": "SF3 Speichersensor 3" },
+      "ae1": { "name": "AE1 Analogeingang 1" },
+      "ae2": { "name": "AE2 Analogeingang 2" },
+      "ae3": { "name": "AE3 Analogeingang 3" },
+      "fg1": { "name": "FG1 Ferngeber 1" },
+      "fg2": { "name": "FG2 Ferngeber 2" },
+      "fg3": { "name": "FG3 Ferngeber 3" },
+      "pulse_rate": { "name": "IMP Impulsrate" },
+      "analog_input_voltage": { "name": "AE Analogeingangsspannung" },
+      "analog_input_current": { "name": "AE Analogeingangsstrom" },
+      "summer_outdoor_temperature_average": { "name": "Außentemperaturmittelwert Sommer" },
+      "valve_setpoint": { "name": "{component} Stellwert Ventil" },
+      "room_setpoint_active": { "name": "{component} aktiver Raumsollwert" },
+      "rk4_setpoint_active": { "name": "{component} aktiver Trinkwassersollwert" },
+      "error_status": { "name": "Fehlerstatus" },
+      "max_flow_setpoint": { "name": "Maximaler Vorlaufsollwert" },
       "switch_top": {
         "name": "Drehschalter oben",
         "state": {
@@ -222,42 +128,18 @@
           "night": "Nachtbetrieb"
         }
       },
-      "special_functions": {
-        "name": "Sonderfunktionen"
-      },
-      "station_address": {
-        "name": "Stationsadresse"
-      },
-      "error_count": {
-        "name": "Fehleranzahl"
-      },
-      "summer_start": {
-        "name": "Beginn Sommerzeitraum"
-      },
-      "summer_end": {
-        "name": "Ende Sommerzeitraum"
-      },
-      "flow_setpoint": {
-        "name": "{component} Vorlaufsollwert"
-      },
-      "return_flow_gradient": {
-        "name": "{component} Steigung Rücklaufkennlinie"
-      },
-      "return_flow_level": {
-        "name": "{component} Niveau Rücklaufkennlinie"
-      },
-      "return_flow_base_point": {
-        "name": "{component} Fußpunkt Rücklauftemperatur"
-      },
-      "return_flow_temperature_setpoint": {
-        "name": "{component} Rücklaufsollwert"
-      },
-      "flow_control_deviation": {
-        "name": "{component} Regeldifferenz Vorlauf"
-      },
-      "solar_operating_hours": {
-        "name": "Betriebsstunden"
-      },
+      "special_functions": { "name": "Sonderfunktionen" },
+      "station_address": { "name": "Stationsadresse" },
+      "error_count": { "name": "Fehleranzahl" },
+      "summer_start": { "name": "Beginn Sommerzeitraum" },
+      "summer_end": { "name": "Ende Sommerzeitraum" },
+      "flow_setpoint": { "name": "{component} Vorlaufsollwert" },
+      "return_flow_gradient": { "name": "{component} Steigung Rücklaufkennlinie" },
+      "return_flow_level": { "name": "{component} Niveau Rücklaufkennlinie" },
+      "return_flow_base_point": { "name": "{component} Fußpunkt Rücklauftemperatur" },
+      "return_flow_temperature_setpoint": { "name": "{component} Rücklaufsollwert" },
+      "flow_control_deviation": { "name": "{component} Regeldifferenz Vorlauf" },
+      "solar_operating_hours": { "name": "Betriebsstunden" },
       "storage_status": {
         "name": "{component} Speicherstatus",
         "state": {
@@ -270,12 +152,8 @@
           "discharge_protection": "Entladeschutz"
         }
       },
-      "active_charging_setpoint": {
-        "name": "{component} aktiver Ladesollwert"
-      },
-      "control_deviation": {
-        "name": "{component} Regelabweichung"
-      },
+      "active_charging_setpoint": { "name": "{component} aktiver Ladesollwert" },
+      "control_deviation": { "name": "{component} Regelabweichung" },
       "buffer_tank_status": {
         "name": "Pufferspeicherstatus",
         "state": {
@@ -290,271 +168,101 @@
       }
     },
     "binary_sensor": {
-      "general_fault": {
-        "name": "Störung"
-      },
-      "summer_active": {
-        "name": "Sommerbetrieb"
-      },
-      "pump_running": {
-        "name": "{component} Umwälzpumpe"
-      },
-      "frost_protection": {
-        "name": "{component} Frostschutz"
-      },
-      "standby": {
-        "name": "{component} Standby"
-      },
-      "storage_tank_charging_pump_running": {
-        "name": "{component} Speicherladepumpe"
-      },
-      "disinfection_active": {
-        "name": "{component} thermische Desinfektion"
-      },
-      "circulation_pump_running": {
-        "name": "{component} Zirkulationspumpe"
-      },
-      "data_entry_active": {
-        "name": "Dateneingabe aktiv"
-      },
-      "data_entry_performed": {
-        "name": "Dateneingabe erfolgt"
-      },
-      "global_level_autark": {
-        "name": "Globale Steuerung autark"
-      },
-      "outdoor_temperature_control_autonomous": {
-        "name": "Außentemperaturregelung autark"
-      },
-      "any_circuit_not_automatic": {
-        "name": "Mindestens ein Regelkreis nicht im Automatikbetrieb"
-      },
-      "rotary_switch_not_automatic": {
-        "name": "Mindestens ein Drehschalter nicht im Automatikbetrieb"
-      },
-      "manual_active": {
-        "name": "{component} Handbetrieb"
-      },
-      "automatic": {
-        "name": "{component} Automatikbetrieb"
-      },
-      "day_active": {
-        "name": "{component} Tagbetrieb"
-      },
-      "night_active": {
-        "name": "{component} Nachtbetrieb"
-      },
-      "hold_active": {
-        "name": "{component} Haltebetrieb"
-      },
-      "setback_active": {
-        "name": "{component} Absenkbetrieb"
-      },
-      "heat_up_active": {
-        "name": "{component} Aufheizbetrieb"
-      },
-      "return_limit_active": {
-        "name": "{component} Rücklauftemperaturbegrenzung"
-      },
-      "outdoor_temperature_deactivation": {
-        "name": "{component} außentemperaturabhängige Abschaltung"
-      },
-      "valve_closing": {
-        "name": "{component} Ventil schließt"
-      },
-      "valve_opening": {
-        "name": "{component} Ventil öffnet"
-      },
-      "mode_control_autonomous": {
-        "name": "{component} Steuerung Betriebsart autark"
-      },
-      "valve_control_autonomous": {
-        "name": "{component} Steuerung Stellsignal autark"
-      },
-      "pump_control_autonomous": {
-        "name": "{component} Pumpensteuerung autark"
-      },
-      "flow_setpoint_control_autonomous": {
-        "name": "{component} Steuerung Vorlaufsollwert autark"
-      },
-      "return_flow_temperature_setpoint_control_autonomous": {
-        "name": "{component} Steuerung Rücklaufsollwert autark"
-      },
-      "room_setpoint_control_autonomous": {
-        "name": "{component} Steuerung Raumsollwert autark"
-      },
-      "priority": {
-        "name": "{component} Vorrangschaltung"
-      },
-      "maximum_charging_temperature_limit_active": {
-        "name": "{component} maximale Ladetemperaturbegrenzung"
-      },
-      "storage_tank_charging_active": {
-        "name": "{component} Speicherladung aktiv"
-      },
-      "storage_tank_charging_locked": {
-        "name": "{component} Speicherladung gesperrt"
-      },
-      "storage_tank_charging_pump_control_autonomous": {
-        "name": "{component} Steuerung Speicherladepumpe autark"
-      },
-      "circulation_pump_control_autonomous": {
-        "name": "{component} Steuerung Zirkulationspumpe autark"
-      },
-      "special_setpoint_control_autonomous": {
-        "name": "{component} Steuerung Sondersollwert autark"
-      },
-      "solar_pump_running": {
-        "name": "Solarkreispumpe"
-      }
+      "general_fault": { "name": "Störung" },
+      "summer_active": { "name": "Sommerbetrieb" },
+      "pump_running": { "name": "{component} Umwälzpumpe" },
+      "frost_protection": { "name": "{component} Frostschutz" },
+      "standby": { "name": "{component} Standby" },
+      "storage_tank_charging_pump_running": { "name": "{component} Speicherladepumpe" },
+      "disinfection_active": { "name": "{component} thermische Desinfektion" },
+      "circulation_pump_running": { "name": "{component} Zirkulationspumpe" },
+      "data_entry_active": { "name": "Dateneingabe aktiv" },
+      "data_entry_performed": { "name": "Dateneingabe erfolgt" },
+      "global_level_autark": { "name": "Globale Steuerung autark" },
+      "outdoor_temperature_control_autonomous": { "name": "Außentemperaturregelung autark" },
+      "any_circuit_not_automatic": { "name": "Mindestens ein Regelkreis nicht im Automatikbetrieb" },
+      "rotary_switch_not_automatic": { "name": "Mindestens ein Drehschalter nicht im Automatikbetrieb" },
+      "manual_active": { "name": "{component} Handbetrieb" },
+      "automatic": { "name": "{component} Automatikbetrieb" },
+      "day_active": { "name": "{component} Tagbetrieb" },
+      "night_active": { "name": "{component} Nachtbetrieb" },
+      "hold_active": { "name": "{component} Haltebetrieb" },
+      "setback_active": { "name": "{component} Absenkbetrieb" },
+      "heat_up_active": { "name": "{component} Aufheizbetrieb" },
+      "return_limit_active": { "name": "{component} Rücklauftemperaturbegrenzung" },
+      "outdoor_temperature_deactivation": { "name": "{component} außentemperaturabhängige Abschaltung" },
+      "valve_closing": { "name": "{component} Ventil schließt" },
+      "valve_opening": { "name": "{component} Ventil öffnet" },
+      "mode_control_autonomous": { "name": "{component} Steuerung Betriebsart autark" },
+      "valve_control_autonomous": { "name": "{component} Steuerung Stellsignal autark" },
+      "pump_control_autonomous": { "name": "{component} Pumpensteuerung autark" },
+      "flow_setpoint_control_autonomous": { "name": "{component} Steuerung Vorlaufsollwert autark" },
+      "return_flow_temperature_setpoint_control_autonomous": { "name": "{component} Steuerung Rücklaufsollwert autark" },
+      "room_setpoint_control_autonomous": { "name": "{component} Steuerung Raumsollwert autark" },
+      "priority": { "name": "{component} Vorrangschaltung" },
+      "maximum_charging_temperature_limit_active": { "name": "{component} maximale Ladetemperaturbegrenzung" },
+      "storage_tank_charging_active": { "name": "{component} Speicherladung aktiv" },
+      "storage_tank_charging_locked": { "name": "{component} Speicherladung gesperrt" },
+      "storage_tank_charging_pump_control_autonomous": { "name": "{component} Steuerung Speicherladepumpe autark" },
+      "circulation_pump_control_autonomous": { "name": "{component} Steuerung Zirkulationspumpe autark" },
+      "special_setpoint_control_autonomous": { "name": "{component} Steuerung Sondersollwert autark" },
+      "solar_pump_running": { "name": "Solarkreispumpe" }
     },
     "climate": {
-      "rk1": {
-        "name": "Rk1 – Heizkreis 1"
-      },
-      "rk2": {
-        "name": "Rk2 – Heizkreis 2"
-      },
-      "rk3": {
-        "name": "Rk3 – Heizkreis 3"
-      }
+      "rk1": { "name": "Rk1 – Heizkreis 1" },
+      "rk2": { "name": "Rk2 – Heizkreis 2" },
+      "rk3": { "name": "Rk3 – Heizkreis 3" }
     },
     "water_heater": {
-      "rk4": {
-        "name": "Rk4 – WW / Trinkwassererwärmung"
-      }
+      "rk4": { "name": "Rk4 – WW / Trinkwassererwärmung" }
     },
     "number": {
-      "year": {
-        "name": "Aktuelles Jahr"
-      },
-      "room_setpoint_day": {
-        "name": "{component} Raumsollwert Tag"
-      },
-      "room_setpoint_night": {
-        "name": "{component} Raumsollwert Nacht"
-      },
-      "gradient": {
-        "name": "{component} Steigung Heizkennlinie"
-      },
-      "level": {
-        "name": "{component} Niveau Heizkennlinie"
-      },
-      "rk4_setpoint": {
-        "name": "{component} Trinkwassersollwert Tag"
-      },
-      "rk4_setpoint_night": {
-        "name": "{component} Trinkwassersollwert Nacht"
-      },
-      "rk4_setpoint_min": {
-        "name": "{component} minimaler Trinkwassersollwert"
-      },
-      "rk4_setpoint_max": {
-        "name": "{component} maximaler Trinkwassersollwert"
-      },
-      "summer_days_on": {
-        "name": "Einschalttage Sommerbetrieb"
-      },
-      "summer_days_off": {
-        "name": "Ausschalttage Sommerbetrieb"
-      },
-      "summer_outdoor_temperature_limit": {
-        "name": "Außentemperaturgrenzwert Sommerbetrieb"
-      },
-      "outdoor_temperature_delay": {
-        "name": "Verzögerung Außentemperaturanpassung"
-      },
-      "frost_protection_limit": {
-        "name": "Frostschutzgrenzwert"
-      },
-      "temperature_monitoring_deviation": {
-        "name": "Temperaturüberwachung Abweichung"
-      },
-      "temperature_monitoring_window": {
-        "name": "Temperaturüberwachung Zeitfenster"
-      },
-      "outdoor_temperature_input_range_start": {
-        "name": "Übertragungsbereich Außentemperatur Anfang"
-      },
-      "outdoor_temperature_input_range_end": {
-        "name": "Übertragungsbereich Außentemperatur Ende"
-      },
-      "minimum_flow_temperature": {
-        "name": "{component} minimale Vorlauftemperatur"
-      },
-      "maximum_flow_temperature": {
-        "name": "{component} maximale Vorlauftemperatur"
-      },
-      "maximum_return_flow_temperature": {
-        "name": "{component} maximale Rücklauftemperatur"
-      },
-      "fixed_setpoint_day": {
-        "name": "{component} Festwert Tagbetrieb"
-      },
-      "fixed_setpoint_night": {
-        "name": "{component} Festwert Nachtbetrieb"
-      },
-      "hysteresis": {
-        "name": "{component} Schaltdifferenz"
-      },
-      "charging_temperature_boost": {
-        "name": "{component} Ladetemperaturüberhöhung"
-      },
-      "storage_tank_charging_pump_lag_factor": {
-        "name": "{component} Nachlauffaktor Speicherladepumpe"
-      },
-      "maximum_charging_temperature": {
-        "name": "{component} maximale Ladetemperatur"
-      },
-      "rk4_maximum_return_flow_temperature": {
-        "name": "{component} maximale Rücklauftemperatur"
-      },
-      "disinfection_temperature": {
-        "name": "{component} Desinfektionstemperatur"
-      },
-      "disinfection_hold_time": {
-        "name": "{component} Haltezeit Desinfektion"
-      },
-      "special_setpoint": {
-        "name": "{component} Sondersollwert"
-      },
-      "solar_pump_on_temperature_difference": {
-        "name": "Einschaltdifferenz Solarkreispumpe"
-      },
-      "solar_pump_off_temperature_difference": {
-        "name": "Ausschaltdifferenz Solarkreispumpe"
-      },
-      "solar_maximum_storage_temperature": {
-        "name": "Maximale Speichertemperatur"
-      },
-      "buffer_tank_minimum_charging_setpoint": {
-        "name": "Minimaler Sollwert Pufferladung (0 = AUTO/AT)"
-      },
-      "buffer_tank_charging_end_temperature": {
-        "name": "Pufferladung beenden (0 = AUTO/AT)"
-      },
-      "buffer_tank_charging_temperature_boost": {
-        "name": "Überhöhung Ladetemperatur"
-      },
-      "buffer_tank_charging_pump_lag_factor": {
-        "name": "Nachlauf Ladepumpe"
-      }
+      "year": { "name": "Aktuelles Jahr" },
+      "room_setpoint_day": { "name": "{component} Heizkurve - Raumsoll Tag" },
+      "room_setpoint_night": { "name": "{component} Heizkurve - Raumsoll Nacht" },
+      "gradient": { "name": "{component} Heizkurve - Steigung" },
+      "level": { "name": "{component} Heizkurve - Niveau" },
+      "rk4_setpoint": { "name": "{component} Trinkwassersollwert Tag" },
+      "rk4_setpoint_night": { "name": "{component} Trinkwassersollwert Nacht" },
+      "rk4_setpoint_min": { "name": "{component} minimaler Trinkwassersollwert" },
+      "rk4_setpoint_max": { "name": "{component} maximaler Trinkwassersollwert" },
+      "summer_days_on": { "name": "Einschalttage Sommerbetrieb" },
+      "summer_days_off": { "name": "Ausschalttage Sommerbetrieb" },
+      "summer_outdoor_temperature_limit": { "name": "Außentemperaturgrenzwert Sommerbetrieb" },
+      "outdoor_temperature_delay": { "name": "Verzögerung Außentemperaturanpassung" },
+      "frost_protection_limit": { "name": "Frostschutzgrenzwert" },
+      "temperature_monitoring_deviation": { "name": "Temperaturüberwachung Abweichung" },
+      "temperature_monitoring_window": { "name": "Temperaturüberwachung Zeitfenster" },
+      "outdoor_temperature_input_range_start": { "name": "Übertragungsbereich Außentemperatur Anfang" },
+      "outdoor_temperature_input_range_end": { "name": "Übertragungsbereich Außentemperatur Ende" },
+      "minimum_flow_temperature": { "name": "{component} Heizkurve - VL min" },
+      "maximum_flow_temperature": { "name": "{component} Heizkurve - VL max" },
+      "maximum_return_flow_temperature": { "name": "{component} maximale Rücklauftemperatur" },
+      "fixed_setpoint_day": { "name": "{component} Festwert - VL Tag" },
+      "fixed_setpoint_night": { "name": "{component} Festwert - VL Nacht" },
+      "hysteresis": { "name": "{component} Schaltdifferenz" },
+      "charging_temperature_boost": { "name": "{component} Ladetemperaturüberhöhung" },
+      "storage_tank_charging_pump_lag_factor": { "name": "{component} Nachlauffaktor Speicherladepumpe" },
+      "maximum_charging_temperature": { "name": "{component} maximale Ladetemperatur" },
+      "rk4_maximum_return_flow_temperature": { "name": "{component} maximale Rücklauftemperatur" },
+      "disinfection_temperature": { "name": "{component} Desinfektionstemperatur" },
+      "disinfection_hold_time": { "name": "{component} Haltezeit Desinfektion" },
+      "special_setpoint": { "name": "{component} Sondersollwert" },
+      "solar_pump_on_temperature_difference": { "name": "Einschaltdifferenz Solarkreispumpe" },
+      "solar_pump_off_temperature_difference": { "name": "Ausschaltdifferenz Solarkreispumpe" },
+      "solar_maximum_storage_temperature": { "name": "Maximale Speichertemperatur" },
+      "buffer_tank_minimum_charging_setpoint": { "name": "Minimaler Sollwert Pufferladung (0 = AUTO/AT)" },
+      "buffer_tank_charging_end_temperature": { "name": "Pufferladung beenden (0 = AUTO/AT)" },
+      "buffer_tank_charging_temperature_boost": { "name": "Überhöhung Ladetemperatur" },
+      "buffer_tank_charging_pump_lag_factor": { "name": "Nachlauf Ladepumpe" }
     },
     "date": {
-      "controller_date": {
-        "name": "Reglerdatum"
-      }
+      "controller_date": { "name": "Reglerdatum" }
     },
     "time": {
-      "controller_time": {
-        "name": "Reglerzeit"
-      },
-      "disinfection_start": {
-        "name": "{component} Beginn Desinfektion"
-      },
-      "disinfection_stop": {
-        "name": "{component} Ende Desinfektion"
-      }
+      "controller_time": { "name": "Reglerzeit" },
+      "disinfection_start": { "name": "{component} Beginn Desinfektion" },
+      "disinfection_stop": { "name": "{component} Ende Desinfektion" }
     },
     "select": {
       "operation_mode": {
@@ -583,60 +291,24 @@
       }
     },
     "switch": {
-      "write_access": {
-        "name": "Schreibzugriff"
-      },
-      "delayed_outdoor_temperature_adaptation_falling": {
-        "name": "Verzögerte Außentemperaturanpassung fallend"
-      },
-      "delayed_outdoor_temperature_adaptation_rising": {
-        "name": "Verzögerte Außentemperaturanpassung steigend"
-      },
-      "automatic_summer_standard_time_switchover": {
-        "name": "Automatische Sommer-/Winterzeitumschaltung"
-      },
-      "optimization": {
-        "name": "{component} Optimierung"
-      },
-      "adaptation": {
-        "name": "{component} Adaption"
-      },
-      "room_control_unit": {
-        "name": "{component} Raumleitgerät 5570"
-      },
-      "intermediate_heating_operation": {
-        "name": "{component} Zwischenheizbetrieb"
-      },
-      "manual_levels_locked": {
-        "name": "Handebene gesperrt"
-      },
-      "rotary_switch_locked": {
-        "name": "Drehschalter gesperrt"
-      },
-      "glt_timeout_active": {
-        "name": "GLT-Zeitüberschreitung"
-      },
-      "forced_charging": {
-        "name": "{component} Zwangsladung"
-      },
-      "forced_charging_uses_storage_tank_sensor_2": {
-        "name": "{component} Zwangsladung mit Speichersensor 2"
-      },
-      "storage_tank_charging_enabled": {
-        "name": "{component} Speicherladung freigegeben"
-      },
-      "intermediate_heating_function_enabled": {
-        "name": "{component} Funktion Zwischenheizen"
-      },
-      "pump_control": {
-        "name": "{component} Steuerung Umwälzpumpe"
-      },
-      "storage_tank_charging_pump_control": {
-        "name": "{component} Steuerung Speicherladepumpe"
-      },
-      "circulation_pump_control": {
-        "name": "{component} Steuerung Zirkulationspumpe"
-      }
+      "write_access": { "name": "Schreibzugriff" },
+      "delayed_outdoor_temperature_adaptation_falling": { "name": "Verzögerte Außentemperaturanpassung fallend" },
+      "delayed_outdoor_temperature_adaptation_rising": { "name": "Verzögerte Außentemperaturanpassung steigend" },
+      "automatic_summer_standard_time_switchover": { "name": "Automatische Sommer-/Winterzeitumschaltung" },
+      "optimization": { "name": "{component} Optimierung" },
+      "adaptation": { "name": "{component} Adaption" },
+      "room_control_unit": { "name": "{component} Raumleitgerät 5570" },
+      "intermediate_heating_operation": { "name": "{component} Zwischenheizbetrieb" },
+      "manual_levels_locked": { "name": "Handebene gesperrt" },
+      "rotary_switch_locked": { "name": "Drehschalter gesperrt" },
+      "glt_timeout_active": { "name": "GLT-Zeitüberschreitung" },
+      "forced_charging": { "name": "{component} Zwangsladung" },
+      "forced_charging_uses_storage_tank_sensor_2": { "name": "{component} Zwangsladung mit Speichersensor 2" },
+      "storage_tank_charging_enabled": { "name": "{component} Speicherladung freigegeben" },
+      "intermediate_heating_function_enabled": { "name": "{component} Funktion Zwischenheizen" },
+      "pump_control": { "name": "{component} Steuerung Umwälzpumpe" },
+      "storage_tank_charging_pump_control": { "name": "{component} Steuerung Speicherladepumpe" },
+      "circulation_pump_control": { "name": "{component} Steuerung Zirkulationspumpe" }
     }
   }
 }

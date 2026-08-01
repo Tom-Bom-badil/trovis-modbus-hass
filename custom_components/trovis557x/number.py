@@ -34,6 +34,7 @@ class TrovisNumberDescription(NumberEntityDescription):
     component: str
     field: str
     translation_placeholders: dict[str, str] | None = None
+    requires_outdoor_sensor: bool | None = None
 
 
 def _number(
@@ -44,6 +45,7 @@ def _number(
     key: str | None = None,
     translation_key: str | None = None,
     translation_placeholders: dict[str, str] | None = None,
+    requires_outdoor_sensor: bool | None = None,
     enabled: bool = True,
 ) -> TrovisNumberDescription:
     """Return a metadata-driven number description."""
@@ -54,6 +56,7 @@ def _number(
         name=name,
         component=component,
         field=field,
+        requires_outdoor_sensor=requires_outdoor_sensor,
         mode=NumberMode.BOX,
         entity_category=EntityCategory.CONFIG,
         entity_registry_enabled_default=enabled,
@@ -104,7 +107,12 @@ def _rk_number_descriptions(index: int) -> tuple[TrovisNumberDescription, ...]:
     prefix = f"rk{index}"
     placeholders = {"component": f"Rk{index}"}
 
-    def description(field: str, name: str) -> TrovisNumberDescription:
+    def description(
+        field: str,
+        name: str,
+        *,
+        requires_outdoor_sensor: bool | None = None,
+    ) -> TrovisNumberDescription:
         return _number(
             component,
             field,
@@ -112,18 +120,35 @@ def _rk_number_descriptions(index: int) -> tuple[TrovisNumberDescription, ...]:
             key=f"{prefix}_{field}",
             translation_key=field,
             translation_placeholders=placeholders,
+            requires_outdoor_sensor=requires_outdoor_sensor,
         )
 
     return (
-        description("room_setpoint_day", "room setpoint day"),
-        description("room_setpoint_night", "room setpoint night"),
-        description("gradient", "gradient"),
-        description("level", "level"),
+        description(
+            "room_setpoint_day",
+            "room setpoint day",
+            requires_outdoor_sensor=True,
+        ),
+        description(
+            "room_setpoint_night",
+            "room setpoint night",
+            requires_outdoor_sensor=True,
+        ),
+        description("gradient", "gradient", requires_outdoor_sensor=True),
+        description("level", "level", requires_outdoor_sensor=True),
         description("minimum_flow_temperature", "minimum flow setpoint"),
         description("maximum_flow_temperature", "maximum flow setpoint"),
         description("maximum_return_flow_temperature", "maximum return temperature"),
-        description("fixed_setpoint_day", "fixed setpoint day"),
-        description("fixed_setpoint_night", "fixed setpoint night"),
+        description(
+            "fixed_setpoint_day",
+            "fixed setpoint day",
+            requires_outdoor_sensor=False,
+        ),
+        description(
+            "fixed_setpoint_night",
+            "fixed setpoint night",
+            requires_outdoor_sensor=False,
+        ),
     )
 
 
@@ -240,9 +265,20 @@ def _description_supported(
     coordinator: TrovisCoordinator,
     description: TrovisNumberDescription,
 ) -> bool:
-    """Return whether a number field exists on this device profile."""
+    """Return whether a number field exists and applies to this circuit mode."""
     component = getattr(coordinator.device, description.component)
-    return component_supports_datapoint(component, description.field)
+    if not component_supports_datapoint(component, description.field):
+        return False
+
+    if description.requires_outdoor_sensor is None:
+        return True
+
+    index = int(description.component.removeprefix("rk"))
+    uses_outdoor_sensor = coordinator.device.heating_circuit_uses_outdoor_sensor(index)
+    return (
+        uses_outdoor_sensor is None
+        or uses_outdoor_sensor is description.requires_outdoor_sensor
+    )
 
 
 async def async_setup_entry(

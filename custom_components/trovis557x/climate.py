@@ -1,4 +1,4 @@
-"""Climate platform - one entity per room-heating Rk1-Rk3 slot."""
+"""Climate platform for weather-compensated room-heating circuits."""
 
 from __future__ import annotations
 
@@ -49,11 +49,12 @@ async def async_setup_entry(
     entry: TrovisConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up a climate entity per heating circuit."""
+    """Set up a climate entity per weather-compensated heating circuit."""
     coordinator = entry.runtime_data
     async_add_entities(
         TrovisHeatingCircuitClimate(coordinator, index)
         for index in coordinator.device.room_heating_circuit_indices
+        if coordinator.device.heating_circuit_uses_outdoor_sensor(index) is not False
     )
 
 

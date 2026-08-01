@@ -178,6 +178,7 @@ COILS: dict[int, bool] = {
     1809: True,  # storage tank charging active
     1810: True,  # storage tank charging enabled
     1811: False,  # storage tank charging not locked
+    1025: True,  # CL1026 / CO1 -> F02: Rk1 outdoor sensor enabled
 }
 
 
