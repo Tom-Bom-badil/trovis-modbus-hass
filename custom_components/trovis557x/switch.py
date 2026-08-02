@@ -104,7 +104,7 @@ def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
         _switch(
             component,
             "optimization",
-            f"Rk{index} optimization",
+            f"Rk{index} - Optimization",
             key=f"{prefix}_optimization",
             translation_key="optimization",
             translation_placeholders=placeholders,
@@ -112,7 +112,7 @@ def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
         _switch(
             component,
             "adaptation",
-            f"Rk{index} adaptation",
+            f"Rk{index} - Adaptation",
             key=f"{prefix}_adaptation",
             translation_key="adaptation",
             translation_placeholders=placeholders,
@@ -120,7 +120,7 @@ def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
         _switch(
             component,
             "room_control_unit",
-            f"Rk{index} room control unit",
+            f"Rk{index} - Room control unit 5244/5257",
             key=f"{prefix}_room_control_unit",
             translation_key="room_control_unit",
             translation_placeholders=placeholders,
@@ -128,7 +128,7 @@ def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
         _switch(
             component,
             "pump_running",
-            f"Rk{index} pump control",
+            f"Rk{index} - Pump control",
             key=f"{prefix}_pump_control",
             translation_key="pump_control",
             translation_placeholders=placeholders,

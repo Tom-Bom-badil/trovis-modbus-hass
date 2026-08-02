@@ -38,7 +38,7 @@ def _operation_mode(
     return TrovisSelectDescription(
         key=key,
         translation_key="operation_mode",
-        name=f"{placeholder} operation mode",
+        name=f"{placeholder} - Operating mode",
         component=component,
         field="mode",
         entity_category=EntityCategory.CONFIG,
@@ -47,9 +47,9 @@ def _operation_mode(
 
 
 _SELECTS: tuple[TrovisSelectDescription, ...] = (
-    _operation_mode("rk1", "rk1_operation_mode", "Rk1"),
-    _operation_mode("rk2", "rk2_operation_mode", "Rk2"),
-    _operation_mode("rk3", "rk3_operation_mode", "Rk3"),
+    _operation_mode("rk1", "rk1_operating_mode", "Rk1"),
+    _operation_mode("rk2", "rk2_operating_mode", "Rk2"),
+    _operation_mode("rk3", "rk3_operating_mode", "Rk3"),
     _operation_mode("rk4", "rk4_operation_mode", "Rk4"),
     TrovisSelectDescription(
         key="rk4_disinfection_weekday",

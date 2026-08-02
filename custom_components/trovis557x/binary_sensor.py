@@ -103,39 +103,104 @@ _CONTROLLER: tuple[TrovisBinaryDescription, ...] = (
 )
 
 
-_CIRCUIT_STATES: tuple[tuple[str, str, BinarySensorDeviceClass | None, bool], ...] = (
-    ("pump_running", "Pump", BinarySensorDeviceClass.RUNNING, True),
-    ("frost_protection", "Frost protection", BinarySensorDeviceClass.COLD, True),
-    ("standby", "Standby", None, True),
-    ("manual_active", "Manual operation", None, True),
-    ("automatic", "Automatic operation", None, True),
-    ("day_active", "Day operation", None, True),
-    ("night_active", "Night operation", None, True),
-    ("hold_active", "Hold operation", None, True),
-    ("setback_active", "Setback operation", None, True),
-    ("heat_up_active", "Heat-up operation", BinarySensorDeviceClass.HEAT, True),
-    ("return_limit_active", "Return-temperature limit", None, True),
-    ("outdoor_temperature_deactivation", "Outdoor-temperature shutdown", None, True),
-    ("valve_closing", "Valve closing", BinarySensorDeviceClass.MOVING, True),
-    ("valve_opening", "Valve opening", BinarySensorDeviceClass.MOVING, True),
-    ("mode_control_autonomous", "Mode control autonomous", None, False),
-    ("valve_control_autonomous", "Valve control autonomous", None, False),
-    ("pump_control_autonomous", "Pump control autonomous", None, False),
+_CIRCUIT_STATES: tuple[
+    tuple[str, str, str, BinarySensorDeviceClass | None, bool], ...
+] = (
+    (
+        "pump_running",
+        "pump_running",
+        "Pump running",
+        BinarySensorDeviceClass.RUNNING,
+        True,
+    ),
+    (
+        "frost_protection",
+        "frost_protection",
+        "Frost protection",
+        BinarySensorDeviceClass.COLD,
+        True,
+    ),
+    ("standby", "mode_standby", "Mode standby", None, True),
+    ("manual_active", "mode_manual", "Mode manual", None, True),
+    ("automatic", "mode_automatic", "Mode automatic", None, True),
+    ("day_active", "mode_day", "Mode day", None, True),
+    ("night_active", "mode_night", "Mode night", None, True),
+    ("hold_active", "mode_hold", "Mode hold", None, True),
+    ("setback_active", "mode_setback", "Mode setback", None, True),
+    (
+        "heat_up_active",
+        "mode_heat_up",
+        "Mode heat-up",
+        BinarySensorDeviceClass.HEAT,
+        True,
+    ),
+    (
+        "return_limit_active",
+        "return_limit_active",
+        "Return limit active",
+        None,
+        True,
+    ),
+    (
+        "outdoor_temperature_deactivation",
+        "outdoor_temp_cutoff_active",
+        "Outdoor temp cutoff active",
+        None,
+        True,
+    ),
+    (
+        "valve_closing",
+        "valve_closing",
+        "Valve closing",
+        BinarySensorDeviceClass.MOVING,
+        True,
+    ),
+    (
+        "valve_opening",
+        "valve_opening",
+        "Valve opening",
+        BinarySensorDeviceClass.MOVING,
+        True,
+    ),
+    (
+        "mode_control_autonomous",
+        "control_mode_autonomous",
+        "Autonomous operating mode control",
+        None,
+        False,
+    ),
+    (
+        "valve_control_autonomous",
+        "control_valve_autonomous",
+        "Autonomous valve control",
+        None,
+        False,
+    ),
+    (
+        "pump_control_autonomous",
+        "control_pump_autonomous",
+        "Autonomous pump control",
+        None,
+        False,
+    ),
     (
         "flow_setpoint_control_autonomous",
-        "Flow-setpoint control autonomous",
+        "control_flow_setpoint_autonomous",
+        "Autonomous flow setpoint control",
         None,
         False,
     ),
     (
         "return_flow_temperature_setpoint_control_autonomous",
-        "Return-setpoint control autonomous",
+        "control_return_setpoint_autonomous",
+        "Autonomous return setpoint control",
         None,
         False,
     ),
     (
         "room_setpoint_control_autonomous",
-        "Room-setpoint control autonomous",
+        "control_room_setpoint_autonomous",
+        "Autonomous room setpoint control",
         None,
         False,
     ),
@@ -315,14 +380,14 @@ async def async_setup_entry(
             _binary(
                 component,
                 field,
-                name,
+                f"Rk{index} - {name}",
                 device_class,
-                key=f"rk{index}_{field}",
+                key=f"rk{index}_{key_suffix}",
                 translation_key=field,
                 translation_placeholders=placeholders,
                 enabled=enabled,
             )
-            for field, name, device_class, enabled in _CIRCUIT_STATES
+            for field, key_suffix, name, device_class, enabled in _CIRCUIT_STATES
         )
 
     async_add_entities(

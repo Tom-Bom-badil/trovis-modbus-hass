@@ -362,15 +362,15 @@ def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
         _number_sensor(
             component,
             "valve_setpoint",
-            f"Rk{index} valve setpoint",
-            key=f"{prefix}_valve_setpoint",
+            f"Rk{index} - Valve setpoint",
+            key=f"{prefix}_valve_output",
             translation_key="valve_setpoint",
             translation_placeholders=placeholders,
         ),
         _number_sensor(
             component,
             "room_setpoint_active",
-            f"Rk{index} active room setpoint",
+            f"Rk{index} - Active room setpoint",
             key=f"{prefix}_room_setpoint_active",
             translation_key="room_setpoint_active",
             entity_category=None,
@@ -380,7 +380,7 @@ def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
         _number_sensor(
             component,
             "flow_setpoint",
-            f"Rk{index} flow setpoint",
+            f"Rk{index} - Flow setpoint",
             key=f"{prefix}_flow_setpoint",
             translation_key="flow_setpoint",
             state_class=None,
@@ -389,8 +389,8 @@ def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
         _number_sensor(
             component,
             "return_flow_temperature_setpoint",
-            f"Rk{index} return setpoint",
-            key=f"{prefix}_return_flow_temperature_setpoint",
+            f"Rk{index} - Return setpoint",
+            key=f"{prefix}_return_setpoint",
             translation_key="return_flow_temperature_setpoint",
             state_class=None,
             translation_placeholders=placeholders,
@@ -398,26 +398,26 @@ def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
         _number_sensor(
             component,
             "flow_control_deviation",
-            f"Rk{index} flow deviation",
-            key=f"{prefix}_flow_control_deviation",
+            f"Rk{index} - Flow deviation",
+            key=f"{prefix}_flow_deviation",
             translation_key="flow_control_deviation",
             translation_placeholders=placeholders,
         ),
         TrovisSensorDescription(
-            key=f"{prefix}_heating_curves",
+            key=f"{prefix}_curves",
             translation_key="heating_curves",
             translation_placeholders=placeholders,
-            name=f"Rk{index} heating curves",
+            name=f"Rk{index} - Heating curves",
             component=component,
             field="heating_curves",
             value_kind="heating_curves",
             entity_category=None,
         ),
         TrovisSensorDescription(
-            key=f"{prefix}_operating_mode",
+            key=f"{prefix}_control_type",
             translation_key="heating_operating_mode",
             translation_placeholders=placeholders,
-            name=f"Rk{index} operating mode",
+            name=f"Rk{index} - Control basis",
             component=component,
             field="operating_mode",
             value_kind="heating_operating_mode",
@@ -581,6 +581,10 @@ class TrovisSensor(TrovisEntity, SensorEntity):
             self._attr_options = [mode.value for mode in HeatingCircuitControlMode]
             self._attr_device_class = SensorDeviceClass.ENUM
 
+        elif description.value_kind == "heating_curves":
+            self._attr_options = ["error", "calculated"]
+            self._attr_device_class = SensorDeviceClass.ENUM
+
         self._attr_state_class = description.state_class
         self._attr_entity_category = description.entity_category
         self._attr_entity_registry_enabled_default = (
@@ -661,8 +665,11 @@ class TrovisSensor(TrovisEntity, SensorEntity):
     @property
     def native_value(self) -> object:
         """Return the current value in Home Assistant form."""
+
         if self.entity_description.value_kind == "heating_curves":
-            return int(self._heating_curve_attributes() is not None)
+            if self._heating_curve_attributes() is None:
+                return "error"
+            return "calculated"
 
         if self.entity_description.value_kind == "heating_operating_mode":
             operating_mode = self._heating_operating_mode()
