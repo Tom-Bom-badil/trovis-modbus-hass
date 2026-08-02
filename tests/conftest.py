@@ -108,6 +108,22 @@ HOLDING: dict[int, int] = {
     1009: 20,  # Hk1 return level -> 2.0 K
     1010: 550,  # Hk1 maximum return temperature -> 55.0 °C
     1011: 300,  # Hk1 return base point -> 30.0 °C
+    1012: 0xFF6A,  # Hk1 4P outdoor P1 -> -15.0 °C
+    1013: 0xFFCE,  # Hk1 4P outdoor P2 -> -5.0 °C
+    1014: 50,  # Hk1 4P outdoor P3 -> 5.0 °C
+    1015: 150,  # Hk1 4P outdoor P4 -> 15.0 °C
+    1016: 700,  # Hk1 4P flow day P1 -> 70.0 °C
+    1017: 550,  # Hk1 4P flow day P2 -> 55.0 °C
+    1018: 400,  # Hk1 4P flow day P3 -> 40.0 °C
+    1019: 250,  # Hk1 4P flow day P4 -> 25.0 °C
+    1020: 600,  # Hk1 4P flow night P1 -> 60.0 °C
+    1021: 400,  # Hk1 4P flow night P2 -> 40.0 °C
+    1022: 200,  # Hk1 4P flow night P3 -> 20.0 °C
+    1023: 200,  # Hk1 4P flow night P4 -> 20.0 °C
+    1024: 650,  # Hk1 4P return P1 -> 65.0 °C
+    1025: 650,  # Hk1 4P return P2 -> 65.0 °C
+    1026: 650,  # Hk1 4P return P3 -> 65.0 °C
+    1027: 650,  # Hk1 4P return P4 -> 65.0 °C
     1032: 450,  # Hk1 return setpoint -> 45.0 °C
     1041: 600,  # Hk1 fixed setpoint day -> 60.0 °C
     1042: 500,  # Hk1 fixed setpoint night -> 50.0 °C
@@ -179,6 +195,9 @@ COILS: dict[int, bool] = {
     1810: True,  # storage tank charging enabled
     1811: False,  # storage tank charging not locked
     1025: True,  # CL1026 / CO1 -> F02: Rk1 outdoor sensor enabled
+    1034: False,  # CL1035 / CO1 -> F11: Rk1 gradient characteristic
+    1234: False,  # CL1235 / CO2 -> F11: Rk2 gradient characteristic
+    1434: False,  # CL1435 / CO3 -> F11: Rk3 gradient characteristic
 }
 
 

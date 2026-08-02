@@ -165,15 +165,63 @@ async def test_setup_entry_creates_entities(
     minimum_flow_temperature = hass.states.get(
         f"number.{SLUG}_rk1_minimum_flow_temperature"
     )
+    return_flow_gradient = hass.states.get(f"number.{SLUG}_rk1_return_flow_gradient")
+    return_flow_level = hass.states.get(f"number.{SLUG}_rk1_return_flow_level")
+    return_flow_base_point = hass.states.get(
+        f"number.{SLUG}_rk1_return_flow_base_point"
+    )
     maximum_return_flow_temperature = hass.states.get(
         f"number.{SLUG}_rk1_maximum_return_flow_temperature"
     )
     assert minimum_flow_temperature is not None
     assert float(minimum_flow_temperature.state) == pytest.approx(20.0)
+    assert return_flow_gradient is not None
+    assert float(return_flow_gradient.state) == pytest.approx(0.5)
+    assert return_flow_level is not None
+    assert float(return_flow_level.state) == pytest.approx(2.0)
+    assert return_flow_base_point is not None
+    assert float(return_flow_base_point.state) == pytest.approx(30.0)
     assert maximum_return_flow_temperature is not None
     assert float(maximum_return_flow_temperature.state) == pytest.approx(55.0)
+    for field in (
+        "return_flow_gradient",
+        "return_flow_level",
+        "return_flow_base_point",
+    ):
+        assert hass.states.get(f"sensor.{SLUG}_rk1_{field}") is None
     assert hass.states.get(f"number.{SLUG}_rk1_fixed_setpoint_day") is None
     assert hass.states.get(f"number.{SLUG}_rk1_fixed_setpoint_night") is None
+    assert (
+        hass.states.get(f"number.{SLUG}_rk1_four_point_outdoor_temperature_1") is None
+    )
+
+    operating_mode = hass.states.get(f"sensor.{SLUG}_rk1_operating_mode")
+    heating_curves = hass.states.get(f"sensor.{SLUG}_rk1_heating_curves")
+    assert operating_mode is not None
+    assert operating_mode.state == "heating_curve"
+    assert heating_curves is not None
+    assert heating_curves.state == "1"
+    assert heating_curves.attributes["x_values"] == list(range(-20, 21))
+    assert heating_curves.attributes["flow_curve"][0] == pytest.approx(78.32)
+    assert heating_curves.attributes["flow_curve"][20] == pytest.approx(57.08)
+    assert heating_curves.attributes["flow_curve"][-1] == pytest.approx(26.4)
+    assert (
+        heating_curves.attributes["flow_curve_day"]
+        == (heating_curves.attributes["flow_curve"])
+    )
+    assert heating_curves.attributes["flow_curve_night"][0] == pytest.approx(71.12)
+    assert heating_curves.attributes["flow_curve_night"][20] == pytest.approx(49.88)
+    assert heating_curves.attributes["flow_curve_night"][-1] == pytest.approx(20.0)
+    assert heating_curves.attributes["return_curve"][0] == pytest.approx(55.0)
+    assert heating_curves.attributes["return_curve"][20] == pytest.approx(47.3)
+    assert heating_curves.attributes["return_curve"][-1] == pytest.approx(33.0)
+    assert (
+        heating_curves.attributes["return_curve_day"]
+        == (heating_curves.attributes["return_curve"])
+    )
+    assert heating_curves.attributes["return_curve_night"][0] == pytest.approx(54.2)
+    assert heating_curves.attributes["return_curve_night"][20] == pytest.approx(44.3)
+    assert heating_curves.attributes["return_curve_night"][-1] == pytest.approx(30.0)
 
     storage_status = hass.states.get(f"sensor.{SLUG}_rk4_storage_status")
     assert storage_status is not None
@@ -257,6 +305,7 @@ async def test_fixed_setpoint_control_uses_fixed_flow_setpoints(
         "room_setpoint_night",
         "gradient",
         "level",
+        "four_point_outdoor_temperature_1",
     ):
         assert hass.states.get(f"number.{SLUG}_rk1_{field}") is None
 
@@ -269,6 +318,119 @@ async def test_fixed_setpoint_control_uses_fixed_flow_setpoints(
     assert hass.states.get(f"sensor.{SLUG}_rk1_flow_setpoint") is not None
     assert hass.states.get(f"sensor.{SLUG}_rk1_room_setpoint_active") is not None
     assert hass.states.get(f"climate.{SLUG}_rk1") is None
+
+    operating_mode = hass.states.get(f"sensor.{SLUG}_rk1_operating_mode")
+    heating_curves = hass.states.get(f"sensor.{SLUG}_rk1_heating_curves")
+    assert operating_mode is not None
+    assert operating_mode.state == "fixed_setpoint"
+    assert heating_curves is not None
+    assert heating_curves.state == "1"
+    assert heating_curves.attributes["x_values"] == list(range(-20, 21))
+    assert heating_curves.attributes["flow_curve"] == [60.0] * 41
+    assert heating_curves.attributes["flow_curve_day"] == [60.0] * 41
+    assert heating_curves.attributes["flow_curve_night"] == [50.0] * 41
+    assert heating_curves.attributes["return_curve"] == [45.0] * 41
+    assert heating_curves.attributes["return_curve_day"] == [45.0] * 41
+    assert heating_curves.attributes["return_curve_night"] == [45.0] * 41
+
+
+async def test_four_point_characteristic_uses_four_point_parameters(
+    hass: HomeAssistant,
+    modbus_provider: MockProvider,
+) -> None:
+    """Expose four-point values instead of gradient or fixed controls."""
+    modbus_provider.unit.coils[1034] = True  # CL1035 / CO1 -> F11 enabled
+
+    await _setup(hass, modbus_provider)
+
+    expected_values = {
+        "four_point_outdoor_temperature_1": -15.0,
+        "four_point_outdoor_temperature_4": 15.0,
+        "four_point_flow_temperature_day_1": 70.0,
+        "four_point_flow_temperature_day_4": 25.0,
+        "four_point_flow_temperature_night_1": 60.0,
+        "four_point_flow_temperature_night_4": 20.0,
+        "four_point_return_flow_temperature_1": 65.0,
+        "four_point_return_flow_temperature_4": 65.0,
+    }
+    for field, expected in expected_values.items():
+        state = hass.states.get(f"number.{SLUG}_rk1_{field}")
+        assert state is not None
+        assert float(state.state) == pytest.approx(expected)
+
+    for prefix in (
+        "four_point_outdoor_temperature",
+        "four_point_flow_temperature_day",
+        "four_point_flow_temperature_night",
+        "four_point_return_flow_temperature",
+    ):
+        for point in range(1, 5):
+            assert hass.states.get(f"number.{SLUG}_rk1_{prefix}_{point}") is not None
+
+    for field in (
+        "room_setpoint_day",
+        "room_setpoint_night",
+        "gradient",
+        "level",
+        "fixed_setpoint_day",
+        "fixed_setpoint_night",
+    ):
+        assert hass.states.get(f"number.{SLUG}_rk1_{field}") is None
+
+    assert hass.states.get(f"number.{SLUG}_rk1_minimum_flow_temperature") is not None
+    assert hass.states.get(f"number.{SLUG}_rk1_maximum_flow_temperature") is not None
+    assert hass.states.get(f"sensor.{SLUG}_rk1_flow_setpoint") is not None
+    assert hass.states.get(f"sensor.{SLUG}_rk1_room_setpoint_active") is not None
+    assert hass.states.get(f"climate.{SLUG}_rk1") is None
+
+    operating_mode = hass.states.get(f"sensor.{SLUG}_rk1_operating_mode")
+    heating_curves = hass.states.get(f"sensor.{SLUG}_rk1_heating_curves")
+    assert operating_mode is not None
+    assert operating_mode.state == "four_point"
+    assert heating_curves is not None
+    assert heating_curves.state == "1"
+    assert heating_curves.attributes["x_values"] == list(range(-20, 21))
+    assert heating_curves.attributes["flow_curve"][0] == pytest.approx(70.0)
+    assert heating_curves.attributes["flow_curve"][5] == pytest.approx(70.0)
+    assert heating_curves.attributes["flow_curve"][-1] == pytest.approx(25.0)
+    assert (
+        heating_curves.attributes["flow_curve_day"]
+        == (heating_curves.attributes["flow_curve"])
+    )
+    assert heating_curves.attributes["flow_curve_night"][0] == pytest.approx(60.0)
+    assert heating_curves.attributes["flow_curve_night"][5] == pytest.approx(60.0)
+    assert heating_curves.attributes["flow_curve_night"][-1] == pytest.approx(20.0)
+    assert heating_curves.attributes["return_curve"] == [65.0] * 41
+    assert heating_curves.attributes["return_curve_day"] == [65.0] * 41
+    assert heating_curves.attributes["return_curve_night"] == [65.0] * 41
+
+
+async def test_invalid_four_point_curve_reports_calculation_error(
+    hass: HomeAssistant,
+    modbus_provider: MockProvider,
+) -> None:
+    """Expose state 0 and no curve attributes for invalid four-point data."""
+    modbus_provider.unit.coils[1034] = True
+    modbus_provider.unit.holding[1013] = 0xFF6A  # P2 duplicates P1
+
+    await _setup(hass, modbus_provider)
+
+    operating_mode = hass.states.get(f"sensor.{SLUG}_rk1_operating_mode")
+    heating_curves = hass.states.get(f"sensor.{SLUG}_rk1_heating_curves")
+    assert operating_mode is not None
+    assert operating_mode.state == "four_point"
+    assert heating_curves is not None
+    assert heating_curves.state == "0"
+    for attribute in (
+        "x_values",
+        "flow_curve",
+        "flow_curve_day",
+        "flow_curve_night",
+        "return_curve",
+        "return_curve_day",
+        "return_curve_night",
+    ):
+        assert attribute not in heating_curves.attributes
 
 
 async def test_subdevices_are_linked_to_controller(
@@ -464,6 +626,17 @@ async def test_register_and_coil_writes(
         blocking=True,
     )
     assert modbus_provider.unit.holding[1000] == 750
+
+    await hass.services.async_call(
+        "number",
+        "set_value",
+        {
+            "entity_id": f"number.{SLUG}_rk1_return_flow_gradient",
+            "value": 0.7,
+        },
+        blocking=True,
+    )
+    assert modbus_provider.unit.holding[1008] == 7
 
     await hass.services.async_call(
         "select",

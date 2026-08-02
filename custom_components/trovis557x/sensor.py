@@ -20,7 +20,11 @@ from homeassistant.components.sensor import (
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
-from trovis_modbus import MonthDay
+from trovis_modbus import (
+    OUTDOOR_TEMPERATURES,
+    HeatingCircuitControlMode,
+    MonthDay,
+)
 from trovis_modbus.metadata import EnumMetadata
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
@@ -33,7 +37,14 @@ from .metadata import (
     sensor_device_class_from_number,
 )
 
-SensorValueKind = Literal["plain", "number", "enum", "month_day"]
+SensorValueKind = Literal[
+    "plain",
+    "number",
+    "enum",
+    "month_day",
+    "heating_curves",
+    "heating_operating_mode",
+]
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -377,33 +388,6 @@ def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
         ),
         _number_sensor(
             component,
-            "return_flow_gradient",
-            f"Rk{index} return gradient",
-            key=f"{prefix}_return_flow_gradient",
-            translation_key="return_flow_gradient",
-            state_class=None,
-            translation_placeholders=placeholders,
-        ),
-        _number_sensor(
-            component,
-            "return_flow_level",
-            f"Rk{index} return level",
-            key=f"{prefix}_return_flow_level",
-            translation_key="return_flow_level",
-            state_class=None,
-            translation_placeholders=placeholders,
-        ),
-        _number_sensor(
-            component,
-            "return_flow_base_point",
-            f"Rk{index} return base point",
-            key=f"{prefix}_return_flow_base_point",
-            translation_key="return_flow_base_point",
-            state_class=None,
-            translation_placeholders=placeholders,
-        ),
-        _number_sensor(
-            component,
             "return_flow_temperature_setpoint",
             f"Rk{index} return setpoint",
             key=f"{prefix}_return_flow_temperature_setpoint",
@@ -418,6 +402,27 @@ def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
             key=f"{prefix}_flow_control_deviation",
             translation_key="flow_control_deviation",
             translation_placeholders=placeholders,
+        ),
+        TrovisSensorDescription(
+            key=f"{prefix}_heating_curves",
+            translation_key="heating_curves",
+            translation_placeholders=placeholders,
+            name=f"Rk{index} heating curves",
+            component=component,
+            field="heating_curves",
+            value_kind="heating_curves",
+            entity_category=None,
+        ),
+        TrovisSensorDescription(
+            key=f"{prefix}_operating_mode",
+            translation_key="heating_operating_mode",
+            translation_placeholders=placeholders,
+            name=f"Rk{index} operating mode",
+            component=component,
+            field="operating_mode",
+            value_kind="heating_operating_mode",
+            device_class=SensorDeviceClass.ENUM,
+            entity_category=None,
         ),
     )
 
@@ -494,7 +499,11 @@ def _description_supported(
         if description.field not in coordinator.device.available_sensor_keys:
             return False
 
-    if description.value_kind == "plain":
+    if description.value_kind in (
+        "plain",
+        "heating_curves",
+        "heating_operating_mode",
+    ):
         return True
 
     component = getattr(coordinator.device, description.component)
@@ -568,15 +577,97 @@ class TrovisSensor(TrovisEntity, SensorEntity):
             self._attr_options = [option.key for option in self._enum_metadata.options]
             self._attr_device_class = SensorDeviceClass.ENUM
 
+        elif description.value_kind == "heating_operating_mode":
+            self._attr_options = [mode.value for mode in HeatingCircuitControlMode]
+            self._attr_device_class = SensorDeviceClass.ENUM
+
         self._attr_state_class = description.state_class
         self._attr_entity_category = description.entity_category
         self._attr_entity_registry_enabled_default = (
             description.entity_registry_enabled_default
         )
 
+    def _heating_operating_mode(self) -> HeatingCircuitControlMode | None:
+        """Return the active setpoint-generation mode for this Rk entity."""
+        index = int(self.entity_description.component.removeprefix("rk"))
+        return self.coordinator.device.heating_circuit_operating_mode(index)
+
+    def _heating_curve_attributes(
+        self,
+    ) -> dict[str, list[int] | list[float]] | None:
+        """Return parallel x/day/night/active flow and return-curve lists."""
+        operating_mode = self._heating_operating_mode()
+        if operating_mode is None:
+            return None
+
+        flow_curve = self._subsystem.heating_curve(
+            operating_mode=operating_mode,
+            curve="flow",
+        )
+        flow_curve_day = self._subsystem.heating_curve(
+            mode="day",
+            operating_mode=operating_mode,
+            curve="flow",
+        )
+        flow_curve_night = self._subsystem.heating_curve(
+            mode="night",
+            operating_mode=operating_mode,
+            curve="flow",
+        )
+        return_curve = self._subsystem.heating_curve(
+            operating_mode=operating_mode,
+            curve="return",
+        )
+        return_curve_day = self._subsystem.heating_curve(
+            mode="day",
+            operating_mode=operating_mode,
+            curve="return",
+        )
+        return_curve_night = self._subsystem.heating_curve(
+            mode="night",
+            operating_mode=operating_mode,
+            curve="return",
+        )
+        if (
+            flow_curve is None
+            or flow_curve_day is None
+            or flow_curve_night is None
+            or return_curve is None
+            or return_curve_day is None
+            or return_curve_night is None
+        ):
+            return None
+        curves = (
+            flow_curve,
+            flow_curve_day,
+            flow_curve_night,
+            return_curve,
+            return_curve_day,
+            return_curve_night,
+        )
+        if any(len(curve) != len(OUTDOOR_TEMPERATURES) for curve in curves):
+            return None
+
+        return {
+            "x_values": list(OUTDOOR_TEMPERATURES),
+            "flow_curve": flow_curve,
+            "flow_curve_day": flow_curve_day,
+            "flow_curve_night": flow_curve_night,
+            "return_curve": return_curve,
+            "return_curve_day": return_curve_day,
+            "return_curve_night": return_curve_night,
+        }
+
     @property
     def native_value(self) -> object:
         """Return the current value in Home Assistant form."""
+        if self.entity_description.value_kind == "heating_curves":
+            return int(self._heating_curve_attributes() is not None)
+
+        if self.entity_description.value_kind == "heating_operating_mode":
+            operating_mode = self._heating_operating_mode()
+            return operating_mode.value if operating_mode is not None else None
+
         value = getattr(self._subsystem, self.entity_description.field)
 
         if value is None:
@@ -599,8 +690,11 @@ class TrovisSensor(TrovisEntity, SensorEntity):
         return value
 
     @property
-    def extra_state_attributes(self) -> dict[str, int] | None:
-        """Expose month and day separately for recurring dates."""
+    def extra_state_attributes(self) -> dict[str, object] | None:
+        """Expose derived curves or recurring-date parts as attributes."""
+        if self.entity_description.value_kind == "heating_curves":
+            return self._heating_curve_attributes()
+
         if self.entity_description.value_kind != "month_day":
             return None
 

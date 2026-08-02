@@ -54,7 +54,11 @@ async def async_setup_entry(
     async_add_entities(
         TrovisHeatingCircuitClimate(coordinator, index)
         for index in coordinator.device.room_heating_circuit_indices
-        if coordinator.device.heating_circuit_uses_outdoor_sensor(index) is not False
+        if (
+            coordinator.device.heating_circuit_uses_outdoor_sensor(index) is not False
+            and coordinator.device.heating_circuit_uses_four_point_characteristic(index)
+            is not True
+        )
     )
 
 

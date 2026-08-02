@@ -35,6 +35,7 @@ class TrovisNumberDescription(NumberEntityDescription):
     field: str
     translation_placeholders: dict[str, str] | None = None
     requires_outdoor_sensor: bool | None = None
+    requires_four_point_characteristic: bool | None = None
 
 
 def _number(
@@ -46,6 +47,7 @@ def _number(
     translation_key: str | None = None,
     translation_placeholders: dict[str, str] | None = None,
     requires_outdoor_sensor: bool | None = None,
+    requires_four_point_characteristic: bool | None = None,
     enabled: bool = True,
 ) -> TrovisNumberDescription:
     """Return a metadata-driven number description."""
@@ -57,6 +59,7 @@ def _number(
         component=component,
         field=field,
         requires_outdoor_sensor=requires_outdoor_sensor,
+        requires_four_point_characteristic=requires_four_point_characteristic,
         mode=NumberMode.BOX,
         entity_category=EntityCategory.CONFIG,
         entity_registry_enabled_default=enabled,
@@ -112,6 +115,7 @@ def _rk_number_descriptions(index: int) -> tuple[TrovisNumberDescription, ...]:
         name: str,
         *,
         requires_outdoor_sensor: bool | None = None,
+        requires_four_point_characteristic: bool | None = None,
     ) -> TrovisNumberDescription:
         return _number(
             component,
@@ -121,6 +125,7 @@ def _rk_number_descriptions(index: int) -> tuple[TrovisNumberDescription, ...]:
             translation_key=field,
             translation_placeholders=placeholders,
             requires_outdoor_sensor=requires_outdoor_sensor,
+            requires_four_point_characteristic=(requires_four_point_characteristic),
         )
 
     return (
@@ -128,16 +133,136 @@ def _rk_number_descriptions(index: int) -> tuple[TrovisNumberDescription, ...]:
             "room_setpoint_day",
             "room setpoint day",
             requires_outdoor_sensor=True,
+            requires_four_point_characteristic=False,
         ),
         description(
             "room_setpoint_night",
             "room setpoint night",
             requires_outdoor_sensor=True,
+            requires_four_point_characteristic=False,
         ),
-        description("gradient", "gradient", requires_outdoor_sensor=True),
-        description("level", "level", requires_outdoor_sensor=True),
+        description(
+            "gradient",
+            "gradient",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=False,
+        ),
+        description(
+            "level",
+            "level",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=False,
+        ),
+        description(
+            "four_point_outdoor_temperature_1",
+            "four-point outdoor temperature point 1",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=True,
+        ),
+        description(
+            "four_point_outdoor_temperature_2",
+            "four-point outdoor temperature point 2",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=True,
+        ),
+        description(
+            "four_point_outdoor_temperature_3",
+            "four-point outdoor temperature point 3",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=True,
+        ),
+        description(
+            "four_point_outdoor_temperature_4",
+            "four-point outdoor temperature point 4",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=True,
+        ),
+        description(
+            "four_point_flow_temperature_day_1",
+            "four-point day flow temperature point 1",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=True,
+        ),
+        description(
+            "four_point_flow_temperature_day_2",
+            "four-point day flow temperature point 2",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=True,
+        ),
+        description(
+            "four_point_flow_temperature_day_3",
+            "four-point day flow temperature point 3",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=True,
+        ),
+        description(
+            "four_point_flow_temperature_day_4",
+            "four-point day flow temperature point 4",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=True,
+        ),
+        description(
+            "four_point_flow_temperature_night_1",
+            "four-point night flow temperature point 1",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=True,
+        ),
+        description(
+            "four_point_flow_temperature_night_2",
+            "four-point night flow temperature point 2",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=True,
+        ),
+        description(
+            "four_point_flow_temperature_night_3",
+            "four-point night flow temperature point 3",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=True,
+        ),
+        description(
+            "four_point_flow_temperature_night_4",
+            "four-point night flow temperature point 4",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=True,
+        ),
+        description(
+            "four_point_return_flow_temperature_1",
+            "four-point return flow temperature point 1",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=True,
+        ),
+        description(
+            "four_point_return_flow_temperature_2",
+            "four-point return flow temperature point 2",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=True,
+        ),
+        description(
+            "four_point_return_flow_temperature_3",
+            "four-point return flow temperature point 3",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=True,
+        ),
+        description(
+            "four_point_return_flow_temperature_4",
+            "four-point return flow temperature point 4",
+            requires_outdoor_sensor=True,
+            requires_four_point_characteristic=True,
+        ),
         description("minimum_flow_temperature", "minimum flow setpoint"),
         description("maximum_flow_temperature", "maximum flow setpoint"),
+        description(
+            "return_flow_gradient",
+            "return flow characteristic gradient",
+        ),
+        description(
+            "return_flow_level",
+            "return flow characteristic level",
+        ),
+        description(
+            "return_flow_base_point",
+            "return flow base point",
+        ),
         description("maximum_return_flow_temperature", "maximum return temperature"),
         description(
             "fixed_setpoint_day",
@@ -270,15 +395,38 @@ def _description_supported(
     if not component_supports_datapoint(component, description.field):
         return False
 
-    if description.requires_outdoor_sensor is None:
+    if (
+        description.requires_outdoor_sensor is None
+        and description.requires_four_point_characteristic is None
+    ):
         return True
 
     index = int(description.component.removeprefix("rk"))
     uses_outdoor_sensor = coordinator.device.heating_circuit_uses_outdoor_sensor(index)
-    return (
-        uses_outdoor_sensor is None
-        or uses_outdoor_sensor is description.requires_outdoor_sensor
+
+    if description.requires_outdoor_sensor is False:
+        # An unknown selector keeps the established weather-compensated view
+        # instead of exposing both fixed and weather-compensated controls.
+        if uses_outdoor_sensor is not False:
+            return False
+    elif description.requires_outdoor_sensor is True:
+        if uses_outdoor_sensor is False:
+            return False
+
+    requirement = description.requires_four_point_characteristic
+    if requirement is None:
+        return True
+
+    uses_four_point = coordinator.device.heating_circuit_uses_four_point_characteristic(
+        index
     )
+    if requirement is True:
+        # Four-point controls are only exposed after both selectors positively
+        # identify weather compensation with a four-point characteristic.
+        return uses_outdoor_sensor is True and uses_four_point is True
+
+    # False and unknown F11 both retain the established gradient controls.
+    return uses_four_point is not True
 
 
 async def async_setup_entry(
