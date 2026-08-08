@@ -8,6 +8,9 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/Tom-Bom-badil/trovis-modbus-hass/issues",
   "loggers": ["trovis_modbus"],
-  "requirements": ["trovis-modbus>=2.0.0,<3", "modbus-connection[tmodbus]>=4.2,<5"],
+  "requirements": [
+    "trovis-modbus>=2.1.0,<3",
+    "modbus-connection[tmodbus]>=4.2,<5"
+  ],
   "version": "v2026.07.3"
 }
