@@ -2,14 +2,44 @@
   "config": {
     "step": {
       "user": {
-        "title": "Modbus-Verbindung",
-        "description": "Wähle die gemeinsame Modbus-Verbindung für diesen Regler aus.",
+        "title": "Verbindungsart",
+        "description": "Wähle aus, wie Home Assistant mit dem Regler verbunden wird.",
+        "menu_options": {
+          "network": "Netzwerk (Modbus TCP / RTU over TCP)",
+          "serial": "Seriell (Modbus RTU)"
+        }
+      },
+      "network": {
+        "title": "Netzwerkverbindung",
         "data": {
-          "connection_entry_id": "Modbus-Verbindung",
+          "host": "Host",
+          "port": "Port",
+          "framer": "Protokollrahmung",
           "unit_id": "Modbus-Geräteadresse"
         },
         "data_description": {
-          "connection_entry_id": "Die Verbindung muss bereits in der Integration Modbus Connection eingerichtet sein.",
+          "host": "IP-Adresse oder Hostname der Modbus-Schnittstelle.",
+          "port": "TCP-Port der Modbus-Schnittstelle (Standard 502).",
+          "framer": "Modbus TCP für eine native TCP-Verbindung oder RTU over TCP für ein serielles Gateway verwenden.",
+          "unit_id": "Modbus-Stationsadresse des Reglers (PA6; Standard 246)."
+        }
+      },
+      "serial": {
+        "title": "Serielle Verbindung",
+        "data": {
+          "device": "Serielles Gerät",
+          "baudrate": "Baudrate",
+          "parity": "Parität",
+          "stopbits": "Stoppbits",
+          "bytesize": "Datenbits",
+          "unit_id": "Modbus-Geräteadresse"
+        },
+        "data_description": {
+          "device": "Serielle Schnittstelle, an die der Regler angeschlossen ist.",
+          "baudrate": "Am Regler eingestellte Modbus-RTU-Baudrate.",
+          "parity": "Am Regler eingestellte Modbus-RTU-Parität.",
+          "stopbits": "Am Regler eingestellte Anzahl der Modbus-RTU-Stoppbits.",
+          "bytesize": "Am Regler eingestellte Anzahl der Modbus-RTU-Datenbits.",
           "unit_id": "Modbus-Stationsadresse des Reglers (PA6; Standard 246)."
         }
       },
@@ -28,23 +58,71 @@
       },
       "reconfigure": {
         "title": "Regler neu konfigurieren",
-        "description": "Gemeinsame Modbus-Verbindung und Einstellungen für den Schreibzugriff ändern. Reglermodell und angeschlossene Sensoren werden erneut automatisch erkannt.",
+        "description": "Wähle die zu konfigurierende Verbindungsart. Reglermodell und angeschlossene Sensoren werden erneut automatisch erkannt.",
+        "menu_options": {
+          "reconfigure_network": "Netzwerk (Modbus TCP / RTU over TCP)",
+          "reconfigure_serial": "Seriell (Modbus RTU)"
+        }
+      },
+      "reconfigure_network": {
+        "title": "Netzwerkverbindung",
+        "description": "Netzwerkverbindung und Einstellungen für den Schreibzugriff ändern. Reglermodell und angeschlossene Sensoren werden erneut automatisch erkannt.",
         "data": {
-          "connection_entry_id": "Modbus-Verbindung",
+          "host": "Host",
+          "port": "Port",
+          "framer": "Protokollrahmung",
           "unit_id": "Modbus-Geräteadresse",
           "name": "Eindeutiger Name",
           "access_code": "Zugriffscode"
         },
         "data_description": {
-          "connection_entry_id": "Die von diesem Regler verwendete gemeinsame Verbindung.",
+          "host": "IP-Adresse oder Hostname der Modbus-Schnittstelle.",
+          "port": "TCP-Port der Modbus-Schnittstelle (Standard 502).",
+          "framer": "Modbus TCP für eine native TCP-Verbindung oder RTU over TCP für ein serielles Gateway verwenden.",
+          "unit_id": "Modbus-Stationsadresse des Reglers (PA6).",
+          "name": "Eindeutiger Anzeigename für diesen Regler.",
+          "access_code": "Zahlencode für den Schreibzugriff."
+        }
+      },
+      "reconfigure_serial": {
+        "title": "Serielle Verbindung",
+        "description": "Serielle Verbindung und Einstellungen für den Schreibzugriff ändern. Reglermodell und angeschlossene Sensoren werden erneut automatisch erkannt.",
+        "data": {
+          "device": "Serielles Gerät",
+          "baudrate": "Baudrate",
+          "parity": "Parität",
+          "stopbits": "Stoppbits",
+          "bytesize": "Datenbits",
+          "unit_id": "Modbus-Geräteadresse",
+          "name": "Eindeutiger Name",
+          "access_code": "Zugriffscode"
+        },
+        "data_description": {
+          "device": "Serielle Schnittstelle, an die der Regler angeschlossen ist.",
+          "baudrate": "Am Regler eingestellte Modbus-RTU-Baudrate.",
+          "parity": "Am Regler eingestellte Modbus-RTU-Parität.",
+          "stopbits": "Am Regler eingestellte Anzahl der Modbus-RTU-Stoppbits.",
+          "bytesize": "Am Regler eingestellte Anzahl der Modbus-RTU-Datenbits.",
           "unit_id": "Modbus-Stationsadresse des Reglers (PA6).",
           "name": "Eindeutiger Anzeigename für diesen Regler.",
           "access_code": "Zahlencode für den Schreibzugriff."
         }
       }
     },
-    "error": { "cannot_connect": "Kommunikation mit dem Regler fehlgeschlagen. Ausgewählte Modbus-Verbindung, Geräteadresse und Erreichbarkeit des Reglers prüfen." },
-    "abort": { "reconfigure_successful": "Die Neukonfiguration war erfolgreich." }
+    "error": {
+      "cannot_connect": "Kommunikation mit dem Regler fehlgeschlagen. Verbindungseinstellungen, Geräteadresse und Erreichbarkeit des Reglers prüfen."
+    },
+    "abort": {
+      "reconfigure_successful": "Die Neukonfiguration war erfolgreich."
+    }
+  },
+  "selector": {
+    "tcp_framer": {
+      "options": {
+        "socket": "Modbus TCP",
+        "rtu": "RTU over TCP"
+      }
+    }
   },
   "device": {
     "rk1": { "name": "Rk1 – Regelkreis 1" },

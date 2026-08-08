@@ -2,14 +2,44 @@
   "config": {
     "step": {
       "user": {
-        "title": "Modbus connection",
-        "description": "Select the shared Modbus connection used by this controller.",
+        "title": "Connection type",
+        "description": "Choose how Home Assistant connects to the controller.",
+        "menu_options": {
+          "network": "Network (Modbus TCP / RTU over TCP)",
+          "serial": "Serial (Modbus RTU)"
+        }
+      },
+      "network": {
+        "title": "Network connection",
         "data": {
-          "connection_entry_id": "Modbus connection",
+          "host": "Host",
+          "port": "Port",
+          "framer": "Protocol framing",
           "unit_id": "Modbus unit ID"
         },
         "data_description": {
-          "connection_entry_id": "The connection must already be configured in the Modbus Connection integration.",
+          "host": "IP address or hostname of the Modbus interface.",
+          "port": "TCP port of the Modbus interface (default 502).",
+          "framer": "Use Modbus TCP for a native TCP connection or RTU over TCP for a serial gateway.",
+          "unit_id": "The controller's Modbus station address (PA6; default 246)."
+        }
+      },
+      "serial": {
+        "title": "Serial connection",
+        "data": {
+          "device": "Serial device",
+          "baudrate": "Baud rate",
+          "parity": "Parity",
+          "stopbits": "Stop bits",
+          "bytesize": "Data bits",
+          "unit_id": "Modbus unit ID"
+        },
+        "data_description": {
+          "device": "Serial interface connected to the controller.",
+          "baudrate": "Configured Modbus RTU baud rate of the controller.",
+          "parity": "Configured Modbus RTU parity.",
+          "stopbits": "Configured number of Modbus RTU stop bits.",
+          "bytesize": "Configured number of Modbus RTU data bits.",
           "unit_id": "The controller's Modbus station address (PA6; default 246)."
         }
       },
@@ -28,23 +58,71 @@
       },
       "reconfigure": {
         "title": "Reconfigure controller",
-        "description": "Update the shared Modbus connection and write-access settings. The controller model and connected sensors are detected again automatically.",
+        "description": "Choose the connection type to configure. The controller model and connected sensors are detected again automatically.",
+        "menu_options": {
+          "reconfigure_network": "Network (Modbus TCP / RTU over TCP)",
+          "reconfigure_serial": "Serial (Modbus RTU)"
+        }
+      },
+      "reconfigure_network": {
+        "title": "Network connection",
+        "description": "Update the network connection and write-access settings. The controller model and connected sensors are detected again automatically.",
         "data": {
-          "connection_entry_id": "Modbus connection",
+          "host": "Host",
+          "port": "Port",
+          "framer": "Protocol framing",
           "unit_id": "Modbus unit ID",
           "name": "Unique name",
           "access_code": "Access code"
         },
         "data_description": {
-          "connection_entry_id": "The shared connection used by this controller.",
+          "host": "IP address or hostname of the Modbus interface.",
+          "port": "TCP port of the Modbus interface (default 502).",
+          "framer": "Use Modbus TCP for a native TCP connection or RTU over TCP for a serial gateway.",
+          "unit_id": "The controller's Modbus station address (PA6).",
+          "name": "Unique display name for this controller.",
+          "access_code": "The number code for write access."
+        }
+      },
+      "reconfigure_serial": {
+        "title": "Serial connection",
+        "description": "Update the serial connection and write-access settings. The controller model and connected sensors are detected again automatically.",
+        "data": {
+          "device": "Serial device",
+          "baudrate": "Baud rate",
+          "parity": "Parity",
+          "stopbits": "Stop bits",
+          "bytesize": "Data bits",
+          "unit_id": "Modbus unit ID",
+          "name": "Unique name",
+          "access_code": "Access code"
+        },
+        "data_description": {
+          "device": "Serial interface connected to the controller.",
+          "baudrate": "Configured Modbus RTU baud rate of the controller.",
+          "parity": "Configured Modbus RTU parity.",
+          "stopbits": "Configured number of Modbus RTU stop bits.",
+          "bytesize": "Configured number of Modbus RTU data bits.",
           "unit_id": "The controller's Modbus station address (PA6).",
           "name": "Unique display name for this controller.",
           "access_code": "The number code for write access."
         }
       }
     },
-    "error": { "cannot_connect": "Failed to communicate with the controller. Check the selected Modbus connection, unit ID and controller availability." },
-    "abort": { "reconfigure_successful": "Reconfiguration was successful." }
+    "error": {
+      "cannot_connect": "Failed to communicate with the controller. Check the connection settings, unit ID and controller availability."
+    },
+    "abort": {
+      "reconfigure_successful": "Reconfiguration was successful."
+    }
+  },
+  "selector": {
+    "tcp_framer": {
+      "options": {
+        "socket": "Modbus TCP",
+        "rtu": "RTU over TCP"
+      }
+    }
   },
   "device": {
     "rk1": { "name": "Rk1 – Control circuit 1" },

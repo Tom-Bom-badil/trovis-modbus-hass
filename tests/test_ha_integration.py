@@ -1,6 +1,8 @@
-"""Home Assistant tests for the shared-connection TROVIS integration."""
+"""Home Assistant tests for the TROVIS integration."""
 
 from __future__ import annotations
+
+from unittest.mock import Mock
 
 import pytest
 from homeassistant.config_entries import SOURCE_USER, ConfigEntryState
@@ -8,17 +10,35 @@ from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import device_registry as dr
+from modbus_connection import (
+    ClientClosedError,
+    ModbusConnectionError,
+    ModbusSerialParams,
+    ModbusTcpParams,
+)
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from trovis_modbus import DEFAULT_WRITE_ACCESS_CODE
 
 from custom_components.trovis557x.const import (
     CONF_ACCESS_CODE,
-    CONF_CONNECTION_ENTRY_ID,
+    CONF_BAUDRATE,
+    CONF_BYTESIZE,
+    CONF_CONNECTION_TYPE,
     CONF_DETECTED_SENSORS,
+    CONF_DEVICE,
+    CONF_FRAMER,
+    CONF_HOST,
     CONF_MODEL,
+    CONF_PARITY,
+    CONF_PORT,
     CONF_SLUG,
+    CONF_STOPBITS,
     CONF_UNIT_ID,
+    CONNECTION_TYPE_SERIAL,
+    CONNECTION_TYPE_TCP,
     DOMAIN,
+    FRAMER_RTU,
+    FRAMER_SOCKET,
 )
 
 from .conftest import UNIT_ID, MockProvider
@@ -26,6 +46,8 @@ from .conftest import UNIT_ID, MockProvider
 MODEL = 5579
 NAME = "Test Trovis"
 SLUG = "test_trovis"
+TEST_HOST = "192.0.2.10"
+TEST_PORT = 1502
 
 DETECTED_SENSORS = [
     "af1",
@@ -42,10 +64,13 @@ DETECTED_SENSORS = [
 ]
 
 
-def _entry_data(provider: MockProvider) -> dict[str, object]:
-    """Return a complete shared-connection TROVIS config entry."""
+def _entry_data(_provider: MockProvider) -> dict[str, object]:
+    """Return a complete TROVIS-owned TCP config entry."""
     return {
-        CONF_CONNECTION_ENTRY_ID: provider.entry.entry_id,
+        CONF_CONNECTION_TYPE: CONNECTION_TYPE_TCP,
+        CONF_HOST: TEST_HOST,
+        CONF_PORT: TEST_PORT,
+        CONF_FRAMER: FRAMER_SOCKET,
         CONF_UNIT_ID: UNIT_ID,
         CONF_NAME: NAME,
         CONF_SLUG: SLUG,
@@ -64,6 +89,7 @@ async def _setup(
         domain=DOMAIN,
         title=NAME,
         data=_entry_data(provider),
+        version=2,
     )
     entry.add_to_hass(hass)
 
@@ -77,7 +103,7 @@ async def test_setup_entry_creates_entities(
     hass: HomeAssistant,
     modbus_provider: MockProvider,
 ) -> None:
-    """Set up entities from the unit supplied by Modbus Connection."""
+    """Set up entities from the integration-owned Modbus unit."""
     entry = await _setup(hass, modbus_provider)
 
     assert entry.state is ConfigEntryState.LOADED
@@ -665,29 +691,48 @@ async def test_register_and_coil_writes(
     assert modbus_provider.unit.coils[56] is False
 
 
-async def test_config_flow_uses_existing_connection(
+async def test_config_flow_network_connection(
     hass: HomeAssistant,
     modbus_provider: MockProvider,
 ) -> None:
-    """Probe a controller through an existing provider config entry."""
+    """Probe and create a native Modbus TCP config entry."""
     result = await hass.config_entries.flow.async_init(
         DOMAIN,
         context={"source": SOURCE_USER},
     )
 
-    assert result["type"] is FlowResultType.FORM
+    assert result["type"] is FlowResultType.MENU
     assert result["step_id"] == "user"
+    assert set(result["menu_options"]) == {"network", "serial"}
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {"next_step_id": "network"},
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "network"
 
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
         {
-            CONF_CONNECTION_ENTRY_ID: modbus_provider.entry.entry_id,
+            CONF_HOST: TEST_HOST,
+            CONF_PORT: TEST_PORT,
+            CONF_FRAMER: FRAMER_SOCKET,
             CONF_UNIT_ID: UNIT_ID,
         },
     )
 
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "device"
+
+    probe_params = modbus_provider.params[-1]
+    probe_connection = modbus_provider.connection
+    assert isinstance(probe_params, ModbusTcpParams)
+    assert probe_params.host == TEST_HOST
+    assert probe_params.port == TEST_PORT
+    assert probe_params.framer == FRAMER_SOCKET
+    with pytest.raises(ClientClosedError):
+        await probe_connection.connect()
 
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
@@ -700,33 +745,206 @@ async def test_config_flow_uses_existing_connection(
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["title"] == "Living room controller"
-    assert result["data"][CONF_CONNECTION_ENTRY_ID] == modbus_provider.entry.entry_id
+    assert result["data"][CONF_CONNECTION_TYPE] == CONNECTION_TYPE_TCP
+    assert result["data"][CONF_HOST] == TEST_HOST
+    assert result["data"][CONF_PORT] == TEST_PORT
+    assert result["data"][CONF_FRAMER] == FRAMER_SOCKET
     assert result["data"][CONF_UNIT_ID] == UNIT_ID
     assert result["data"][CONF_MODEL] == MODEL
     assert result["data"][CONF_SLUG] == "living_room_trovis"
+    assert "connection_entry_id" not in result["data"]
 
 
-async def test_config_flow_cannot_get_unit(
+async def test_config_flow_rtu_over_tcp(
     hass: HomeAssistant,
     modbus_provider: MockProvider,
 ) -> None:
-    """Show a connection error when the provider has no matching unit."""
+    """Pass RTU-over-TCP framing to modbus-connection."""
     result = await hass.config_entries.flow.async_init(
         DOMAIN,
         context={"source": SOURCE_USER},
     )
-
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {"next_step_id": "network"},
+    )
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
         {
-            CONF_CONNECTION_ENTRY_ID: modbus_provider.entry.entry_id,
-            CONF_UNIT_ID: UNIT_ID + 1,
+            CONF_HOST: TEST_HOST,
+            CONF_PORT: TEST_PORT,
+            CONF_FRAMER: FRAMER_RTU,
+            CONF_UNIT_ID: UNIT_ID,
         },
     )
 
     assert result["type"] is FlowResultType.FORM
-    assert result["step_id"] == "user"
+    assert result["step_id"] == "device"
+    params = modbus_provider.params[-1]
+    assert isinstance(params, ModbusTcpParams)
+    assert params.framer == FRAMER_RTU
+
+
+async def test_config_flow_serial_connection(
+    hass: HomeAssistant,
+    modbus_provider: MockProvider,
+) -> None:
+    """Probe and create a Modbus RTU serial config entry."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN,
+        context={"source": SOURCE_USER},
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {"next_step_id": "serial"},
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "serial"
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            CONF_DEVICE: "/dev/ttyUSB0",
+            CONF_BAUDRATE: 19200,
+            CONF_PARITY: "E",
+            CONF_STOPBITS: 1,
+            CONF_BYTESIZE: 8,
+            CONF_UNIT_ID: UNIT_ID,
+        },
+    )
+
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "device"
+
+    probe_params = modbus_provider.params[-1]
+    probe_connection = modbus_provider.connection
+    assert isinstance(probe_params, ModbusSerialParams)
+    assert probe_params.device == "/dev/ttyUSB0"
+    assert probe_params.baudrate == 19200
+    assert probe_params.parity == "E"
+    assert probe_params.stopbits == 1
+    assert probe_params.bytesize == 8
+    assert probe_params.framer == FRAMER_RTU
+    with pytest.raises(ClientClosedError):
+        await probe_connection.connect()
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            CONF_NAME: "Serial controller",
+            CONF_SLUG: "serial_trovis",
+            CONF_ACCESS_CODE: DEFAULT_WRITE_ACCESS_CODE,
+        },
+    )
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["data"][CONF_CONNECTION_TYPE] == CONNECTION_TYPE_SERIAL
+    assert result["data"][CONF_DEVICE] == "/dev/ttyUSB0"
+    assert result["data"][CONF_UNIT_ID] == UNIT_ID
+    assert CONF_HOST not in result["data"]
+    assert CONF_PORT not in result["data"]
+
+
+async def test_config_flow_cannot_connect(
+    hass: HomeAssistant,
+    modbus_provider: MockProvider,
+) -> None:
+    """Show a connection error when the controller does not answer."""
+    modbus_provider.request_error = ModbusConnectionError("controller offline")
+
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN,
+        context={"source": SOURCE_USER},
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {"next_step_id": "network"},
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            CONF_HOST: TEST_HOST,
+            CONF_PORT: TEST_PORT,
+            CONF_FRAMER: FRAMER_SOCKET,
+            CONF_UNIT_ID: UNIT_ID,
+        },
+    )
+
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "network"
     assert result["errors"] == {"base": "cannot_connect"}
+    with pytest.raises(ClientClosedError):
+        await modbus_provider.connection.connect()
+
+
+async def test_owned_connection_closes_on_unload(
+    hass: HomeAssistant,
+    modbus_provider: MockProvider,
+) -> None:
+    """Permanently close the integration-owned connection on unload."""
+    entry = await _setup(hass, modbus_provider)
+    connection = modbus_provider.connection
+
+    assert connection.connected is True
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    await hass.async_block_till_done()
+
+    with pytest.raises(ClientClosedError):
+        await connection.connect()
+
+
+async def test_connection_drop_recovers_without_entry_reload(
+    hass: HomeAssistant,
+    modbus_provider: MockProvider,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Reuse the same unit after a transient connection loss."""
+    entry = await _setup(hass, modbus_provider)
+    coordinator = entry.runtime_data
+    connection = modbus_provider.connection
+    schedule_reload = Mock()
+    monkeypatch.setattr(
+        hass.config_entries,
+        "async_schedule_reload",
+        schedule_reload,
+    )
+
+    connection.simulate_connection_lost()
+    assert connection.connected is False
+
+    await coordinator.async_refresh()
+
+    assert coordinator.last_update_success is True
+    assert connection.connected is True
+    schedule_reload.assert_not_called()
+
+
+async def test_modbus_error_marks_update_failed_without_entry_reload(
+    hass: HomeAssistant,
+    modbus_provider: MockProvider,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Let the coordinator retry normally instead of reloading the entry."""
+    entry = await _setup(hass, modbus_provider)
+    coordinator = entry.runtime_data
+    schedule_reload = Mock()
+    monkeypatch.setattr(
+        hass.config_entries,
+        "async_schedule_reload",
+        schedule_reload,
+    )
+
+    modbus_provider.unit.fail_requests(ModbusConnectionError("controller offline"))
+    await coordinator.async_refresh()
+
+    assert coordinator.last_update_success is False
+    schedule_reload.assert_not_called()
+
+    modbus_provider.unit.fail_requests(None)
+    await coordinator.async_refresh()
+
+    assert coordinator.last_update_success is True
+    schedule_reload.assert_not_called()
 
 
 async def test_buffer_tank_system_adds_rk1_buffer_entities(

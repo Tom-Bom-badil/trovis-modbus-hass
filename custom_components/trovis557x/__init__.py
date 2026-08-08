@@ -1,22 +1,22 @@
-"""The Samson Trovis 557x integration using a shared Modbus connection."""
+"""The Samson Trovis 557x integration."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from custom_components.modbus_connection import async_get_unit
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
 from ._local_dev import apply_local_trovis_modbus_override
+from .connection import create_modbus_connection
 from .const import (
-    CONF_CONNECTION_ENTRY_ID,
     CONF_DETECTED_SENSORS,
     CONF_MODEL,
     CONF_UNIT_ID,
 )
+from .migration import async_migrate_entry as async_migrate_entry
 
 if TYPE_CHECKING:
     from .coordinator import TrovisCoordinator
@@ -52,22 +52,18 @@ async def async_setup_entry(
         **entry.data,
         **entry.options,
     }
-
     try:
-        connection_entry_id = str(settings[CONF_CONNECTION_ENTRY_ID])
         unit_id = int(settings[CONF_UNIT_ID])
         model = int(settings[CONF_MODEL])
         detected_sensors = tuple(settings[CONF_DETECTED_SENSORS])
+        connection = create_modbus_connection(settings)
+        unit = connection.for_unit(unit_id)
     except (KeyError, TypeError, ValueError) as err:
         raise ConfigEntryNotReady(
-            "The TROVIS config entry does not contain valid probe data"
+            "The TROVIS config entry does not contain valid connection or probe data"
         ) from err
 
-    unit = async_get_unit(
-        hass,
-        connection_entry_id,
-        unit_id,
-    )
+    entry.async_on_unload(connection.close)
 
     try:
         device = Trovis557x(
@@ -92,7 +88,6 @@ async def async_setup_entry(
         entry,
         PLATFORMS,
     )
-
     return True
 
 

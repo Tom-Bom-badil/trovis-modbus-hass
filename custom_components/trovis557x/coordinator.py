@@ -21,7 +21,7 @@ type TrovisConfigEntry = ConfigEntry[TrovisCoordinator]
 
 
 class TrovisCoordinator(DataUpdateCoordinator[Trovis557x]):
-    """Poll a TROVIS controller through a shared Modbus unit."""
+    """Poll a TROVIS controller through its Modbus unit."""
 
     def __init__(
         self,
@@ -40,10 +40,6 @@ class TrovisCoordinator(DataUpdateCoordinator[Trovis557x]):
 
         self.device = device
 
-        self._hass = hass
-        self._first_refresh_succeeded = False
-        self._reload_scheduled = False
-
     @property
     def access_code(self) -> int:
         """Return the configured TROVIS write access code."""
@@ -59,13 +55,6 @@ class TrovisCoordinator(DataUpdateCoordinator[Trovis557x]):
         try:
             await self.device.async_update()
         except ModbusError as err:
-            if self._first_refresh_succeeded and not self._reload_scheduled:
-                self._reload_scheduled = True
-                self._hass.config_entries.async_schedule_reload(
-                    self.config_entry.entry_id
-                )
-
             raise UpdateFailed(f"Error communicating with Trovis: {err}") from err
 
-        self._first_refresh_succeeded = True
         return self.device

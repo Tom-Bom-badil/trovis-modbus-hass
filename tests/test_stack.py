@@ -42,27 +42,23 @@ async def test_library_stack_with_mock_unit() -> None:
 
 
 def test_manifest_valid() -> None:
-    """Declare the provider integration without owning its backend."""
+    """Own the Modbus backend as a normal Python requirement."""
     manifest = json.loads((COMPONENT / "manifest.json").read_text(encoding="utf-8"))
 
     assert manifest["domain"] == "trovis557x"
     assert manifest["config_flow"] is True
-    assert "modbus_connection" in manifest["dependencies"]
+    assert "modbus_connection" not in manifest.get("dependencies", [])
 
     requirements = manifest["requirements"]
     assert "trovis-modbus>=2.0.0,<3" in requirements
-    assert not any(
-        "modbus-connection" in requirement
-        or "tmodbus" in requirement
-        or "pymodbus" in requirement
-        for requirement in requirements
-    )
+    assert "modbus-connection[tmodbus]>=4.2,<5" in requirements
+    assert not any("pymodbus" in requirement for requirement in requirements)
 
     assert "trovis_modbus" in manifest["loggers"]
 
 
 def test_strings_and_translation_valid() -> None:
-    """Expose shared-connection setup instead of transport setup."""
+    """Expose the integration-owned network and serial setup flow."""
     strings = json.loads((COMPONENT / "strings.json").read_text(encoding="utf-8"))
     english = json.loads(
         (COMPONENT / "translations" / "en.json").read_text(encoding="utf-8")
@@ -70,12 +66,32 @@ def test_strings_and_translation_valid() -> None:
 
     steps = strings["config"]["step"]
 
-    assert {"user", "device", "reconfigure"} <= steps.keys()
-    assert "network" not in steps
-    assert "serial" not in steps
+    assert {
+        "user",
+        "network",
+        "serial",
+        "device",
+        "reconfigure",
+        "reconfigure_network",
+        "reconfigure_serial",
+    } <= steps.keys()
+    assert set(steps["user"]["menu_options"]) == {"network", "serial"}
+    assert set(steps["reconfigure"]["menu_options"]) == {
+        "reconfigure_network",
+        "reconfigure_serial",
+    }
 
-    assert "connection_entry_id" in steps["user"]["data"]
-    assert "unit_id" in steps["user"]["data"]
+    assert "host" in steps["network"]["data"]
+    assert "framer" in steps["network"]["data"]
+    assert "device" in steps["serial"]["data"]
+    assert "unit_id" in steps["network"]["data"]
+    assert "unit_id" in steps["serial"]["data"]
+    assert "connection_entry_id" not in json.dumps(strings)
+
+    assert strings["selector"]["tcp_framer"]["options"] == {
+        "socket": "Modbus TCP",
+        "rtu": "RTU over TCP",
+    }
 
     assert strings == english
 

@@ -1,58 +1,26 @@
-"""Fixtures for TROVIS tests over an in-memory shared Modbus unit."""
+"""Fixtures for TROVIS tests over an in-memory owned Modbus connection."""
 
 from __future__ import annotations
 
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from types import ModuleType
 from typing import Final
 
 import pytest
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
+from modbus_connection import ModbusSerialParams, ModbusTcpParams
 from modbus_connection.mock import MockModbusConnection, MockModbusUnit
-from pytest_homeassistant_custom_component.common import (
-    MockConfigEntry,
-    MockModule,
-    mock_integration,
-    mock_platform,
-)
+
+from custom_components.trovis557x import connection as connection_module
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-
-MODBUS_CONNECTION_DOMAIN: Final = "modbus_connection"
 UNIT_ID: Final = 247
 
-_PROVIDER_UNITS: Final = "test_modbus_connection_units"
-
-
-def _async_get_unit(
-    hass: HomeAssistant,
-    connection_entry_id: str,
-    unit_id: int,
-) -> MockModbusUnit:
-    """Return the unit registered for a test provider entry."""
-    units = hass.data.get(_PROVIDER_UNITS, {})
-
-    try:
-        return units[(connection_entry_id, unit_id)]
-    except KeyError as err:
-        raise ConfigEntryNotReady("The test Modbus connection is not ready") from err
-
-
-# The real provider integration is installed separately in Home Assistant.
-# GitHub Actions checks out only this repository, so expose the small public
-# provider boundary needed by the TROVIS integration during tests.
-_provider_module = ModuleType("custom_components.modbus_connection")
-_provider_module.async_get_unit = _async_get_unit
-sys.modules["custom_components.modbus_connection"] = _provider_module
+type TestModbusParams = ModbusTcpParams | ModbusSerialParams
 
 
 # Raw Modbus protocol addresses, not manufacturer HR/CL reference numbers.
@@ -201,12 +169,34 @@ COILS: dict[int, bool] = {
 }
 
 
-@dataclass(frozen=True)
+@dataclass
 class MockProvider:
-    """A configured Modbus Connection provider and its shared unit."""
+    """Create TROVIS-owned mock connections while keeping a mutable test unit."""
 
-    entry: MockConfigEntry
+    connection: MockModbusConnection
     unit: MockModbusUnit
+    params: list[TestModbusParams] = field(default_factory=list)
+    connections: list[MockModbusConnection] = field(default_factory=list)
+    request_error: Exception | None = None
+
+    def create_connection(self, params: TestModbusParams) -> MockModbusConnection:
+        """Create a fresh connection using the current unit as the data template."""
+        source_unit = self.unit
+        connection = MockModbusConnection()
+        unit = connection.for_unit(UNIT_ID)
+        unit.holding.update(source_unit.holding)
+        unit.input.update(source_unit.input)
+        unit.coils.update(source_unit.coils)
+        unit.discrete_inputs.update(source_unit.discrete_inputs)
+
+        if self.request_error is not None:
+            unit.fail_requests(self.request_error)
+
+        self.connection = connection
+        self.unit = unit
+        self.params.append(params)
+        self.connections.append(connection)
+        return connection
 
 
 @pytest.fixture(autouse=True)
@@ -215,45 +205,21 @@ def _enable_custom_integrations(enable_custom_integrations):  # noqa: ANN001
     yield
 
 
-async def _async_setup_provider_entry(
-    _hass: HomeAssistant,
-    _entry: ConfigEntry,
-) -> bool:
-    """Set up the simulated Modbus Connection entry."""
-    return True
-
-
 @pytest.fixture
-def modbus_provider(hass: HomeAssistant) -> MockProvider:
-    """Provide one enabled Modbus Connection entry and a TROVIS-shaped unit."""
-    # Register the provider with Home Assistant's integration loader. The
-    # sys.modules stub above supplies async_get_unit to the TROVIS code, while
-    # this loader mock satisfies the manifest dependency.
-    mock_integration(
-        hass,
-        MockModule(
-            MODBUS_CONNECTION_DOMAIN,
-            async_setup_entry=_async_setup_provider_entry,
-        ),
-        built_in=False,
+def modbus_provider(monkeypatch: pytest.MonkeyPatch) -> MockProvider:
+    """Provide a TROVIS-shaped unit behind integration-owned mock connections."""
+    seed_connection = MockModbusConnection()
+    seed_unit = seed_connection.for_unit(UNIT_ID)
+    seed_unit.holding.update(HOLDING)
+    seed_unit.coils.update(COILS)
+
+    provider = MockProvider(
+        connection=seed_connection,
+        unit=seed_unit,
     )
-    mock_platform(
-        hass,
-        f"{MODBUS_CONNECTION_DOMAIN}.config_flow",
-        None,
+    monkeypatch.setattr(
+        connection_module,
+        "ModbusConnection",
+        provider.create_connection,
     )
-
-    entry = MockConfigEntry(
-        domain=MODBUS_CONNECTION_DOMAIN,
-        title="Test Modbus Connection",
-    )
-    entry.add_to_hass(hass)
-
-    connection = MockModbusConnection()
-    unit = connection.for_unit(UNIT_ID)
-    unit.holding.update(HOLDING)
-    unit.coils.update(COILS)
-
-    hass.data.setdefault(_PROVIDER_UNITS, {})[(entry.entry_id, UNIT_ID)] = unit
-
-    return MockProvider(entry=entry, unit=unit)
+    return provider
