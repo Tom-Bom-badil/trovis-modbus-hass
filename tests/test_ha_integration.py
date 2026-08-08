@@ -535,6 +535,8 @@ async def test_rk_subdevices_use_hydronic_roles(
 ) -> None:
     """Name active Rk devices from their hydronic role."""
     modbus_provider.unit.holding[1] = 51  # Anlage 5.1
+    modbus_provider.unit.coils[1225] = True  # CL1226 / CO2 -> F02
+    modbus_provider.unit.coils[1425] = True  # CL1426 / CO3 -> F02
 
     entry = await _setup(hass, modbus_provider)
     registry = dr.async_get(hass)

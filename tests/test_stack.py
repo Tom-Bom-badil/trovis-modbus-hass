@@ -50,7 +50,7 @@ def test_manifest_valid() -> None:
     assert "modbus_connection" not in manifest.get("dependencies", [])
 
     requirements = manifest["requirements"]
-    assert "trovis-modbus>=2.0.0,<3" in requirements
+    assert "trovis-modbus>=2.1.0,<3" in requirements
     assert "modbus-connection[tmodbus]>=4.2,<5" in requirements
     assert not any("pymodbus" in requirement for requirement in requirements)
 
