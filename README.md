@@ -14,19 +14,15 @@ Modbus, including compatible OEM variants from Sauter, Pewo, Yados and others.
 The integration automatically detects the controller model, configured hydronic
 system, technical control-circuit roles, and available physical sensor inputs.
 It then creates a matching Home Assistant device and entity structure without
-requiring Modbus YAML configuration.
+requiring a Modbus YAML configuration.
 
 The TROVIS controller continues to perform the actual heating control. Home
 Assistant reads its operating state and, when explicitly enabled, writes
-supported settings back to it. The integration is intended primarily for
-monitoring an already commissioned system and for occasional fine adjustment;
-it does not attempt to reproduce the complete TROVIS user interface.
-Modbus connection details are configured directly in the TROVIS integration.
-Network connections support native Modbus TCP and RTU over TCP, while serial
-connections use Modbus RTU. The integration manages the connection lifecycle
-itself using the backend-neutral
-[`modbus-connection`](https://github.com/home-assistant-libs/modbus-connection)
-library.
+supported settings back to it.
+
+The integration is intended primarily for simple monitoring of an already
+commissioned system and for occasional fine adjustment; it does not attempt
+to reproduce all possible configurations and functions.
 
 ## Features
 
@@ -46,58 +42,15 @@ provides:
 - German and English translations.
 
 ## Supported controllers
-| Controller                | Rk1-Rk3 / Heating | Rk4 / DHW | Hydronic systems | Comments                             |
-| :------------------------ | :--------------: | :-----: | :--------------: | :------------------------------------|
-| SAMSON TROVIS 5573        |                2 |    x    |               29 |                                      |
-| SAMSON TROVIS 5573-1      |                2 |    x    |               29 |                                      |
-| SAMSON TROVIS 5575        |                2 |    x    |               33 |                                      |
-| SAMSON TROVIS 5576        |                2 |    x    |               52 |                                      |
-| SAMSON TROVIS 5578        |                3 |    x    |               90 |                                      |
-| SAMSON TROVIS 5578-E      |                3 |    x    |               95 |                                      |
-| SAMSON TROVIS 5579        |                3 |    x    |               85 |                                      |
-| SAUTER EQJW126F001        |                1 |         |                1 | TROVIS 5573, Rk1 and Anlage 1.0 only |
-| SAUTER EQJW146F001        |                2 |    x    |               29 | TROVIS 5573                          |
-| SAUTER EQJW146F002        |                2 |    x    |               29 | TROVIS 5573-1                        |
-| SAUTER EQJW246F002        |                3 |    x    |               90 | TROVIS 5578                          |
-| SAUTER EQJW246F003        |                3 |    x    |               95 | TROVIS 5578-E                        |
-| YADOS YADO\|MATIC 01      |                2 |    x    |               33 | TROVIS 5575                          |
-| YADOS YADO\|MATIC 01-0003 |                2 |    x    |               33 | TROVIS 5575                          |
-| YADOS YADO\|MATIC 03      |                2 |    x    |               29 | TROVIS 5573                          |
-| YADOS YADO\|MATIC 03-1003 |                2 |    x    |               29 | TROVIS 5573-1                        |
-| YADOS YADO\|MATIC 08      |                3 |    x    |               90 | TROVIS 5578-1114                     |
-| PEWO PCR06                |                2 |    x    |               33 | TROVIS 5575                          |
-<sup>Note: The non-SAMSON models have not yet been tested. The figures are based on the currently available documentation.</sup>
 
-Compatible SAUTER, YADOS, PEWO, and other OEM controllers may use the
-corresponding TROVIS model profile. See the
-[project wiki](https://github.com/Tom-Bom-badil/trovis-modbus-hass/wiki) and the
-[`trovis-modbus` documentation](https://github.com/Tom-Bom-badil/trovis-modbus/wiki)
-for model-specific details and current testing status.
+The folllwoing controllers are currently supported:
 
-## Installation
+- SAMSON TROVIS 5573, 5573-1, 5575, 5576, 5578, 5578-E, 5579
+- SAUTER EQJW-126F001, -146F001, -146F002, -246F002, -246F003
+- YADOS YADO\|MATIC 01, 01-0003, 03, 03-1003, 08
+- PEWO PCR06
 
-[![Open your Home Assistant instance and add this repository to HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Tom-Bom-badil&repository=trovis-modbus-hass&category=integration)
-
-Install the integration through HACS or copy
-`custom_components/trovis557x` to `/config/custom_components/trovis557x`, then
-restart Home Assistant and add **SAMSON TROVIS 557x** from **Settings → Devices
-& services**.
-
-No separate Modbus integration or Modbus YAML configuration is required. During
-setup, choose the connection type and enter the controller's connection data:
-
-- **Network** – host, port, Modbus TCP or RTU-over-TCP framing, and Modbus unit ID.
-- **Serial** – serial device, baud rate, parity, stop bits, data bits, and Modbus
-  unit ID.
-
-The integration probes the controller, detects the model and available sensor
-inputs, and then asks for the device name, entity ID prefix, and write-access
-code.
-
-Detailed installation instructions, connection framing, device and entity
-structure, write behavior, troubleshooting, development setup, and contribution
-guidance are documented in the
-[project wiki](https://github.com/Tom-Bom-badil/trovis-modbus-hass/wiki).
+<sup>(for detals, see the [project wiki](https://github.com/Tom-Bom-badil/trovis-modbus-hass/wiki))</sup>
 
 ## Related projects
 
@@ -106,6 +59,12 @@ guidance are documented in the
 - [`modbus-connection`](https://github.com/home-assistant-libs/modbus-connection) –
   backend-neutral Modbus connection API used internally by the integration
 
-## License
+## Documentation
 
-Apache-2.0
+Lots of in-depth insights into how everything works, including installation
+instructions, adapter configuration and tests, troubleshooting guides and
+technical backgrounds can be found on the [project wiki](https://github.com/Tom-Bom-badil/trovis-modbus-hass/wiki).
+
+If any information you are searching for should be missing on this Wiki, check
+out the [Wiki](https://github.com/Tom-Bom-badil/samson_trovis_557x/wiki) and the [discussions](https://github.com/Tom-Bom-badil/samson_trovis_557x/discussions) of our 'old' Trovis project, where we have collected information on the
+controller and Modbus in general over many years.
