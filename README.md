@@ -24,7 +24,7 @@ The integration is intended primarily for simple monitoring of an already
 commissioned system and for occasional fine adjustment; it does not attempt
 to reproduce all possible configurations and functions.
 
-## Features
+## 👉 Features
 
 Depending on the detected controller and hydronic configuration, the integration
 provides:
@@ -41,30 +41,30 @@ provides:
 - a controller-level **Write access** safety switch,
 - German and English translations.
 
-## Supported controllers
+## 👉 Supported controllers
 
-The folllwoing controllers are currently supported:
+The following controllers are currently supported:
 
 - SAMSON TROVIS 5573, 5573-1, 5575, 5576, 5578, 5578-E, 5579
 - SAUTER EQJW-126F001, -146F001, -146F002, -246F002, -246F003
 - YADOS YADO\|MATIC 01, 01-0003, 03, 03-1003, 08
 - PEWO PCR06
 
-<sup>(for detals, see the [project wiki](https://github.com/Tom-Bom-badil/trovis-modbus-hass/wiki))</sup>
+<sup>(for details, see the [project wiki](https://github.com/Tom-Bom-badil/trovis-modbus-hass/wiki/Supported-controllers))</sup>
 
-## Related projects
+## 👉 Related projects
 
 - [`trovis-modbus`](https://github.com/Tom-Bom-badil/trovis-modbus) –
   controller-specific data model and read/write logic
 - [`modbus-connection`](https://github.com/home-assistant-libs/modbus-connection) –
   backend-neutral Modbus connection API used internally by the integration
 
-## Documentation
+## 👉 Documentation
 
 Lots of in-depth insights into how everything works, including installation
 instructions, adapter configuration and tests, troubleshooting guides and
 technical backgrounds can be found on the [project wiki](https://github.com/Tom-Bom-badil/trovis-modbus-hass/wiki).
 
 If any information you are searching for should be missing on this Wiki, check
-out the [Wiki](https://github.com/Tom-Bom-badil/samson_trovis_557x/wiki) and the [discussions](https://github.com/Tom-Bom-badil/samson_trovis_557x/discussions) of our 'old' Trovis project, where we have collected information on the
+out the [Wiki](https://github.com/Tom-Bom-badil/samson_trovis_557x/wiki) and the [discussions](https://github.com/Tom-Bom-badil/samson_trovis_557x/discussions) of the 'old' Trovis project, where we have collected information on the
 controller and Modbus in general over many years.
