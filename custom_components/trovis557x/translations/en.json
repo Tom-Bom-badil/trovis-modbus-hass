@@ -209,8 +209,6 @@
       "special_functions": { "name": "Special functions" },
       "station_address": { "name": "Station address" },
       "error_count": { "name": "Error count" },
-      "summer_start": { "name": "Summer period start" },
-      "summer_end": { "name": "Summer period end" },
       "flow_setpoint": { "name": "{component} - Flow setpoint" },
       "return_flow_temperature_setpoint": { "name": "{component} - Return setpoint" },
       "flow_control_deviation": { "name": "{component} - Flow deviation" },
@@ -366,6 +364,8 @@
       "buffer_tank_charging_pump_lag_factor": { "name": "Buffer charging pump lag factor" }
     },
     "date": {
+      "summer_start": { "name": "Summer period start" },
+      "summer_end": { "name": "Summer period end" },
       "controller_date": { "name": "Controller date" }
     },
     "time": {

@@ -67,7 +67,6 @@ def _number(
 
 
 _CONTROLLER: tuple[TrovisNumberDescription, ...] = (
-    _number("clock", "year", "Controller year"),
     _number("controller", "summer_days_on", "Summer mode activation days"),
     _number("controller", "summer_days_off", "Summer mode deactivation days"),
     _number(

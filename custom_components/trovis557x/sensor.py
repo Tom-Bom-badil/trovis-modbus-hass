@@ -347,8 +347,6 @@ _GLOBAL: tuple[TrovisSensorDescription, ...] = (
         "Error count",
         state_class=None,
     ),
-    _month_day_sensor("summer_start", "Summer period start"),
-    _month_day_sensor("summer_end", "Summer period end"),
 )
 
 

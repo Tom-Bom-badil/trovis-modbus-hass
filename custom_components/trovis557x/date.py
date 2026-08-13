@@ -4,14 +4,19 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
+from typing import Literal
 
 from homeassistant.components.date import DateEntity, DateEntityDescription
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from trovis_modbus import MonthDay
 
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
 from .entity import TrovisEntity
+
+
+DateValueKind = Literal["date", "month_day"]
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -20,6 +25,7 @@ class TrovisDateDescription(DateEntityDescription):
 
     component: str
     field: str
+    value_kind: DateValueKind = "date"
 
 
 _DATES: tuple[TrovisDateDescription, ...] = (
@@ -29,6 +35,24 @@ _DATES: tuple[TrovisDateDescription, ...] = (
         name="Controller date",
         component="clock",
         field="date",
+        entity_category=EntityCategory.CONFIG,
+    ),
+    TrovisDateDescription(
+        key="summer_start",
+        translation_key="summer_start",
+        name="Summer period start",
+        component="controller",
+        field="summer_start",
+        value_kind="month_day",
+        entity_category=EntityCategory.CONFIG,
+    ),
+    TrovisDateDescription(
+        key="summer_end",
+        translation_key="summer_end",
+        name="Summer period end",
+        component="controller",
+        field="summer_end",
+        value_kind="month_day",
         entity_category=EntityCategory.CONFIG,
     ),
 )
@@ -70,9 +94,37 @@ class TrovisDate(TrovisEntity, DateEntity):
 
     @property
     def native_value(self) -> date | None:
-        """Return the native controller date."""
-        return getattr(self._subsystem, self.entity_description.field)
+        """Return the date in Home Assistant form."""
+        value = getattr(self._subsystem, self.entity_description.field)
+
+        if value is None:
+            return None
+
+        if self.entity_description.value_kind == "month_day":
+            if not isinstance(value, MonthDay):
+                return None
+
+            year = self.coordinator.device.clock.year
+            if year is None:
+                return None
+
+            try:
+                return date(year, value.month, value.day)
+            except ValueError:
+                return None
+
+        return value
 
     async def async_set_value(self, value: date) -> None:
-        """Set the controller date through the shared library write path."""
-        await self._async_write_datapoint(self.entity_description.field, value)
+        """Set the date through the shared library write path."""
+        if self.entity_description.value_kind == "month_day":
+            await self._async_write_datapoint(
+                self.entity_description.field,
+                MonthDay(day=value.day, month=value.month),
+            )
+            return
+
+        await self._async_write_datapoint(
+            self.entity_description.field,
+            value,
+        )

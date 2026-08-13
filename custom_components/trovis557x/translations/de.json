@@ -207,10 +207,8 @@
         }
       },
       "special_functions": { "name": "Sonderfunktionen" },
-      "station_address": { "name": "Stationsadresse" },
+      "station_address": { "name": "Modbus Stationsadresse" },
       "error_count": { "name": "Fehleranzahl" },
-      "summer_start": { "name": "Beginn Sommerzeitraum" },
-      "summer_end": { "name": "Ende Sommerzeitraum" },
       "flow_setpoint": { "name": "{component} - VL Soll" },
       "return_flow_temperature_setpoint": { "name": "{component} - RL Soll" },
       "flow_control_deviation": { "name": "{component} - VL Regeldifferenz" },
@@ -222,7 +220,7 @@
         }
       },
       "heating_operating_mode": {
-        "name": "{component} - Regelgrundlage",
+        "name": "{component} - Modus für Kurvenberechnung",
         "state": {
           "heating_curve": "Heizkurve",
           "four_point": "4-Punkt-Kennlinie",
@@ -332,10 +330,10 @@
       "rk4_setpoint_night": { "name": "{component} Trinkwassersollwert Nacht" },
       "rk4_setpoint_min": { "name": "{component} minimaler Trinkwassersollwert" },
       "rk4_setpoint_max": { "name": "{component} maximaler Trinkwassersollwert" },
-      "summer_days_on": { "name": "Einschalttage Sommerbetrieb" },
-      "summer_days_off": { "name": "Ausschalttage Sommerbetrieb" },
-      "summer_outdoor_temperature_limit": { "name": "Außentemperaturgrenzwert Sommerbetrieb" },
-      "outdoor_temperature_delay": { "name": "Verzögerung Außentemperaturanpassung" },
+      "summer_days_on": { "name": "Sommerbetrieb: Einschalttage" },
+      "summer_days_off": { "name": "Sommerbetrieb: Ausschalttage" },
+      "summer_outdoor_temperature_limit": { "name": "Sommerbetrieb: AT-Grenzwert" },
+      "outdoor_temperature_delay": { "name": "Verzögerung AT-Anpassung" },
       "frost_protection_limit": { "name": "Frostschutzgrenzwert" },
       "temperature_monitoring_deviation": { "name": "Temperaturüberwachung Abweichung" },
       "temperature_monitoring_window": { "name": "Temperaturüberwachung Zeitfenster" },
@@ -366,6 +364,8 @@
       "buffer_tank_charging_pump_lag_factor": { "name": "Nachlauf Ladepumpe" }
     },
     "date": {
+      "summer_start": { "name": "Sommerzeitraum Beginn" },
+      "summer_end": { "name": "Sommerzeitraum Ende" },
       "controller_date": { "name": "Reglerdatum" }
     },
     "time": {
@@ -401,9 +401,9 @@
     },
     "switch": {
       "write_access": { "name": "Schreibzugriff" },
-      "delayed_outdoor_temperature_adaptation_falling": { "name": "Verzögerte Außentemperaturanpassung fallend" },
-      "delayed_outdoor_temperature_adaptation_rising": { "name": "Verzögerte Außentemperaturanpassung steigend" },
-      "automatic_summer_standard_time_switchover": { "name": "Automatische Sommer-/Winterzeitumschaltung" },
+      "delayed_outdoor_temperature_adaptation_falling": { "name": "Verzögerte AT-Anpassung fallend" },
+      "delayed_outdoor_temperature_adaptation_rising": { "name": "Verzögerte AT-Anpassung steigend" },
+      "automatic_summer_standard_time_switchover": { "name": "Automatische Sommer-/Winterzeit" },
       "optimization": { "name": "{component} - Optimierung" },
       "adaptation": { "name": "{component} - Adaption" },
       "room_control_unit": { "name": "{component} - Raumleitgerät 5244/5257" },
