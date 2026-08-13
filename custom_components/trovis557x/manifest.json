@@ -13,5 +13,5 @@
     "trovis-modbus>=2.1.0,<3",
     "modbus-connection[tmodbus]>=4.6.1,<5"
   ],
-  "version": "v2026.08.3"
+  "version": "v2026.08.4"
 }
