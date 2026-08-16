@@ -162,48 +162,52 @@ _CIRCUIT_STATES: tuple[
         BinarySensorDeviceClass.MOVING,
         True,
     ),
-    (
-        "mode_control_autonomous",
-        "control_mode_autonomous",
-        "Autonomous operating mode control",
-        None,
-        False,
-    ),
-    (
-        "valve_control_autonomous",
-        "control_valve_autonomous",
-        "Autonomous valve control",
-        None,
-        False,
-    ),
-    (
-        "pump_control_autonomous",
-        "control_pump_autonomous",
-        "Autonomous pump control",
-        None,
-        False,
-    ),
-    (
-        "flow_setpoint_control_autonomous",
-        "control_flow_setpoint_autonomous",
-        "Autonomous flow setpoint control",
-        None,
-        False,
-    ),
-    (
-        "return_flow_temperature_setpoint_control_autonomous",
-        "control_return_setpoint_autonomous",
-        "Autonomous return setpoint control",
-        None,
-        False,
-    ),
-    (
-        "room_setpoint_control_autonomous",
-        "control_room_setpoint_autonomous",
-        "Autonomous room setpoint control",
-        None,
-        False,
-    ),
+    
+    # These should not be needed in the integration itself.
+    # The Library handles enablement of write-access for specific cases.
+    
+    # (
+    #     "mode_control_autonomous",
+    #     "control_mode_autonomous",
+    #     "Autonomous operating mode control",
+    #     None,
+    #     False,
+    # ),
+    # (
+    #     "valve_control_autonomous",
+    #     "control_valve_autonomous",
+    #     "Autonomous valve control",
+    #     None,
+    #     False,
+    # ),
+    # (
+    #     "pump_control_autonomous",
+    #     "control_pump_autonomous",
+    #     "Autonomous pump control",
+    #     None,
+    #     False,
+    # ),
+    # (
+    #     "flow_setpoint_control_autonomous",
+    #     "control_flow_setpoint_autonomous",
+    #     "Autonomous flow setpoint control",
+    #     None,
+    #     False,
+    # ),
+    # (
+    #     "return_flow_temperature_setpoint_control_autonomous",
+    #     "control_return_setpoint_autonomous",
+    #     "Autonomous return setpoint control",
+    #     None,
+    #     False,
+    # ),
+    # (
+    #     "room_setpoint_control_autonomous",
+    #     "control_room_setpoint_autonomous",
+    #     "Autonomous room setpoint control",
+    #     None,
+    #     False,
+    # ),
 )
 
 

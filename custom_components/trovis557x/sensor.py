@@ -371,7 +371,7 @@ def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
             f"Rk{index} - Active room setpoint",
             key=f"{prefix}_room_setpoint_active",
             translation_key="room_setpoint_active",
-            entity_category=None,
+            entity_category=EntityCategory.DIAGNOSTIC,
             state_class=None,
             translation_placeholders=placeholders,
         ),
@@ -409,7 +409,7 @@ def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
             component=component,
             field="heating_curves",
             value_kind="heating_curves",
-            entity_category=None,
+            entity_category=EntityCategory.DIAGNOSTIC,
         ),
         TrovisSensorDescription(
             key=f"{prefix}_control_type",
@@ -420,7 +420,7 @@ def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
             field="operating_mode",
             value_kind="heating_operating_mode",
             device_class=SensorDeviceClass.ENUM,
-            entity_category=None,
+            entity_category=EntityCategory.DIAGNOSTIC,
         ),
     )
 
