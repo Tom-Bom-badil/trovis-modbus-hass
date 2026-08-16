@@ -41,7 +41,8 @@ def _operation_mode(
         name=f"{placeholder} - Operating mode",
         component=component,
         field="mode",
-        entity_category=EntityCategory.CONFIG,
+        # This is a control entity, not a config entity:
+        # entity_category=EntityCategory.CONFIG,
         translation_placeholders={"component": placeholder},
     )
 
@@ -57,8 +58,7 @@ _SELECTS: tuple[TrovisSelectDescription, ...] = (
         name="Rk4 disinfection weekday",
         component="rk4",
         field="disinfection_weekday",
-        # This is a control entity, not a config entity:
-        # entity_category=EntityCategory.CONFIG,
+        entity_category=EntityCategory.CONFIG,
         translation_placeholders={"component": "Rk4"},
     ),
 )

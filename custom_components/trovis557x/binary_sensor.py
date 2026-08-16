@@ -152,14 +152,14 @@ _CIRCUIT_STATES: tuple[
         "valve_closing",
         "valve_closing",
         "Valve closing",
-        BinarySensorDeviceClass.MOVING,
+        None, # BinarySensorDeviceClass.MOVING,
         True,
     ),
     (
         "valve_opening",
         "valve_opening",
         "Valve opening",
-        BinarySensorDeviceClass.MOVING,
+        None, # BinarySensorDeviceClass.MOVING,
         True,
     ),
     
