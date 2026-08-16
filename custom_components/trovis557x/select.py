@@ -57,7 +57,8 @@ _SELECTS: tuple[TrovisSelectDescription, ...] = (
         name="Rk4 disinfection weekday",
         component="rk4",
         field="disinfection_weekday",
-        entity_category=EntityCategory.CONFIG,
+        # This is a control entity, not a config entity:
+        # entity_category=EntityCategory.CONFIG,
         translation_placeholders={"component": "Rk4"},
     ),
 )
