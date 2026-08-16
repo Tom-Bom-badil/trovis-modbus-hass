@@ -213,14 +213,14 @@
       "return_flow_temperature_setpoint": { "name": "{component} - Rücklauf Soll" },
       "flow_control_deviation": { "name": "{component} - Vorlauf Regeldifferenz" },
       "heating_curves": {
-        "name": "{component} - Heizkurven",
+        "name": "{component} - Heizkennlinie Status",
         "state": {
           "error": "Fehler",
           "calculated": "Berechnet"
         }
       },
       "heating_operating_mode": {
-        "name": "{component} - Modus für Kurvenberechnung",
+        "name": "{component} - Heizkennlinie Berechnungsart",
         "state": {
           "heating_curve": "Heizkurve",
           "four_point": "4-Punkt-Kennlinie",
@@ -240,7 +240,7 @@
           "discharge_protection": "Entladeschutz"
         }
       },
-      "active_charging_setpoint": { "name": "{component} aktiver Ladesollwert" },
+      "active_charging_setpoint": { "name": "{component} Aktiver Ladesollwert" },
       "control_deviation": { "name": "{component} Regelabweichung" },
       "buffer_tank_status": {
         "name": "Pufferspeicherstatus",

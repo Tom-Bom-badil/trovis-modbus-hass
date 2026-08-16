@@ -28,7 +28,8 @@ apply_local_trovis_modbus_override()
 
 PLATFORMS = [
     Platform.BINARY_SENSOR,
-    Platform.CLIMATE,
+    # Temporarily disabled; dedicated redesign pending - this is NOT a thermostat!
+    # Platform.CLIMATE,
     Platform.DATE,
     Platform.NUMBER,
     Platform.SELECT,
