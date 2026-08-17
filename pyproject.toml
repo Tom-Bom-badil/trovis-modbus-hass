@@ -12,7 +12,7 @@ dev = [
     # Device library required by the TROVIS integration.
     "trovis-modbus>=2.1.0,<3",
     # Connection API plus the same tmodbus backend used by the integration.
-    "modbus-connection[tmodbus]>=4.6.1,<5",
+    "modbus-connection[tmodbus]>=4.8.1,<5",
     # Real Home Assistant plus its custom-component test harness.
     "pytest-homeassistant-custom-component",
 ]

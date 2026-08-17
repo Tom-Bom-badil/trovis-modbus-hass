@@ -147,7 +147,7 @@ async def test_migrate_v1_serial_entry(hass: HomeAssistant) -> None:
         data={
             LEGACY_CONF_TYPE: CONNECTION_TYPE_SERIAL,
             LEGACY_CONF_DEVICE: "/dev/ttyUSB1",
-            CONF_BAUDRATE: 38400,
+            CONF_BAUDRATE: 19200,
             CONF_BYTESIZE: 8,
             CONF_PARITY: "O",
             CONF_STOPBITS: 2,
@@ -173,7 +173,7 @@ async def test_migrate_v1_serial_entry(hass: HomeAssistant) -> None:
     assert LEGACY_CONNECTION_ENTRY_ID not in entry.data
     assert entry.data[CONF_CONNECTION_TYPE] == CONNECTION_TYPE_SERIAL
     assert entry.data[CONF_DEVICE] == "/dev/ttyUSB1"
-    assert entry.data[CONF_BAUDRATE] == 38400
+    assert entry.data[CONF_BAUDRATE] == 19200
     assert entry.data[CONF_BYTESIZE] == 8
     assert entry.data[CONF_PARITY] == "O"
     assert entry.data[CONF_STOPBITS] == 2
