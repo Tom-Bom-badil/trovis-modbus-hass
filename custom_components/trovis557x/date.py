@@ -15,7 +15,6 @@ from trovis_modbus import MonthDay
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
 from .entity import TrovisEntity
 
-
 DateValueKind = Literal["date", "month_day"]
 
 

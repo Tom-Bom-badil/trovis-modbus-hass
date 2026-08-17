@@ -152,20 +152,18 @@ _CIRCUIT_STATES: tuple[
         "valve_closing",
         "valve_closing",
         "Valve closing",
-        None, # BinarySensorDeviceClass.MOVING,
+        None,  # BinarySensorDeviceClass.MOVING,
         True,
     ),
     (
         "valve_opening",
         "valve_opening",
         "Valve opening",
-        None, # BinarySensorDeviceClass.MOVING,
+        None,  # BinarySensorDeviceClass.MOVING,
         True,
     ),
-    
     # These should not be needed in the integration itself.
     # The Library handles enablement of write-access for specific cases.
-    
     # (
     #     "mode_control_autonomous",
     #     "control_mode_autonomous",
