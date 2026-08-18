@@ -139,6 +139,14 @@ def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
 _RK4: tuple[TrovisSwitchDescription, ...] = (
     _switch(
         "rk4",
+        "disinfection_enabled",
+        "Rk4 - Thermal disinfection",
+        key="rk4_disinfection_enabled",
+        translation_key="disinfection_enabled",
+        translation_placeholders={"component": "Rk4"},
+    ),
+    _switch(
+        "rk4",
         "storage_tank_charging_pump_running",
         "Rk4 storage-tank-charging-pump control",
         key="rk4_storage_tank_charging_pump_control",

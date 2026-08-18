@@ -143,6 +143,7 @@ COILS: dict[int, bool] = {
     149: False,  # manual-operation levels not locked
     150: False,  # rotary switches not locked
     158: False,  # supervisory-system timeout inactive
+    413: True,  # CL414 / CO4 -> F14 / thermal disinfection enabled
     56: True,  # Hk1 pump running
     59: True,  # domestic hot-water storage tank charging pump running
     7: False,  # domestic hot-water manual operation

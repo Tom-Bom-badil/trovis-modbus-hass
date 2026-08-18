@@ -268,6 +268,7 @@ async def test_setup_entry_creates_entities(
     assert rk4_priority.state == "on"
 
     manual_lock = hass.states.get(f"switch.{SLUG}_manual_levels_locked")
+    disinfection_enabled = hass.states.get(f"switch.{SLUG}_rk4_disinfection_enabled")
     storage_enabled = hass.states.get(
         f"switch.{SLUG}_rk4_storage_tank_charging_enabled"
     )
@@ -278,6 +279,8 @@ async def test_setup_entry_creates_entities(
     circulation_pump = hass.states.get(f"switch.{SLUG}_rk4_circulation_pump_control")
     assert manual_lock is not None
     assert manual_lock.state == "off"
+    assert disinfection_enabled is not None
+    assert disinfection_enabled.state == "on"
     assert storage_enabled is not None
     assert storage_enabled.state == "on"
     assert heating_pump is not None
@@ -680,6 +683,14 @@ async def test_register_and_coil_writes(
         blocking=True,
     )
     assert modbus_provider.unit.holding[1830] == 5
+
+    await hass.services.async_call(
+        "switch",
+        "turn_off",
+        {"entity_id": f"switch.{SLUG}_rk4_disinfection_enabled"},
+        blocking=True,
+    )
+    assert modbus_provider.unit.coils[413] is False
 
     await hass.services.async_call(
         "switch",

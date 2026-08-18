@@ -262,7 +262,7 @@
       "frost_protection": { "name": "{component} - Frostschutz" },
       "standby": { "name": "{component} - Betriebsart Standby" },
       "storage_tank_charging_pump_running": { "name": "{component} Speicherladepumpe" },
-      "disinfection_active": { "name": "{component} thermische Desinfektion" },
+      "disinfection_active": { "name": "{component} - Desinfektion läuft" },
       "circulation_pump_running": { "name": "{component} Zirkulationspumpe" },
       "data_entry_active": { "name": "Dateneingabe aktiv" },
       "data_entry_performed": { "name": "Dateneingabe erfolgt" },
@@ -353,7 +353,7 @@
       "maximum_charging_temperature": { "name": "{component} maximale Ladetemperatur" },
       "rk4_maximum_return_flow_temperature": { "name": "{component} maximale Rücklauftemperatur" },
       "disinfection_temperature": { "name": "{component} Desinfektionstemperatur" },
-      "disinfection_hold_time": { "name": "{component} Haltezeit Desinfektion" },
+      "disinfection_hold_time": { "name": "{component} Desinfektion Haltezeit" },
       "special_setpoint": { "name": "{component} Sondersollwert" },
       "solar_pump_on_temperature_difference": { "name": "Einschaltdifferenz Solarkreispumpe" },
       "solar_pump_off_temperature_difference": { "name": "Ausschaltdifferenz Solarkreispumpe" },
@@ -370,8 +370,8 @@
     },
     "time": {
       "controller_time": { "name": "Reglerzeit" },
-      "disinfection_start": { "name": "{component} Beginn Desinfektion" },
-      "disinfection_stop": { "name": "{component} Ende Desinfektion" }
+      "disinfection_start": { "name": "{component} Desinfektion Beginn" },
+      "disinfection_stop": { "name": "{component} Desinfektion Ende" }
     },
     "select": {
       "operation_mode": {
@@ -386,7 +386,7 @@
         }
       },
       "disinfection_weekday": {
-        "name": "{component} Wochentag Desinfektion",
+        "name": "{component} Desinfektion Wochentag",
         "state": {
           "off": "Aus",
           "monday": "Montag",
@@ -411,6 +411,7 @@
       "manual_levels_locked": { "name": "Sperrung Handebene" },
       "rotary_switch_locked": { "name": "Sperrung Drehschalter" },
       "glt_timeout_active": { "name": "Auto-Autark nach 30 Minuten" },
+      "disinfection_enabled": { "name": "{component} - Desinfektion aktiv" },
       "forced_charging": { "name": "{component} Zwangsladung" },
       "forced_charging_uses_storage_tank_sensor_2": { "name": "{component} Zwangsladung mit Speichersensor 2" },
       "storage_tank_charging_enabled": { "name": "{component} Speicherladung freigegeben" },
