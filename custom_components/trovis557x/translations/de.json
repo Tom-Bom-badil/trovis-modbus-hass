@@ -253,7 +253,8 @@
           "pump_overrun": "Nachlauf",
           "discharge_protection": "Entladeschutz"
         }
-      }
+      },
+      "operating_mode_code": { "name": "{component} Betriebsart-Code" }
     },
     "binary_sensor": {
       "general_fault": { "name": "Störung" },

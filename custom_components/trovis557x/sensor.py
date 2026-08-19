@@ -44,6 +44,7 @@ SensorValueKind = Literal[
     "month_day",
     "heating_curves",
     "heating_operating_mode",
+    "operating_mode_code",
 ]
 
 
@@ -125,6 +126,24 @@ def _month_day_sensor(
         component="controller",
         field=field,
         value_kind="month_day",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    )
+
+
+def _operating_mode_code_sensor(
+    component: str,
+    key: str,
+    placeholder: str,
+) -> TrovisSensorDescription:
+    """Return the numeric operating-mode code for one control circuit."""
+    return TrovisSensorDescription(
+        key=key,
+        translation_key="operating_mode_code",
+        translation_placeholders={"component": placeholder},
+        name=f"{placeholder} - Operating mode code",
+        component=component,
+        field="mode",
+        value_kind="operating_mode_code",
         entity_category=EntityCategory.DIAGNOSTIC,
     )
 
@@ -357,6 +376,11 @@ def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
     placeholders = {"component": f"Rk{index}"}
 
     return (
+        _operating_mode_code_sensor(
+            component,
+            f"{prefix}_operating_mode_code",
+            f"Rk{index}",
+        ),
         _number_sensor(
             component,
             "valve_setpoint",
@@ -426,6 +450,11 @@ def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
 
 
 _RK4: tuple[TrovisSensorDescription, ...] = (
+    _operating_mode_code_sensor(
+        "rk4",
+        "rk4_operating_mode_code",
+        "Rk4",
+    ),
     _number_sensor(
         "rk4",
         "setpoint_active",
@@ -677,6 +706,12 @@ class TrovisSensor(TrovisEntity, SensorEntity):
 
         if value is None:
             return None
+
+        if self.entity_description.value_kind == "operating_mode_code":
+            try:
+                return int(value)
+            except (TypeError, ValueError):
+                return None
 
         if self.entity_description.value_kind == "month_day":
             if not isinstance(value, MonthDay):

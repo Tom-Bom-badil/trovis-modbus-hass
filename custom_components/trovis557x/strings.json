@@ -253,7 +253,8 @@
           "pump_overrun": "Pump overrun",
           "discharge_protection": "Discharge protection"
         }
-      }
+      },
+      "operating_mode_code": { "name": "{component} operating mode code" }
     },
     "binary_sensor": {
       "general_fault": { "name": "Fault" },
