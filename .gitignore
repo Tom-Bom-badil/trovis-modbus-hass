@@ -7,5 +7,5 @@ __pycache__/
 .coverage
 uv.lock
 
-# Local development override for testing trovis_modbus from a local checkout.
-custom_components/trovis557x/local_dev.py
+# ignore local-only files (eg developer mode switch)
+**/_local_dev_overrides/

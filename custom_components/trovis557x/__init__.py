@@ -9,21 +9,26 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from ._local_dev import apply_local_trovis_modbus_override
 from .connection import create_modbus_connection
-from .const import (
-    CONF_DETECTED_SENSORS,
-    CONF_MODEL,
-    CONF_UNIT_ID,
-)
+from .const import CONF_DETECTED_SENSORS, CONF_MODEL, CONF_UNIT_ID
 from .migration import async_migrate_entry as async_migrate_entry
 
 if TYPE_CHECKING:
     from .coordinator import TrovisCoordinator
 
-# Apply the optional local library override once, before Home Assistant imports
-# config_flow.py, coordinator.py or any entity platform.
-apply_local_trovis_modbus_override()
+## this is relevant for developers only
+try:
+    from ._local_dev_overrides import (
+        DEVELOPER_MODE,
+        apply_local_function_overrides,
+        apply_local_log_overrides,
+    )
+except ModuleNotFoundError:
+    DEVELOPER_MODE = False
+else:
+    if DEVELOPER_MODE:
+        apply_local_function_overrides()
+        apply_local_log_overrides()
 
 
 PLATFORMS = [
@@ -45,6 +50,7 @@ async def async_setup_entry(
     entry: ConfigEntry[TrovisCoordinator],
 ) -> bool:
     """Set up Trovis 557x from a config entry."""
+
     from trovis_modbus import Trovis557x
 
     from .coordinator import TrovisCoordinator
@@ -74,17 +80,13 @@ async def async_setup_entry(
         )
     except ValueError as err:
         raise ConfigEntryNotReady(str(err)) from err
-
     coordinator = TrovisCoordinator(
         hass,
         entry,
         device,
     )
-
     await coordinator.async_config_entry_first_refresh()
-
     entry.runtime_data = coordinator
-
     await hass.config_entries.async_forward_entry_setups(
         entry,
         PLATFORMS,
