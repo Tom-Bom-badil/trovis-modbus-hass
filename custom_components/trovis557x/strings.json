@@ -415,7 +415,7 @@
       "forced_charging": { "name": "{component} forced charging" },
       "forced_charging_uses_storage_tank_sensor_2": { "name": "{component} forced charging using storage tank sensor 2" },
       "storage_tank_charging_enabled": { "name": "{component} storage tank charging enabled" },
-      "intermediate_heating_function_enabled": { "name": "{component} intermediate-heating function" },
+      "intermediate_heating_function_enabled": { "name": "{component} intermediate heating enabled" },
       "pump_control": { "name": "{component} - Pump control" },
       "storage_tank_charging_pump_control": { "name": "{component} storage-tank-charging-pump control" },
       "circulation_pump_control": { "name": "{component} circulation-pump control" }

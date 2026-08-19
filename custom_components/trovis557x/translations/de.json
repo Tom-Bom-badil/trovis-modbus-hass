@@ -415,7 +415,7 @@
       "forced_charging": { "name": "{component} Zwangsladung" },
       "forced_charging_uses_storage_tank_sensor_2": { "name": "{component} Zwangsladung mit Speichersensor 2" },
       "storage_tank_charging_enabled": { "name": "{component} Speicherladung freigegeben" },
-      "intermediate_heating_function_enabled": { "name": "{component} Funktion Zwischenheizen" },
+      "intermediate_heating_function_enabled": { "name": "{component} Zwischenheizen nach 20 Minuten" },
       "pump_control": { "name": "{component} Pumpensteuerung" },
       "storage_tank_charging_pump_control": { "name": "{component} Steuerung Speicherladepumpe" },
       "circulation_pump_control": { "name": "{component} Steuerung Zirkulationspumpe" }

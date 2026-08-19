@@ -161,13 +161,25 @@ _RK4: tuple[TrovisSwitchDescription, ...] = (
         translation_key="circulation_pump_control",
         translation_placeholders={"component": "Rk4"},
     ),
+    # ToDo - this looks like a redundant function ??? CL1831 ./. CO4-F07 + CL407
+    # this is CL1831:
+    # _switch(
+    #     "rk4",
+    #     "intermediate_heating_operation",
+    #     "Rk4 intermediate heating operation",
+    #     key="rk4_intermediate_heating_operation",
+    #     translation_key="intermediate_heating_operation",
+    #     translation_placeholders={"component": "Rk4"},
+    # ),
+    # this is CO4-F07 + CL407:
     _switch(
         "rk4",
-        "intermediate_heating_operation",
-        "Rk4 intermediate heating operation",
-        key="rk4_intermediate_heating_operation",
-        translation_key="intermediate_heating_operation",
+        "intermediate_heating_function_enabled",
+        "Rk4 intermediate heating function",
+        key="rk4_intermediate_heating_function_enabled",
+        translation_key="intermediate_heating_function_enabled",
         translation_placeholders={"component": "Rk4"},
+        enabled=False,
     ),
     _switch(
         "rk4",
@@ -192,15 +204,6 @@ _RK4: tuple[TrovisSwitchDescription, ...] = (
         key="rk4_storage_tank_charging_enabled",
         translation_key="storage_tank_charging_enabled",
         translation_placeholders={"component": "Rk4"},
-    ),
-    _switch(
-        "rk4",
-        "intermediate_heating_function_enabled",
-        "Rk4 intermediate heating function",
-        key="rk4_intermediate_heating_function_enabled",
-        translation_key="intermediate_heating_function_enabled",
-        translation_placeholders={"component": "Rk4"},
-        enabled=False,
     ),
 )
 
