@@ -214,7 +214,7 @@ _RK4: tuple[TrovisBinaryDescription, ...] = (
         "rk4",
         "storage_tank_charging_pump_running",
         "Storage tank charging pump",
-        BinarySensorDeviceClass.HEAT,
+        None,
         key="rk4_storage_tank_charging_pump_running",
         translation_key="storage_tank_charging_pump_running",
         translation_placeholders={"component": "Rk4"},
