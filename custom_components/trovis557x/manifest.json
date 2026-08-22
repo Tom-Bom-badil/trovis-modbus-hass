@@ -10,7 +10,7 @@
   "loggers": ["trovis_modbus"],
   "requirements": [
     "tmodbus>=0.5.0",
-    "trovis-modbus>=2.1.0,<3",
+    "trovis-modbus>=2.2.0,<3",
     "modbus-connection[tmodbus]>=4.8.1,<5"
   ],
   "version": "v2026.08.4"
