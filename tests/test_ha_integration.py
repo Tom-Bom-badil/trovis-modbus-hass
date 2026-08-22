@@ -165,14 +165,12 @@ async def test_setup_entry_creates_entities(
     assert disinfection_stop is not None
     assert disinfection_stop.state == "21:00:00"
 
-    summer_start = hass.states.get(f"sensor.{SLUG}_summer_start")
-    summer_end = hass.states.get(f"sensor.{SLUG}_summer_end")
+    summer_start = hass.states.get(f"date.{SLUG}_summer_start")
+    summer_end = hass.states.get(f"date.{SLUG}_summer_end")
     assert summer_start is not None
-    assert summer_start.state == "05-15"
-    assert summer_start.attributes["month"] == 5
-    assert summer_start.attributes["day"] == 15
+    assert summer_start.state == "2026-05-15"
     assert summer_end is not None
-    assert summer_end.state == "09-15"
+    assert summer_end.state == "2026-09-15"
 
     analog_input = hass.states.get(f"sensor.{SLUG}_sensor_ae_voltage")
     pulse_rate = hass.states.get(f"sensor.{SLUG}_sensor_imp")
@@ -610,26 +608,26 @@ async def test_register_and_coil_writes(
     )
 
     await hass.services.async_call(
-        "number",
+        "date",
         "set_value",
         {
-            "entity_id": f"number.{SLUG}_year",
-            "value": 2027,
+            "entity_id": f"date.{SLUG}_controller_date",
+            "date": "2027-06-21",
         },
         blocking=True,
     )
 
-    # The write itself happens immediately. The coordinator refresh requested
-    # by the entity may be debounced because write access was enabled directly
-    # beforehand.
+    # Writing the controller date updates the year and DDMM registers together.
     assert modbus_provider.unit.holding[101] == 2027
+    assert modbus_provider.unit.holding[100] == 2106
 
     await entry.runtime_data.async_refresh()
     await hass.async_block_till_done()
 
-    year = hass.states.get(f"number.{SLUG}_year")
-    assert year is not None
-    assert float(year.state) == pytest.approx(2027)
+    controller_date = hass.states.get(f"date.{SLUG}_controller_date")
+    assert controller_date is not None
+    assert controller_date.state == "2027-06-21"
+    assert hass.states.get(f"number.{SLUG}_year") is None
 
     coils_before = dict(modbus_provider.unit.coils)
 
