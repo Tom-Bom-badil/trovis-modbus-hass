@@ -17,18 +17,16 @@ This is a Home Assistant custom integration for monitoring and
 adjusting SAMSON TROVIS 557x heating and district heating controllers over
 Modbus, including compatible OEM variants from Sauter, Pewo, Yados and others.
 
+The integration is intended primarily for simple monitoring of an already
+commissioned system, and for occasional fine adjustment.
+
 The integration automatically detects the controller model, configured hydronic
 system, technical control-circuit roles, and available physical sensor inputs.
-It then creates a matching Home Assistant device and entity structure without
-requiring a Modbus YAML configuration.
+It then automatically creates a matching Home Assistant device and entity structure.
 
 The TROVIS controller continues to perform the actual heating control. Home
 Assistant reads its operating state and, when explicitly enabled, writes
 supported settings back to it.
-
-The integration is intended primarily for simple monitoring of an already
-commissioned system and for occasional fine adjustment; it does not attempt
-to reproduce all possible configurations and functions.
 
 ## 👉 Features
 
@@ -39,10 +37,9 @@ provides:
 - support for multiple independently configured controllers,
 - automatic controller-model and hydronic-system identification,
 - model-, role-, and configuration-aware entity selection,
-- linked sub-devices for Measurements, Rk1 through Rk4, Solar, and buffer-tank
-  functions where applicable,
+- linked sub-devices for Measurements, Rk1-Rk4, Solar, and buffer-tank functions,
 - Home Assistant `sensor`, `binary_sensor`, `number`, `select`, `switch`, `date`,
-  `time`, `climate`, and `water_heater` entities,
+  `time`, `climate` and `water_heater` entities,
 - grouped reads and validated register and coil writes,
 - a controller-level **Write access** safety switch,
 - German and English translations.
@@ -61,9 +58,9 @@ The following controllers are currently supported:
 ## 👉 Related projects
 
 - [`trovis-modbus`](https://github.com/Tom-Bom-badil/trovis-modbus) –
-  controller-specific data model and read/write logic
+  a generic library that contains a controller-specific data model and read/write logic
 - [`modbus-connection`](https://github.com/home-assistant-libs/modbus-connection) –
-  backend-neutral Modbus connection API used internally by the integration
+  a backend-neutral Modbus connection API used internally by the integration
 
 ## 👉 Documentation
 
@@ -72,5 +69,7 @@ instructions, adapter configuration and tests, troubleshooting guides and
 technical backgrounds can be found on the [project wiki](https://github.com/Tom-Bom-badil/trovis-modbus-hass/wiki).
 
 If any information you are searching for should be missing on this Wiki, check
-out the [Wiki](https://github.com/Tom-Bom-badil/samson_trovis_557x/wiki) and the [discussions](https://github.com/Tom-Bom-badil/samson_trovis_557x/discussions) of the 'old' Trovis project, where we have collected information on the
-controller and Modbus in general over many years.
+out the [Wiki](https://github.com/Tom-Bom-badil/samson_trovis_557x/wiki) and the
+[discussions](https://github.com/Tom-Bom-badil/samson_trovis_557x/discussions) of
+the 'old' Trovis project, where we have collected information on the controller
+and Modbus in general over many years.
