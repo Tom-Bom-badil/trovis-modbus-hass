@@ -57,7 +57,7 @@ from .const import (
 _UNIT = NumberSelector(
     NumberSelectorConfig(
         min=1,
-        max=255,
+        max=247,
         step=1,
         mode=NumberSelectorMode.BOX,
     )
