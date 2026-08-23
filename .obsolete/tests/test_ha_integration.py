@@ -5,20 +5,6 @@ from __future__ import annotations
 from unittest.mock import Mock
 
 import pytest
-from homeassistant.config_entries import SOURCE_USER, ConfigEntryState
-from homeassistant.const import CONF_NAME
-from homeassistant.core import HomeAssistant
-from homeassistant.data_entry_flow import FlowResultType
-from homeassistant.helpers import device_registry as dr
-from modbus_connection import (
-    ClientClosedError,
-    ModbusConnectionError,
-    ModbusSerialParams,
-    ModbusTcpParams,
-)
-from pytest_homeassistant_custom_component.common import MockConfigEntry
-from trovis_modbus import DEFAULT_WRITE_ACCESS_CODE
-
 from custom_components.trovis557x.const import (
     CONF_ACCESS_CODE,
     CONF_BAUDRATE,
@@ -40,6 +26,19 @@ from custom_components.trovis557x.const import (
     FRAMER_RTU,
     FRAMER_SOCKET,
 )
+from homeassistant.config_entries import SOURCE_USER, ConfigEntryState
+from homeassistant.const import CONF_NAME
+from homeassistant.core import HomeAssistant
+from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.helpers import device_registry as dr
+from modbus_connection import (
+    ClientClosedError,
+    ModbusConnectionError,
+    ModbusSerialParams,
+    ModbusTcpParams,
+)
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+from trovis_modbus import DEFAULT_WRITE_ACCESS_CODE
 
 from .conftest import UNIT_ID, MockProvider
 

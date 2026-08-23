@@ -5,19 +5,6 @@ from __future__ import annotations
 from unittest.mock import Mock
 
 import pytest
-from homeassistant.config_entries import SOURCE_RECONFIGURE
-from homeassistant.const import (
-    CONF_DEVICE as LEGACY_CONF_DEVICE,
-    CONF_HOST as LEGACY_CONF_HOST,
-    CONF_PORT as LEGACY_CONF_PORT,
-    CONF_TYPE as LEGACY_CONF_TYPE,
-)
-from homeassistant.core import HomeAssistant
-from homeassistant.data_entry_flow import FlowResultType
-from modbus_connection import ModbusSerialParams, ModbusTcpParams
-from pytest_homeassistant_custom_component.common import MockConfigEntry
-from trovis_modbus import DEFAULT_WRITE_ACCESS_CODE
-
 from custom_components.trovis557x.connection import build_modbus_params
 from custom_components.trovis557x.const import (
     CONF_ACCESS_CODE,
@@ -41,6 +28,18 @@ from custom_components.trovis557x.const import (
     FRAMER_SOCKET,
 )
 from custom_components.trovis557x.migration import async_migrate_entry
+from homeassistant.config_entries import SOURCE_RECONFIGURE
+from homeassistant.const import (
+    CONF_DEVICE as LEGACY_CONF_DEVICE,
+    CONF_HOST as LEGACY_CONF_HOST,
+    CONF_PORT as LEGACY_CONF_PORT,
+    CONF_TYPE as LEGACY_CONF_TYPE,
+)
+from homeassistant.core import HomeAssistant
+from homeassistant.data_entry_flow import FlowResultType
+from modbus_connection import ModbusSerialParams, ModbusTcpParams
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+from trovis_modbus import DEFAULT_WRITE_ACCESS_CODE
 
 from .conftest import UNIT_ID, MockProvider
 

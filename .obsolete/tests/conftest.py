@@ -8,10 +8,9 @@ from pathlib import Path
 from typing import Final
 
 import pytest
+from custom_components.trovis557x import connection as connection_module
 from modbus_connection import ModbusSerialParams, ModbusTcpParams
 from modbus_connection.mock import MockModbusConnection, MockModbusUnit
-
-from custom_components.trovis557x import connection as connection_module
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
