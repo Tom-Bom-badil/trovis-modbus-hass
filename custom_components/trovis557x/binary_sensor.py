@@ -13,9 +13,12 @@ from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
+from . import (
+    TrovisEntity,
+    component_supports_datapoint,
+    rk1_to_rk3_indices,
+)
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
-from .entity import TrovisEntity, rk1_to_rk3_indices
-from .metadata import component_supports_datapoint
 
 
 @dataclass(frozen=True, kw_only=True)

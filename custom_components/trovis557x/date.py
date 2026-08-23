@@ -12,8 +12,8 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from trovis_modbus import MonthDay
 
+from . import TrovisEntity
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
-from .entity import TrovisEntity
 
 DateValueKind = Literal["date", "month_day"]
 

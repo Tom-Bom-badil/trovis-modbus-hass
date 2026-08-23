@@ -25,17 +25,17 @@ from trovis_modbus import (
     HeatingCircuitControlMode,
     MonthDay,
 )
-from trovis_modbus.metadata import EnumMetadata
+from trovis_modbus.metadata import EnumMetadata, NumberMetadata
 
-from .coordinator import TrovisConfigEntry, TrovisCoordinator
-from .entity import TrovisEntity, rk1_to_rk3_indices
-from .metadata import (
+from . import (
+    TrovisEntity,
     component_supports_datapoint,
     ha_unit_from_number,
     require_enum_metadata,
     require_number_metadata,
-    sensor_device_class_from_number,
+    rk1_to_rk3_indices,
 )
+from .coordinator import TrovisConfigEntry, TrovisCoordinator
 
 SensorValueKind = Literal[
     "plain",
@@ -46,6 +46,21 @@ SensorValueKind = Literal[
     "heating_operating_mode",
     "operating_mode_code",
 ]
+
+
+def _sensor_device_class_from_number(
+    number: NumberMetadata,
+) -> SensorDeviceClass | None:
+    """Infer a Home Assistant sensor device class from TROVIS metadata."""
+    if number.unit == "°C":
+        return SensorDeviceClass.TEMPERATURE
+
+    if number.unit == "V":
+        return SensorDeviceClass.VOLTAGE
+
+    # In TROVIS, K commonly represents a temperature difference or offset,
+    # not an absolute temperature.
+    return None
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -590,7 +605,7 @@ class TrovisSensor(TrovisEntity, SensorEntity):
                 description.native_unit_of_measurement or ha_unit_from_number(number)
             )
             self._attr_device_class = (
-                description.device_class or sensor_device_class_from_number(number)
+                description.device_class or _sensor_device_class_from_number(number)
             )
 
         elif description.value_kind == "enum":

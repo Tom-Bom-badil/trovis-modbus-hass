@@ -18,9 +18,12 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from trovis_modbus import HeatingCircuit, OperatingMode
 
+from . import (
+    TrovisEntity,
+    ha_unit_from_number,
+    require_number_metadata,
+)
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
-from .entity import TrovisEntity
-from .metadata import ha_unit_from_number, require_number_metadata
 
 _TO_HVAC = {
     OperatingMode.STANDBY: HVACMode.OFF,

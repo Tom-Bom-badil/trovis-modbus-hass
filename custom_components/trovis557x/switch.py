@@ -13,9 +13,13 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from trovis_modbus import TrovisWriteAccessError
 from trovis_modbus.metadata import BooleanMetadata
 
+from . import (
+    TrovisEntity,
+    component_supports_datapoint,
+    require_boolean_metadata,
+    rk1_to_rk3_indices,
+)
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
-from .entity import TrovisEntity, rk1_to_rk3_indices
-from .metadata import component_supports_datapoint, require_boolean_metadata
 
 _LOGGER = logging.getLogger(__name__)
 

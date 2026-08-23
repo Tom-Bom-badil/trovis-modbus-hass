@@ -10,8 +10,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
+from . import TrovisEntity
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
-from .entity import TrovisEntity
 
 
 @dataclass(frozen=True, kw_only=True)

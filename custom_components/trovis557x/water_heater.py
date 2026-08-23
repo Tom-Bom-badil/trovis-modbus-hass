@@ -16,13 +16,13 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from trovis_modbus import DomesticHotWater, OperatingMode
 
-from .coordinator import TrovisConfigEntry, TrovisCoordinator
-from .entity import TrovisEntity
-from .metadata import (
+from . import (
+    TrovisEntity,
     ha_unit_from_number,
     require_enum_metadata,
     require_number_metadata,
 )
+from .coordinator import TrovisConfigEntry, TrovisCoordinator
 
 # Operation-list labels <-> controller modes.
 _MODES = {

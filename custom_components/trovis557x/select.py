@@ -11,9 +11,13 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from trovis_modbus.metadata import EnumMetadata
 
+from . import (
+    TrovisEntity,
+    component_supports_datapoint,
+    require_enum_metadata,
+    rk1_to_rk3_indices,
+)
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
-from .entity import TrovisEntity, rk1_to_rk3_indices
-from .metadata import component_supports_datapoint, require_enum_metadata
 
 
 @dataclass(frozen=True, kw_only=True)

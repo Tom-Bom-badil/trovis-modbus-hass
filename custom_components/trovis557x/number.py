@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from homeassistant.components.number import (
+    NumberDeviceClass,
     NumberEntity,
     NumberEntityDescription,
     NumberMode,
@@ -12,15 +13,28 @@ from homeassistant.components.number import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from trovis_modbus.metadata import NumberMetadata
 
-from .coordinator import TrovisConfigEntry, TrovisCoordinator
-from .entity import TrovisEntity, rk1_to_rk3_indices
-from .metadata import (
+from . import (
+    TrovisEntity,
     component_supports_datapoint,
     ha_unit_from_number,
-    number_device_class_from_number,
     require_number_metadata,
+    rk1_to_rk3_indices,
 )
+from .coordinator import TrovisConfigEntry, TrovisCoordinator
+
+
+def _number_device_class_from_number(
+    number: NumberMetadata,
+) -> NumberDeviceClass | None:
+    """Infer a Home Assistant number device class from TROVIS metadata."""
+    if number.unit == "°C":
+        return NumberDeviceClass.TEMPERATURE
+
+    # In TROVIS, K commonly represents a temperature difference or offset,
+    # not an absolute temperature.
+    return None
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -518,7 +532,7 @@ class TrovisNumber(TrovisEntity, NumberEntity):
             description.native_unit_of_measurement or ha_unit_from_number(number)
         )
         self._attr_device_class = (
-            description.device_class or number_device_class_from_number(number)
+            description.device_class or _number_device_class_from_number(number)
         )
         self._attr_mode = description.mode
         self._attr_entity_category = description.entity_category
