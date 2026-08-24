@@ -123,10 +123,10 @@ def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
         ),
         _switch(
             component,
-            "room_control_unit",
-            f"Rk{index} - Room control unit 5244/5257",
+            "trovis_5570_room_control_unit",
+            f"Rk{index} - TROVIS 5570 room control unit",
             key=f"{prefix}_room_control_unit",
-            translation_key="room_control_unit",
+            translation_key="trovis_5570_room_control_unit",
             translation_placeholders=placeholders,
         ),
         _switch(
@@ -212,6 +212,33 @@ _RK4: tuple[TrovisSwitchDescription, ...] = (
 )
 
 
+def _switch_description_supported(
+    coordinator: TrovisCoordinator,
+    description: TrovisSwitchDescription,
+) -> bool:
+    """Return whether one switch applies to the current controller setup."""
+    component = getattr(coordinator.device, description.component)
+
+    if not component_supports_datapoint(component, description.field):
+        return False
+
+    if description.component not in {"rk1", "rk2", "rk3"}:
+        return True
+
+    index = int(description.component[-1])
+
+    if description.field == "optimization":
+        return coordinator.device.heating_circuit_optimization_available(index)
+
+    if description.field == "adaptation":
+        return coordinator.device.heating_circuit_adaptation_available(index)
+
+    if description.field == "trovis_5570_room_control_unit":
+        return coordinator.device.trovis_5570_room_control_unit_available(index)
+
+    return True
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: TrovisConfigEntry,
@@ -231,10 +258,7 @@ async def async_setup_entry(
     entities.extend(
         TrovisSwitch(coordinator, description)
         for description in descriptions
-        if component_supports_datapoint(
-            getattr(coordinator.device, description.component),
-            description.field,
-        )
+        if _switch_description_supported(coordinator, description)
     )
 
     async_add_entities(entities)

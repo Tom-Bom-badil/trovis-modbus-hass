@@ -444,13 +444,19 @@ def _description_supported(
     if not component_supports_datapoint(component, description.field):
         return False
 
-    if (
-        description.requires_outdoor_sensor is None
-        and description.requires_four_point_characteristic is None
-    ):
+    has_control_mode_requirement = (
+        description.requires_outdoor_sensor is not None
+        or description.requires_four_point_characteristic is not None
+    )
+    if not has_control_mode_requirement:
         return True
 
     index = int(description.component.removeprefix("rk"))
+    if index not in coordinator.device.room_heating_circuit_indices:
+        # PRECONTROL/BUFFER slots have no room-heating setpoint-generation
+        # mode, therefore no curve/fixed-setpoint configuration controls.
+        return False
+
     uses_outdoor_sensor = coordinator.device.heating_circuit_uses_outdoor_sensor(index)
 
     if description.requires_outdoor_sensor is False:

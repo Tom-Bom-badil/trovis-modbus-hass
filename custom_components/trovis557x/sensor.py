@@ -48,6 +48,11 @@ SensorValueKind = Literal[
 ]
 
 
+_ROOM_HEATING_ONLY_SENSOR_FIELDS = frozenset(
+    {"room_setpoint_active", "heating_curves", "operating_mode"}
+)
+
+
 def _sensor_device_class_from_number(
     number: NumberMetadata,
 ) -> SensorDeviceClass | None:
@@ -287,7 +292,7 @@ _GLOBAL: tuple[TrovisSensorDescription, ...] = (
     _number_sensor(
         "sensors",
         "fg1",
-        "FG1 potentiometer 1",
+        "FG1 remote transmitter 1",
         key="sensor_fg1",
         translation_key="fg1",
     ),
@@ -301,7 +306,7 @@ _GLOBAL: tuple[TrovisSensorDescription, ...] = (
     _number_sensor(
         "sensors",
         "fg2",
-        "FG2 potentiometer 2",
+        "FG2 remote transmitter 2",
         key="sensor_fg2",
         translation_key="fg2",
     ),
@@ -315,7 +320,7 @@ _GLOBAL: tuple[TrovisSensorDescription, ...] = (
     _number_sensor(
         "sensors",
         "fg3",
-        "FG3 potentiometer 3",
+        "FG3 remote transmitter 3",
         key="sensor_fg3",
         translation_key="fg3",
     ),
@@ -339,6 +344,13 @@ _GLOBAL: tuple[TrovisSensorDescription, ...] = (
         "AE analog input current",
         key="sensor_ae_current",
         translation_key="analog_input_current",
+    ),
+    _number_sensor(
+        "sensors",
+        "analog_output_voltage",
+        "AA1 analog output",
+        key="sensor_aa1",
+        translation_key="analog_output_voltage",
     ),
     _number_sensor(
         "sensors",
@@ -541,6 +553,14 @@ def _description_supported(
         if description.field not in coordinator.device.available_sensor_keys:
             return False
 
+    if description.component in {"rk1", "rk2", "rk3"}:
+        index = int(description.component[-1])
+        if (
+            description.field in _ROOM_HEATING_ONLY_SENSOR_FIELDS
+            and index not in coordinator.device.room_heating_circuit_indices
+        ):
+            return False
+
     if description.value_kind in (
         "plain",
         "heating_curves",
@@ -600,7 +620,10 @@ class TrovisSensor(TrovisEntity, SensorEntity):
         self._key_by_value: dict[int, str] = {}
 
         if description.value_kind == "number":
-            number = require_number_metadata(self._subsystem, description.field)
+            if description.component == "sensors":
+                number = coordinator.device.sensor_number_metadata(description.field)
+            else:
+                number = require_number_metadata(self._subsystem, description.field)
             self._attr_native_unit_of_measurement = (
                 description.native_unit_of_measurement or ha_unit_from_number(number)
             )
@@ -717,7 +740,10 @@ class TrovisSensor(TrovisEntity, SensorEntity):
             operating_mode = self._heating_operating_mode()
             return operating_mode.value if operating_mode is not None else None
 
-        value = getattr(self._subsystem, self.entity_description.field)
+        if self.entity_description.component == "sensors":
+            value = self.coordinator.device.sensor_value(self.entity_description.field)
+        else:
+            value = getattr(self._subsystem, self.entity_description.field)
 
         if value is None:
             return None

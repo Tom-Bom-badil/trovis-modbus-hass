@@ -106,6 +106,18 @@ _CONTROLLER: tuple[TrovisBinaryDescription, ...] = (
 )
 
 
+_ROOM_HEATING_ONLY_BINARY_FIELDS = frozenset(
+    {
+        "day_active",
+        "night_active",
+        "hold_active",
+        "setback_active",
+        "heat_up_active",
+        "outdoor_temperature_deactivation",
+    }
+)
+
+
 _CIRCUIT_STATES: tuple[
     tuple[str, str, str, BinarySensorDeviceClass | None, bool], ...
 ] = (
@@ -365,6 +377,26 @@ _SOLAR: tuple[TrovisBinaryDescription, ...] = (
 )
 
 
+def _description_supported(
+    coordinator: TrovisCoordinator,
+    description: TrovisBinaryDescription,
+) -> bool:
+    """Return whether one binary state applies to the resolved circuit role."""
+    component = getattr(coordinator.device, description.component)
+    if not component_supports_datapoint(component, description.field):
+        return False
+
+    if description.component in {"rk1", "rk2", "rk3"}:
+        index = int(description.component[-1])
+        if (
+            description.field in _ROOM_HEATING_ONLY_BINARY_FIELDS
+            and index not in coordinator.device.room_heating_circuit_indices
+        ):
+            return False
+
+    return True
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: TrovisConfigEntry,
@@ -398,10 +430,7 @@ async def async_setup_entry(
     async_add_entities(
         TrovisBinarySensor(coordinator, description)
         for description in descriptions
-        if component_supports_datapoint(
-            getattr(coordinator.device, description.component),
-            description.field,
-        )
+        if _description_supported(coordinator, description)
     )
 
 
