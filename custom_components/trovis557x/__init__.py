@@ -251,6 +251,9 @@ def _sub_device(
     if component == "solar":
         return "solar", "Solar – Solar circuit", "solar"
 
+    if component == "pumps_and_valves":
+        return "pumps_and_valves", "Pumps and Valves", "pumps_and_valves"
+
     if component == "buffer_tank":
         return _rk_sub_device(coordinator, 1)
 
@@ -280,6 +283,7 @@ class TrovisEntity(CoordinatorEntity["TrovisCoordinator"]):
         platform: str,
         translation_key: str | None = None,
         translation_placeholders: Mapping[str, str] | None = None,
+        device_component: str | None = None,
     ) -> None:
         super().__init__(coordinator)
 
@@ -301,7 +305,7 @@ class TrovisEntity(CoordinatorEntity["TrovisCoordinator"]):
         )
 
         info = coordinator.device.info
-        sub = _sub_device(coordinator, component)
+        sub = _sub_device(coordinator, device_component or component)
 
         if sub is None:
             self._attr_device_info = DeviceInfo(

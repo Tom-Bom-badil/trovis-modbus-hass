@@ -169,3 +169,53 @@ def test_local_dev_overrides_remain_local() -> None:
     # Obsolete development mechanisms must not return.
     assert not (COMPONENT / "_local_dev.py").exists()
     assert not (COMPONENT / "local_dev.py").exists()
+
+
+def test_pumps_and_valves_device_contract() -> None:
+    """Keep the canonical actuator view and its speaking entity IDs stable."""
+    strings = _load_json(COMPONENT / "strings.json")
+    german = _load_json(TRANSLATIONS / "de.json")
+
+    assert strings["device"]["pumps_and_valves"]["name"] == "Pumps and Valves"
+    assert german["device"]["pumps_and_valves"]["name"] == "Pumpen und Ventile"
+
+    sensor_source = (COMPONENT / "sensor.py").read_text(encoding="utf-8")
+    binary_source = (COMPONENT / "binary_sensor.py").read_text(encoding="utf-8")
+    switch_source = (COMPONENT / "switch.py").read_text(encoding="utf-8")
+
+    assert "pumps_and_valves_rk{index}_valve_setpoint" in sensor_source
+    assert "pumps_and_valves_up{index}" in binary_source
+    assert "pumps_and_valves_rk{index}_valve_opening" in binary_source
+    assert "pumps_and_valves_rk{index}_valve_closing" in binary_source
+    assert 'key="pumps_and_valves_slp"' in binary_source
+    assert 'key="pumps_and_valves_zp"' in binary_source
+    assert 'key="pumps_and_valves_solar_pump"' in binary_source
+    assert "pumps_and_valves_up{index}_control" in switch_source
+    assert 'key="pumps_and_valves_slp_control"' in switch_source
+    assert 'key="pumps_and_valves_zp_control"' in switch_source
+
+
+def test_rk4_cleanup_contract() -> None:
+    """Keep the resolved Rk4 cleanup decisions in the HA presentation."""
+    sensor_source = (COMPONENT / "sensor.py").read_text(encoding="utf-8")
+    binary_source = (COMPONENT / "binary_sensor.py").read_text(encoding="utf-8")
+    switch_source = (COMPONENT / "switch.py").read_text(encoding="utf-8")
+
+    active_setpoint = sensor_source.split('key="rk4_setpoint_active"', 1)[1].split(
+        "),", 1
+    )[0]
+    assert "entity_category=EntityCategory.DIAGNOSTIC" in active_setpoint
+
+    for removed_key in (
+        "rk4_mode_control_autonomous",
+        "rk4_storage_tank_charging_pump_control_autonomous",
+        "rk4_circulation_pump_control_autonomous",
+        "rk4_special_setpoint_control_autonomous",
+    ):
+        assert removed_key not in binary_source
+
+    intermediate_heating = switch_source.split(
+        'key="rk4_intermediate_heating_function_enabled"', 1
+    )[1].split("),", 1)[0]
+    assert "enabled=False" not in intermediate_heating
+    assert "coordinator.device.intermediate_heating_available" in switch_source

@@ -74,6 +74,7 @@ class TrovisSensorDescription(SensorEntityDescription):
 
     component: str
     field: str
+    device_component: str | None = None
     value_kind: SensorValueKind = "plain"
 
 
@@ -89,6 +90,7 @@ def _number_sensor(
     state_class: SensorStateClass | None = SensorStateClass.MEASUREMENT,
     device_class: SensorDeviceClass | None = None,
     translation_placeholders: dict[str, str] | None = None,
+    device_component: str | None = None,
 ) -> TrovisSensorDescription:
     """Return a numeric sensor description backed by Lib metadata."""
     return TrovisSensorDescription(
@@ -98,6 +100,7 @@ def _number_sensor(
         name=name,
         component=component,
         field=field,
+        device_component=device_component,
         value_kind="number",
         device_class=device_class,
         state_class=state_class,
@@ -476,6 +479,26 @@ def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
     )
 
 
+def _pumps_and_valves_sensor_descriptions(
+    index: int,
+) -> tuple[TrovisSensorDescription, ...]:
+    """Return the canonical actuator sensor view for one Rk valve."""
+    component = f"rk{index}"
+    placeholders = {"component": f"Rk{index}"}
+
+    return (
+        _number_sensor(
+            component,
+            "valve_setpoint",
+            f"Rk{index} - Valve setpoint",
+            key=f"pumps_and_valves_rk{index}_valve_setpoint",
+            translation_key="valve_setpoint",
+            translation_placeholders=placeholders,
+            device_component="pumps_and_valves",
+        ),
+    )
+
+
 _RK4: tuple[TrovisSensorDescription, ...] = (
     _operating_mode_code_sensor(
         "rk4",
@@ -488,7 +511,7 @@ _RK4: tuple[TrovisSensorDescription, ...] = (
         "Rk4 active domestic hot-water setpoint",
         key="rk4_setpoint_active",
         translation_key="rk4_setpoint_active",
-        entity_category=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
         state_class=None,
         translation_placeholders={"component": "Rk4"},
     ),
@@ -583,6 +606,7 @@ async def async_setup_entry(
     descriptions = list(_GLOBAL)
     for index in rk1_to_rk3_indices(coordinator):
         descriptions.extend(_rk_sensor_descriptions(index))
+        descriptions.extend(_pumps_and_valves_sensor_descriptions(index))
     if coordinator.device.has_rk4:
         descriptions.extend(_RK4)
     if coordinator.device.has_buffer_tank_circuit:
@@ -614,6 +638,7 @@ class TrovisSensor(TrovisEntity, SensorEntity):
             "sensor",
             translation_key=description.translation_key,
             translation_placeholders=description.translation_placeholders,
+            device_component=description.device_component,
         )
         self.entity_description = description
         self._enum_metadata: EnumMetadata | None = None

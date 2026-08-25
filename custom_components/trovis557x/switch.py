@@ -36,6 +36,7 @@ class TrovisSwitchDescription(SwitchEntityDescription):
     component: str
     field: str
     translation_placeholders: dict[str, str] | None = None
+    device_component: str | None = None
 
 
 def _switch(
@@ -47,6 +48,7 @@ def _switch(
     translation_key: str | None = None,
     translation_placeholders: dict[str, str] | None = None,
     enabled: bool = True,
+    device_component: str | None = None,
 ) -> TrovisSwitchDescription:
     """Return a metadata-driven switch description."""
     return TrovisSwitchDescription(
@@ -56,6 +58,7 @@ def _switch(
         name=name,
         component=component,
         field=field,
+        device_component=device_component,
         entity_category=EntityCategory.CONFIG,
         entity_registry_enabled_default=enabled,
     )
@@ -140,6 +143,47 @@ def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
     )
 
 
+def _pumps_and_valves_rk_switch_descriptions(
+    index: int,
+) -> tuple[TrovisSwitchDescription, ...]:
+    """Return the canonical actuator controls for one technical Rk."""
+    component = f"rk{index}"
+
+    return (
+        _switch(
+            component,
+            "pump_running",
+            f"UP{index} pump control",
+            key=f"pumps_and_valves_up{index}_control",
+            translation_key="pump_control",
+            translation_placeholders={"component": f"UP{index}"},
+            device_component="pumps_and_valves",
+        ),
+    )
+
+
+_PUMPS_AND_VALVES_RK4: tuple[TrovisSwitchDescription, ...] = (
+    _switch(
+        "rk4",
+        "storage_tank_charging_pump_running",
+        "SLP storage-tank-charging-pump control",
+        key="pumps_and_valves_slp_control",
+        translation_key="storage_tank_charging_pump_control",
+        translation_placeholders={"component": "SLP"},
+        device_component="pumps_and_valves",
+    ),
+    _switch(
+        "rk4",
+        "circulation_pump_running",
+        "ZP circulation-pump control",
+        key="pumps_and_valves_zp_control",
+        translation_key="circulation_pump_control",
+        translation_placeholders={"component": "ZP"},
+        device_component="pumps_and_valves",
+    ),
+)
+
+
 _RK4: tuple[TrovisSwitchDescription, ...] = (
     _switch(
         "rk4",
@@ -183,7 +227,6 @@ _RK4: tuple[TrovisSwitchDescription, ...] = (
         key="rk4_intermediate_heating_function_enabled",
         translation_key="intermediate_heating_function_enabled",
         translation_placeholders={"component": "Rk4"},
-        enabled=False,
     ),
     _switch(
         "rk4",
@@ -222,6 +265,12 @@ def _switch_description_supported(
     if not component_supports_datapoint(component, description.field):
         return False
 
+    if (
+        description.component == "rk4"
+        and description.field == "intermediate_heating_function_enabled"
+    ):
+        return coordinator.device.intermediate_heating_available
+
     if description.component not in {"rk1", "rk2", "rk3"}:
         return True
 
@@ -252,9 +301,11 @@ async def async_setup_entry(
 
     for index in rk1_to_rk3_indices(coordinator):
         descriptions.extend(_rk_switch_descriptions(index))
+        descriptions.extend(_pumps_and_valves_rk_switch_descriptions(index))
 
     if coordinator.device.has_rk4:
         descriptions.extend(_RK4)
+        descriptions.extend(_PUMPS_AND_VALVES_RK4)
     entities.extend(
         TrovisSwitch(coordinator, description)
         for description in descriptions
@@ -325,6 +376,7 @@ class TrovisSwitch(TrovisEntity, SwitchEntity):
             "switch",
             translation_key=description.translation_key,
             translation_placeholders=description.translation_placeholders,
+            device_component=description.device_component,
         )
         self.entity_description = description
         self._boolean_metadata: BooleanMetadata = require_boolean_metadata(

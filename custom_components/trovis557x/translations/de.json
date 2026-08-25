@@ -138,6 +138,7 @@
     "rk4": { "name": "Rk4 – Regelkreis 4" },
     "rk4_dhw": { "name": "Rk4 – WW / Trinkwassererwärmung" },
     "measurements": { "name": "Messwerte" },
+    "pumps_and_valves": { "name": "Pumpen und Ventile" },
     "solar": { "name": "Solar – Solarkreis" }
   },
   "entity": {
@@ -418,9 +419,9 @@
       "forced_charging_uses_storage_tank_sensor_2": { "name": "{component} Zwangsladung mit Speichersensor 2" },
       "storage_tank_charging_enabled": { "name": "{component} Speicherladung freigegeben" },
       "intermediate_heating_function_enabled": { "name": "{component} Zwischenheizen nach 20 Minuten" },
-      "pump_control": { "name": "{component} Pumpensteuerung" },
-      "storage_tank_charging_pump_control": { "name": "{component} Steuerung Speicherladepumpe" },
-      "circulation_pump_control": { "name": "{component} Steuerung Zirkulationspumpe" }
+      "pump_control": { "name": "{component} Umwälzpumpe" },
+      "storage_tank_charging_pump_control": { "name": "{component} Speicherladepumpe" },
+      "circulation_pump_control": { "name": "{component} Zirkulationspumpe" }
     }
   }
 }

@@ -138,6 +138,7 @@
     "rk4": { "name": "Rk4 – Control circuit 4" },
     "rk4_dhw": { "name": "Rk4 – Domestic hot water" },
     "measurements": { "name": "Measurements" },
+    "pumps_and_valves": { "name": "Pumps and Valves" },
     "solar": { "name": "Solar – Solar circuit" }
   },
   "entity": {

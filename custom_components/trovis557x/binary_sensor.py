@@ -27,6 +27,7 @@ class TrovisBinaryDescription(BinarySensorEntityDescription):
 
     component: str
     field: str
+    device_component: str | None = None
 
 
 def _binary(
@@ -39,6 +40,7 @@ def _binary(
     translation_key: str | None = None,
     translation_placeholders: dict[str, str] | None = None,
     enabled: bool = True,
+    device_component: str | None = None,
 ) -> TrovisBinaryDescription:
     """Return a binary-sensor description."""
     return TrovisBinaryDescription(
@@ -48,6 +50,7 @@ def _binary(
         name=name,
         component=component,
         field=field,
+        device_component=device_component,
         device_class=device_class,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=enabled,
@@ -224,6 +227,67 @@ _CIRCUIT_STATES: tuple[
 )
 
 
+def _pumps_and_valves_rk_binary_descriptions(
+    index: int,
+) -> tuple[TrovisBinaryDescription, ...]:
+    """Return the canonical pump/valve state view for one technical Rk."""
+    component = f"rk{index}"
+    valve_placeholders = {"component": f"Rk{index}"}
+
+    return (
+        _binary(
+            component,
+            "pump_running",
+            f"UP{index} pump running",
+            BinarySensorDeviceClass.RUNNING,
+            key=f"pumps_and_valves_up{index}",
+            translation_key="pump_running",
+            translation_placeholders={"component": f"UP{index}"},
+            device_component="pumps_and_valves",
+        ),
+        _binary(
+            component,
+            "valve_closing",
+            f"Rk{index} valve closing",
+            key=f"pumps_and_valves_rk{index}_valve_closing",
+            translation_key="valve_closing",
+            translation_placeholders=valve_placeholders,
+            device_component="pumps_and_valves",
+        ),
+        _binary(
+            component,
+            "valve_opening",
+            f"Rk{index} valve opening",
+            key=f"pumps_and_valves_rk{index}_valve_opening",
+            translation_key="valve_opening",
+            translation_placeholders=valve_placeholders,
+            device_component="pumps_and_valves",
+        ),
+    )
+
+
+_PUMPS_AND_VALVES_RK4: tuple[TrovisBinaryDescription, ...] = (
+    _binary(
+        "rk4",
+        "storage_tank_charging_pump_running",
+        "SLP storage tank charging pump",
+        key="pumps_and_valves_slp",
+        translation_key="storage_tank_charging_pump_running",
+        translation_placeholders={"component": "SLP"},
+        device_component="pumps_and_valves",
+    ),
+    _binary(
+        "rk4",
+        "circulation_pump_running",
+        "ZP circulation pump",
+        key="pumps_and_valves_zp",
+        translation_key="circulation_pump_running",
+        translation_placeholders={"component": "ZP"},
+        device_component="pumps_and_valves",
+    ),
+)
+
+
 _RK4: tuple[TrovisBinaryDescription, ...] = (
     _binary(
         "rk4",
@@ -326,42 +390,6 @@ _RK4: tuple[TrovisBinaryDescription, ...] = (
         translation_key="storage_tank_charging_locked",
         translation_placeholders={"component": "Rk4"},
     ),
-    _binary(
-        "rk4",
-        "mode_control_autonomous",
-        "Mode control autonomous",
-        key="rk4_mode_control_autonomous",
-        translation_key="mode_control_autonomous",
-        translation_placeholders={"component": "Rk4"},
-        enabled=False,
-    ),
-    _binary(
-        "rk4",
-        "storage_tank_charging_pump_control_autonomous",
-        "Storage-tank-charging-pump control autonomous",
-        key="rk4_storage_tank_charging_pump_control_autonomous",
-        translation_key="storage_tank_charging_pump_control_autonomous",
-        translation_placeholders={"component": "Rk4"},
-        enabled=False,
-    ),
-    _binary(
-        "rk4",
-        "circulation_pump_control_autonomous",
-        "Circulation-pump control autonomous",
-        key="rk4_circulation_pump_control_autonomous",
-        translation_key="circulation_pump_control_autonomous",
-        translation_placeholders={"component": "Rk4"},
-        enabled=False,
-    ),
-    _binary(
-        "rk4",
-        "special_setpoint_control_autonomous",
-        "Special-setpoint control autonomous",
-        key="rk4_special_setpoint_control_autonomous",
-        translation_key="special_setpoint_control_autonomous",
-        translation_placeholders={"component": "Rk4"},
-        enabled=False,
-    ),
 )
 
 
@@ -373,6 +401,19 @@ _SOLAR: tuple[TrovisBinaryDescription, ...] = (
         BinarySensorDeviceClass.RUNNING,
         key="solar_pump_running",
         translation_key="solar_pump_running",
+    ),
+)
+
+
+_PUMPS_AND_VALVES_SOLAR: tuple[TrovisBinaryDescription, ...] = (
+    _binary(
+        "solar",
+        "pump_running",
+        "Solar circuit pump",
+        BinarySensorDeviceClass.RUNNING,
+        key="pumps_and_valves_solar_pump",
+        translation_key="solar_pump_running",
+        device_component="pumps_and_valves",
     ),
 )
 
@@ -407,12 +448,15 @@ async def async_setup_entry(
     descriptions = list(_CONTROLLER)
     if coordinator.device.has_rk4:
         descriptions.extend(_RK4)
+        descriptions.extend(_PUMPS_AND_VALVES_RK4)
     if coordinator.device.has_solar:
         descriptions.extend(_SOLAR)
+        descriptions.extend(_PUMPS_AND_VALVES_SOLAR)
 
     for index in rk1_to_rk3_indices(coordinator):
         component = f"rk{index}"
         placeholders = {"component": f"Rk{index}"}
+        descriptions.extend(_pumps_and_valves_rk_binary_descriptions(index))
         descriptions.extend(
             _binary(
                 component,
@@ -451,6 +495,7 @@ class TrovisBinarySensor(TrovisEntity, BinarySensorEntity):
             "binary_sensor",
             translation_key=description.translation_key,
             translation_placeholders=description.translation_placeholders,
+            device_component=description.device_component,
         )
         self.entity_description = description
         self._attr_entity_category = description.entity_category
