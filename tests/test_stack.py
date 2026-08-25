@@ -172,7 +172,7 @@ def test_local_dev_overrides_remain_local() -> None:
 
 
 def test_pumps_and_valves_device_contract() -> None:
-    """Keep the canonical actuator view and its speaking entity IDs stable."""
+    """Keep the canonical read-only actuator view and speaking IDs stable."""
     strings = _load_json(COMPONENT / "strings.json")
     german = _load_json(TRANSLATIONS / "de.json")
 
@@ -190,9 +190,24 @@ def test_pumps_and_valves_device_contract() -> None:
     assert 'key="pumps_and_valves_slp"' in binary_source
     assert 'key="pumps_and_valves_zp"' in binary_source
     assert 'key="pumps_and_valves_solar_pump"' in binary_source
-    assert "pumps_and_valves_up{index}_control" in switch_source
-    assert 'key="pumps_and_valves_slp_control"' in switch_source
-    assert 'key="pumps_and_valves_zp_control"' in switch_source
+
+    # Pumps and Valves is the canonical status view. Pump controls remain in
+    # their functional Rk devices and must not be duplicated here.
+    assert "pumps_and_valves_up{index}_control" not in switch_source
+    assert 'key="pumps_and_valves_slp_control"' not in switch_source
+    assert 'key="pumps_and_valves_zp_control"' not in switch_source
+
+    # Pump states in this device deliberately use plain binary semantics so
+    # Home Assistant renders them consistently as On/Off instead of mixing
+    # Running/Not running with On/Off.
+    rk_actuators = binary_source.split(
+        "def _pumps_and_valves_rk_binary_descriptions", 1
+    )[1].split("_PUMPS_AND_VALVES_RK4", 1)[0]
+    solar_actuators = binary_source.split("_PUMPS_AND_VALVES_SOLAR", 1)[1].split(
+        "def _description_supported", 1
+    )[0]
+    assert "BinarySensorDeviceClass.RUNNING" not in rk_actuators
+    assert "BinarySensorDeviceClass.RUNNING" not in solar_actuators
 
 
 def test_rk4_cleanup_contract() -> None:

@@ -143,47 +143,6 @@ def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
     )
 
 
-def _pumps_and_valves_rk_switch_descriptions(
-    index: int,
-) -> tuple[TrovisSwitchDescription, ...]:
-    """Return the canonical actuator controls for one technical Rk."""
-    component = f"rk{index}"
-
-    return (
-        _switch(
-            component,
-            "pump_running",
-            f"UP{index} pump control",
-            key=f"pumps_and_valves_up{index}_control",
-            translation_key="pump_control",
-            translation_placeholders={"component": f"UP{index}"},
-            device_component="pumps_and_valves",
-        ),
-    )
-
-
-_PUMPS_AND_VALVES_RK4: tuple[TrovisSwitchDescription, ...] = (
-    _switch(
-        "rk4",
-        "storage_tank_charging_pump_running",
-        "SLP storage-tank-charging-pump control",
-        key="pumps_and_valves_slp_control",
-        translation_key="storage_tank_charging_pump_control",
-        translation_placeholders={"component": "SLP"},
-        device_component="pumps_and_valves",
-    ),
-    _switch(
-        "rk4",
-        "circulation_pump_running",
-        "ZP circulation-pump control",
-        key="pumps_and_valves_zp_control",
-        translation_key="circulation_pump_control",
-        translation_placeholders={"component": "ZP"},
-        device_component="pumps_and_valves",
-    ),
-)
-
-
 _RK4: tuple[TrovisSwitchDescription, ...] = (
     _switch(
         "rk4",
@@ -301,11 +260,9 @@ async def async_setup_entry(
 
     for index in rk1_to_rk3_indices(coordinator):
         descriptions.extend(_rk_switch_descriptions(index))
-        descriptions.extend(_pumps_and_valves_rk_switch_descriptions(index))
 
     if coordinator.device.has_rk4:
         descriptions.extend(_RK4)
-        descriptions.extend(_PUMPS_AND_VALVES_RK4)
     entities.extend(
         TrovisSwitch(coordinator, description)
         for description in descriptions
