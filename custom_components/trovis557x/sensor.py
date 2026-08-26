@@ -365,7 +365,6 @@ _GLOBAL: tuple[TrovisSensorDescription, ...] = (
         "controller",
         "max_flow_setpoint",
         "Max flow setpoint",
-        enabled=False,
         state_class=None,
     ),
     _enum_sensor("controller", "switch_top", "Switch top"),

@@ -94,25 +94,21 @@ _CONTROLLER: tuple[TrovisNumberDescription, ...] = (
         "controller",
         "temperature_monitoring_deviation",
         "Temperature-monitoring deviation",
-        enabled=False,
     ),
     _number(
         "controller",
         "temperature_monitoring_window",
         "Temperature-monitoring window",
-        enabled=False,
     ),
     _number(
         "controller",
         "outdoor_temperature_input_range_start",
         "Outdoor-temperature input range start",
-        enabled=False,
     ),
     _number(
         "controller",
         "outdoor_temperature_input_range_end",
         "Outdoor-temperature input range end",
-        enabled=False,
     ),
 )
 

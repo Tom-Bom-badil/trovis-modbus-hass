@@ -96,7 +96,6 @@ _CONTROLLER: tuple[TrovisSwitchDescription, ...] = (
         "controller",
         "glt_timeout_active",
         "Supervisory-system timeout",
-        enabled=False,
     ),
 )
 
