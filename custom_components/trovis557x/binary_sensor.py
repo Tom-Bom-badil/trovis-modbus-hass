@@ -125,13 +125,6 @@ _CIRCUIT_STATES: tuple[
     tuple[str, str, str, BinarySensorDeviceClass | None, bool], ...
 ] = (
     (
-        "pump_running",
-        "pump_running",
-        "Pump running",
-        BinarySensorDeviceClass.RUNNING,
-        True,
-    ),
-    (
         "frost_protection",
         "frost_protection",
         "Frost protection",
@@ -232,7 +225,7 @@ def _pumps_and_valves_rk_binary_descriptions(
 ) -> tuple[TrovisBinaryDescription, ...]:
     """Return the canonical pump/valve state view for one technical Rk."""
     component = f"rk{index}"
-    valve_placeholders = {"component": f"Rk{index}"}
+    # valve_placeholders = {"component": f"Rk{index}"}
 
     return (
         _binary(
@@ -244,6 +237,7 @@ def _pumps_and_valves_rk_binary_descriptions(
             translation_placeholders={"component": f"UP{index}"},
             device_component="pumps_and_valves",
         ),
+        # removed, belongs into heating ncircuit
         # _binary(
         #     component,
         #     "valve_closing",
@@ -288,15 +282,25 @@ _PUMPS_AND_VALVES_RK4: tuple[TrovisBinaryDescription, ...] = (
 
 
 _RK4: tuple[TrovisBinaryDescription, ...] = (
-    _binary(
-        "rk4",
-        "storage_tank_charging_pump_running",
-        "Storage tank charging pump",
-        None,  # BinarySensorDeviceClass.RUNNING,
-        key="rk4_storage_tank_charging_pump_running",
-        translation_key="storage_tank_charging_pump_running",
-        translation_placeholders={"component": "Rk4"},
-    ),
+    # move to 'Pumps and valves', also represented by switch in Rk4
+    # _binary(
+    #     "rk4",
+    #     "storage_tank_charging_pump_running",
+    #     "Storage tank charging pump",
+    #     None,  # BinarySensorDeviceClass.RUNNING,
+    #     key="rk4_storage_tank_charging_pump_running",
+    #     translation_key="storage_tank_charging_pump_running",
+    #     translation_placeholders={"component": "Rk4"},
+    # ),
+    # _binary(
+    #     "rk4",
+    #     "circulation_pump_running",
+    #     "Circulation pump",
+    #     None,  # BinarySensorDeviceClass.RUNNING,
+    #     key="rk4_circulation_pump_running",
+    #     translation_key="circulation_pump_running",
+    #     translation_placeholders={"component": "Rk4"},
+    # ),
     _binary(
         "rk4",
         "disinfection_active",
@@ -304,15 +308,6 @@ _RK4: tuple[TrovisBinaryDescription, ...] = (
         BinarySensorDeviceClass.RUNNING,
         key="rk4_disinfection_active",
         translation_key="disinfection_active",
-        translation_placeholders={"component": "Rk4"},
-    ),
-    _binary(
-        "rk4",
-        "circulation_pump_running",
-        "Circulation pump",
-        None,  # BinarySensorDeviceClass.RUNNING,
-        key="rk4_circulation_pump_running",
-        translation_key="circulation_pump_running",
         translation_placeholders={"component": "Rk4"},
     ),
     _binary(
