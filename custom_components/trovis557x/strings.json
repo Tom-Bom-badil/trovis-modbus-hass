@@ -421,7 +421,8 @@
       "intermediate_heating_function_enabled": { "name": "{component} intermediate heating enabled" },
       "pump_control": { "name": "{component} - Pump control" },
       "storage_tank_charging_pump_control": { "name": "{component} storage-tank-charging-pump control" },
-      "circulation_pump_control": { "name": "{component} circulation-pump control" }
+      "circulation_pump_control": { "name": "{component} circulation-pump control" },
+      "temperature_monitoring_enabled": { "name": "Temperature monitoring" }
     }
   }
 }

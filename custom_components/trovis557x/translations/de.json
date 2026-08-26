@@ -421,7 +421,8 @@
       "intermediate_heating_function_enabled": { "name": "{component} Zwischenheizen nach 20 Minuten" },
       "pump_control": { "name": "{component} Umwälzpumpe" },
       "storage_tank_charging_pump_control": { "name": "{component} Speicherladepumpe" },
-      "circulation_pump_control": { "name": "{component} Zirkulationspumpe" }
+      "circulation_pump_control": { "name": "{component} Zirkulationspumpe" },
+      "temperature_monitoring_enabled": { "name": "Temperaturüberwachung" }
     }
   }
 }

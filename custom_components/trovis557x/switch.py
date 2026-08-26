@@ -84,6 +84,13 @@ _CONTROLLER: tuple[TrovisSwitchDescription, ...] = (
     ),
     _switch(
         "controller",
+        "temperature_monitoring_enabled",
+        "Temperature monitoring",
+        key="temperature_monitoring_enabled",
+        translation_key="temperature_monitoring_enabled",
+    ),
+    _switch(
+        "controller",
         "manual_levels_locked",
         "Manual-operation levels locked",
     ),
