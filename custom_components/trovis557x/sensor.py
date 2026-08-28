@@ -36,6 +36,10 @@ from . import (
     rk1_to_rk3_indices,
 )
 from .coordinator import TrovisConfigEntry, TrovisCoordinator
+from .sensor_statistics import (
+    STATISTIC_ATTRIBUTE_NAMES,
+    PhysicalSensorStatisticsManager,
+)
 
 SensorValueKind = Literal[
     "plain",
@@ -594,6 +598,16 @@ def _description_supported(
     return component_supports_datapoint(component, description.field)
 
 
+def _uses_physical_sensor_statistics(description: TrovisSensorDescription) -> bool:
+    """Return whether this is a numeric physical measurement/input-output."""
+    return (
+        description.component == "sensors"
+        and description.value_kind == "number"
+        and description.state_class == SensorStateClass.MEASUREMENT
+        and description.field != "summer_outdoor_temperature_average"
+    )
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: TrovisConfigEntry,
@@ -613,15 +627,30 @@ async def async_setup_entry(
     if coordinator.device.has_solar:
         descriptions.extend(_SOLAR)
 
-    async_add_entities(
-        TrovisSensor(coordinator, description)
+    statistics_manager = PhysicalSensorStatisticsManager(hass)
+    entities = [
+        TrovisSensor(
+            coordinator,
+            description,
+            statistics_manager=(
+                statistics_manager
+                if _uses_physical_sensor_statistics(description)
+                else None
+            ),
+        )
         for description in descriptions
         if _description_supported(coordinator, description)
-    )
+    ]
+    async_add_entities(entities)
+
+    entry.async_on_unload(statistics_manager.stop)
+    statistics_manager.start()
 
 
 class TrovisSensor(TrovisEntity, SensorEntity):
     """A single value read from a component field."""
+
+    _unrecorded_attributes = STATISTIC_ATTRIBUTE_NAMES
 
     entity_description: TrovisSensorDescription
 
@@ -629,6 +658,8 @@ class TrovisSensor(TrovisEntity, SensorEntity):
         self,
         coordinator: TrovisCoordinator,
         description: TrovisSensorDescription,
+        *,
+        statistics_manager: PhysicalSensorStatisticsManager | None = None,
     ) -> None:
         super().__init__(
             coordinator,
@@ -640,6 +671,7 @@ class TrovisSensor(TrovisEntity, SensorEntity):
             device_component=description.device_component,
         )
         self.entity_description = description
+        self._statistics_manager = statistics_manager
         self._enum_metadata: EnumMetadata | None = None
         self._key_by_value: dict[int, str] = {}
 
@@ -679,6 +711,17 @@ class TrovisSensor(TrovisEntity, SensorEntity):
         self._attr_entity_registry_enabled_default = (
             description.entity_registry_enabled_default
         )
+
+    async def async_added_to_hass(self) -> None:
+        """Register physical measurements for recorder-backed statistics."""
+        await super().async_added_to_hass()
+
+        if self._statistics_manager is None:
+            return
+
+        entity_id = self.entity_id
+        self._statistics_manager.register(self)
+        self.async_on_remove(lambda: self._statistics_manager.unregister(entity_id))
 
     def _heating_operating_mode(self) -> HeatingCircuitControlMode | None:
         """Return the active setpoint-generation mode for this Rk entity."""
@@ -796,9 +839,12 @@ class TrovisSensor(TrovisEntity, SensorEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, object] | None:
-        """Expose derived curves or recurring-date parts as attributes."""
+        """Expose derived curves, physical statistics, or recurring dates."""
         if self.entity_description.value_kind == "heating_curves":
             return self._heating_curve_attributes()
+
+        if self._statistics_manager is not None:
+            return self._statistics_manager.attributes(self.entity_id)
 
         if self.entity_description.value_kind != "month_day":
             return None
