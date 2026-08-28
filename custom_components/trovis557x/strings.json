@@ -364,7 +364,14 @@
       "buffer_tank_minimum_charging_setpoint": { "name": "Minimum buffer charging setpoint (0 = automatic)" },
       "buffer_tank_charging_end_temperature": { "name": "Buffer charging end temperature (0 = automatic)" },
       "buffer_tank_charging_temperature_boost": { "name": "Buffer charging temperature boost" },
-      "buffer_tank_charging_pump_lag_factor": { "name": "Buffer charging pump lag factor" }
+      "buffer_tank_charging_pump_lag_factor": { "name": "Buffer charging pump lag factor" },
+      "control_parameter_kp": { "name": "{component} PI/PID gain (Kp)" },
+      "control_parameter_tn": { "name": "{component} PI/PID reset time (Tn)" },
+      "control_parameter_tv": { "name": "{component} PI/PID derivative-action time (Tv)" },
+      "control_parameter_ty": { "name": "{component} PI/PID valve transit time (Ty)" },
+      "control_parameter_hysteresis": { "name": "{component} two-point hysteresis" },
+      "control_parameter_minimum_on_time": { "name": "{component} two-point minimum ON time" },
+      "control_parameter_minimum_off_time": { "name": "{component} two-point minimum OFF time" }
     },
     "date": {
       "summer_start": { "name": "Summer period start" },
@@ -422,7 +429,8 @@
       "pump_control": { "name": "{component} - Pump control" },
       "storage_tank_charging_pump_control": { "name": "{component} storage-tank-charging-pump control" },
       "circulation_pump_control": { "name": "{component} circulation-pump control" },
-      "temperature_monitoring_enabled": { "name": "Temperature monitoring" }
+      "temperature_monitoring_enabled": { "name": "Temperature monitoring" },
+      "control_parameter_mode": { "name": "{component} 3-point control mode" }
     }
   }
 }

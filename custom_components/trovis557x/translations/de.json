@@ -170,9 +170,9 @@
       "analog_input_current": { "name": "AE Analogeingang 0-20mA" },
       "analog_output_voltage": { "name": "AA1 Analogausgang 0-10V" },
       "summer_outdoor_temperature_average": { "name": "Außentemperaturmittelwert Sommer" },
-      "valve_setpoint": { "name": "{component} Ventil Sollwert" },
+      "valve_setpoint": { "name": "{component} Ventil Stellwert" },
       "room_setpoint_active": { "name": "{component} Aktives Raum-Soll" },
-      "rk4_setpoint_active": { "name": "{component} Aktiver WW Sollwert" },
+      "rk4_setpoint_active": { "name": "{component} Aktiver TWW Sollwert" },
       "error_status": { "name": "Fehlerstatus" },
       "max_flow_setpoint": { "name": "Maximaler Vorlaufsollwert" },
       "switch_top": {
@@ -261,9 +261,12 @@
     "binary_sensor": {
       "general_fault": { "name": "Störung" },
       "summer_active": { "name": "Sommerbetrieb" },
+      "pump_running": { "name": "{component} Pumpe läuft" },
       "frost_protection": { "name": "{component} Frostschutz" },
       "standby": { "name": "{component} Betriebsart Standby" },
+      "storage_tank_charging_pump_running": { "name": "{component} Speicherladepumpe" },
       "disinfection_active": { "name": "{component} Desinfektion läuft" },
+      "circulation_pump_running": { "name": "{component} Zirkulationspumpe" },
       "data_entry_active": { "name": "Dateneingabe aktiv" },
       "data_entry_performed": { "name": "Dateneingabe erfolgt" },
       "global_level_autark": { "name": "Autarke Steuerung (global)" },
@@ -294,10 +297,7 @@
       "storage_tank_charging_pump_control_autonomous": { "name": "{component} Autarke Steuerung SLP" },
       "circulation_pump_control_autonomous": { "name": "{component} Autarke Steuerung ZP" },
       "special_setpoint_control_autonomous": { "name": "{component} Autarke Steuerung Sondersollwert" },
-      "solar_pump_running": { "name": "Solarkreispumpe" },
-      "pump_running": { "name": "Umwälzpumpe {component}" },
-      "circulation_pump_running": { "name": "Zirkulationspumpe  {component}" },
-      "storage_tank_charging_pump_running": { "name": "Speicherladepumpe {component}" }
+      "solar_pump_running": { "name": "Solarkreispumpe" }
     },
     "climate": {
       "rk1": { "name": "Rk1 Klima" },
@@ -329,10 +329,10 @@
       "four_point_flow_temperature_day_4": { "name": "{component} 4-Punkt P4 - VL Tag" },
       "four_point_flow_temperature_night_4": { "name": "{component} 4-Punkt P4 - VL Nacht" },
       "four_point_return_flow_temperature_4": { "name": "{component} 4-Punkt P4 - RL" },
-      "rk4_setpoint": { "name": "{component} Sollwert Tag" },
-      "rk4_setpoint_night": { "name": "{component} Sollwert Nacht" },
-      "rk4_setpoint_min": { "name": "{component} Sollwert min" },
-      "rk4_setpoint_max": { "name": "{component} Sollwert max" },
+      "rk4_setpoint": { "name": "{component} TWW Sollwert Tag" },
+      "rk4_setpoint_night": { "name": "{component} TWW Sollwert Nacht" },
+      "rk4_setpoint_min": { "name": "{component} TWW Sollwert min" },
+      "rk4_setpoint_max": { "name": "{component} TWW Sollwert max" },
       "summer_days_on": { "name": "Sommerbetrieb: Einschalttage" },
       "summer_days_off": { "name": "Sommerbetrieb: Ausschalttage" },
       "summer_outdoor_temperature_limit": { "name": "Sommerbetrieb: AT-Grenzwert" },
@@ -364,7 +364,14 @@
       "buffer_tank_minimum_charging_setpoint": { "name": "Minimaler Sollwert Pufferladung (0 = AUTO/AT)" },
       "buffer_tank_charging_end_temperature": { "name": "Pufferladung beenden (0 = AUTO/AT)" },
       "buffer_tank_charging_temperature_boost": { "name": "Ladetemperatur Überhöhung" },
-      "buffer_tank_charging_pump_lag_factor": { "name": "Nachlauf Ladepumpe" }
+      "buffer_tank_charging_pump_lag_factor": { "name": "Nachlauf Ladepumpe" },
+      "control_parameter_kp": { "name": "{component} PI/PID Verstärkung (Kp)" },
+      "control_parameter_tn": { "name": "{component} PI/PID Nachstellzeit (Tn)" },
+      "control_parameter_tv": { "name": "{component} PI/PID Vorhaltezeit (Tv)" },
+      "control_parameter_ty": { "name": "{component} PI/PID Ventillaufzeit (Ty)" },
+      "control_parameter_hysteresis": { "name": "{component} Zweipunkt Schaltdifferenz" },
+      "control_parameter_minimum_on_time": { "name": "{component} Zweipunkt Mindest-Einschaltzeit" },
+      "control_parameter_minimum_off_time": { "name": "{component} Zweipunkt Mindest-Ausschaltzeit" }
     },
     "date": {
       "summer_start": { "name": "Sommerzeitraum Beginn" },
@@ -422,7 +429,8 @@
       "pump_control": { "name": "{component} Umwälzpumpe" },
       "storage_tank_charging_pump_control": { "name": "{component} Speicherladepumpe" },
       "circulation_pump_control": { "name": "{component} Zirkulationspumpe" },
-      "temperature_monitoring_enabled": { "name": "Temperaturüberwachung" }
+      "temperature_monitoring_enabled": { "name": "Temperaturüberwachung" },
+      "control_parameter_mode": { "name": "{component} Regelungsart 3-Punkt" }
     }
   }
 }

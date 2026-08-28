@@ -322,6 +322,59 @@ def _rk_number_descriptions(index: int) -> tuple[TrovisNumberDescription, ...]:
     )
 
 
+def _control_parameter_number_descriptions(
+    index: int,
+) -> tuple[TrovisNumberDescription, ...]:
+    """Return COx-F12 control-parameter descriptions for one technical Rk."""
+    component = f"rk{index}"
+    prefix = f"rk{index}_control_parameter"
+    placeholders = {"component": f"Rk{index}"}
+
+    def description(
+        field: str,
+        suffix: str,
+        name: str,
+    ) -> TrovisNumberDescription:
+        return _number(
+            component,
+            field,
+            f"Rk{index} {name}",
+            key=f"{prefix}_{suffix}",
+            translation_key=field,
+            translation_placeholders=placeholders,
+        )
+
+    return (
+        description("control_parameter_kp", "kp", "PI/PID gain (Kp)"),
+        description("control_parameter_tn", "tn", "PI/PID reset time (Tn)"),
+        description(
+            "control_parameter_tv",
+            "tv",
+            "PI/PID derivative-action time (Tv)",
+        ),
+        description(
+            "control_parameter_ty",
+            "ty",
+            "PI/PID valve transit time (Ty)",
+        ),
+        description(
+            "control_parameter_hysteresis",
+            "hysteresis",
+            "two-point hysteresis",
+        ),
+        description(
+            "control_parameter_minimum_on_time",
+            "min_on_time",
+            "two-point minimum ON time",
+        ),
+        description(
+            "control_parameter_minimum_off_time",
+            "min_off_time",
+            "two-point minimum OFF time",
+        ),
+    )
+
+
 _RK4_FIELDS: tuple[tuple[str, str, str], ...] = (
     ("setpoint_day", "rk4_setpoint", "rk4_setpoint"),
     ("setpoint_night", "rk4_setpoint_night", "rk4_setpoint_night"),
@@ -440,6 +493,16 @@ def _description_supported(
     if not component_supports_datapoint(component, description.field):
         return False
 
+    if description.field.startswith("control_parameter_"):
+        index = int(description.component.removeprefix("rk"))
+        if description.field in {
+            "control_parameter_hysteresis",
+            "control_parameter_minimum_on_time",
+            "control_parameter_minimum_off_time",
+        }:
+            return coordinator.device.two_point_control_parameters_available(index)
+        return coordinator.device.control_parameters_available(index)
+
     has_control_mode_requirement = (
         description.requires_outdoor_sensor is not None
         or description.requires_four_point_characteristic is not None
@@ -491,8 +554,10 @@ async def async_setup_entry(
     descriptions = list(_CONTROLLER)
     for index in rk1_to_rk3_indices(coordinator):
         descriptions.extend(_rk_number_descriptions(index))
+        descriptions.extend(_control_parameter_number_descriptions(index))
     if coordinator.device.has_rk4:
         descriptions.extend(_RK4)
+        descriptions.extend(_control_parameter_number_descriptions(4))
     if coordinator.device.has_buffer_tank_charging_parameters:
         descriptions.extend(_BUFFER_TANK)
     if coordinator.device.has_solar:

@@ -116,6 +116,14 @@ def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
     return (
         _switch(
             component,
+            "three_point_control_enabled",
+            f"Rk{index} 3-point control mode",
+            key=f"{prefix}_control_parameter_mode",
+            translation_key="control_parameter_mode",
+            translation_placeholders=placeholders,
+        ),
+        _switch(
+            component,
             "optimization",
             f"Rk{index} - Optimization",
             key=f"{prefix}_optimization",
@@ -150,6 +158,14 @@ def _rk_switch_descriptions(index: int) -> tuple[TrovisSwitchDescription, ...]:
 
 
 _RK4: tuple[TrovisSwitchDescription, ...] = (
+    _switch(
+        "rk4",
+        "three_point_control_enabled",
+        "Rk4 3-point control mode",
+        key="rk4_control_parameter_mode",
+        translation_key="control_parameter_mode",
+        translation_placeholders={"component": "Rk4"},
+    ),
     _switch(
         "rk4",
         "disinfection_enabled",
@@ -229,6 +245,13 @@ def _switch_description_supported(
 
     if not component_supports_datapoint(component, description.field):
         return False
+
+    if description.field == "three_point_control_enabled":
+        index = int(description.component.removeprefix("rk"))
+        # Only offer F12 as a writable switch where both states are actually
+        # supported. On systems with fixed three-point/continuous control, an
+        # OFF write would otherwise expose an invalid two-point configuration.
+        return coordinator.device.two_point_control_parameters_available(index)
 
     if (
         description.component == "rk4"
