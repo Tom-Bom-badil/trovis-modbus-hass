@@ -52,6 +52,13 @@ class TrovisNumberDescription(NumberEntityDescription):
     requires_four_point_characteristic: bool | None = None
 
 
+@dataclass(frozen=True, kw_only=True)
+class TrovisHelperNumberDescription(NumberEntityDescription):
+    """Describe a Home Assistant-local helper number."""
+
+    initial_value: float
+
+
 def _number(
     component: str,
     field: str,
@@ -78,6 +85,20 @@ def _number(
         entity_category=EntityCategory.CONFIG,
         entity_registry_enabled_default=enabled,
     )
+
+
+_HELPERS: tuple[TrovisHelperNumberDescription, ...] = (
+    TrovisHelperNumberDescription(
+        key="helper_dashboard_controller_button_clicked",
+        translation_key="helper_dashboard_controller_button_clicked",
+        name="Helper - Controller button selected on the dashboard",
+        native_min_value=1,
+        native_max_value=4,
+        native_step=1,
+        mode=NumberMode.BOX,
+        initial_value=1,
+    ),
+)
 
 
 _CONTROLLER: tuple[TrovisNumberDescription, ...] = (
@@ -550,16 +571,19 @@ async def async_setup_entry(
 ) -> None:
     """Set up Trovis number entities."""
     coordinator = entry.runtime_data
-
     descriptions = list(_CONTROLLER)
+
     for index in rk1_to_rk3_indices(coordinator):
         descriptions.extend(_rk_number_descriptions(index))
         descriptions.extend(_control_parameter_number_descriptions(index))
+
     if coordinator.device.has_rk4:
         descriptions.extend(_RK4)
         descriptions.extend(_control_parameter_number_descriptions(4))
+
     if coordinator.device.has_buffer_tank_charging_parameters:
         descriptions.extend(_BUFFER_TANK)
+
     if coordinator.device.has_solar:
         descriptions.extend(_SOLAR)
 
@@ -569,26 +593,53 @@ async def async_setup_entry(
         if _description_supported(coordinator, description)
     )
 
+    async_add_entities(
+        TrovisNumber(coordinator, description)
+        for description in _HELPERS
+    )
+
 
 class TrovisNumber(TrovisEntity, NumberEntity):
     """Trovis number entity."""
 
-    entity_description: TrovisNumberDescription
+    entity_description: TrovisNumberDescription | TrovisHelperNumberDescription
+    _value: float
 
     def __init__(
         self,
         coordinator: TrovisCoordinator,
-        description: TrovisNumberDescription,
+        description: TrovisNumberDescription | TrovisHelperNumberDescription,
     ) -> None:
-        super().__init__(
-            coordinator,
-            description.key,
-            description.component,
-            "number",
-            translation_key=description.translation_key,
-            translation_placeholders=description.translation_placeholders,
-        )
+        if isinstance(description, TrovisHelperNumberDescription):
+            super().__init__(
+                coordinator,
+                description.key,
+                "controller",
+                "number",
+                translation_key=description.translation_key,
+            )
+        else:
+            super().__init__(
+                coordinator,
+                description.key,
+                description.component,
+                "number",
+                translation_key=description.translation_key,
+                translation_placeholders=description.translation_placeholders,
+            )
+
         self.entity_description = description
+
+        if isinstance(description, TrovisHelperNumberDescription):
+            # UI helpers belong to the config entry, but not to a device.
+            self._attr_device_info = None
+
+            self._attr_native_min_value = description.native_min_value
+            self._attr_native_max_value = description.native_max_value
+            self._attr_native_step = description.native_step
+            self._attr_mode = description.mode
+            self._value = description.initial_value
+            return
 
         number = require_number_metadata(self._subsystem, description.field)
 
@@ -610,8 +661,16 @@ class TrovisNumber(TrovisEntity, NumberEntity):
     @property
     def native_value(self) -> float | int | None:
         """Return the current value."""
+        if isinstance(self.entity_description, TrovisHelperNumberDescription):
+            return self._value
+
         return getattr(self._subsystem, self.entity_description.field)
 
     async def async_set_native_value(self, value: float) -> None:
-        """Set a new value through the shared library write path."""
+        """Set a new value."""
+        if isinstance(self.entity_description, TrovisHelperNumberDescription):
+            self._value = value
+            self.async_write_ha_state()
+            return
+
         await self._async_write_datapoint(self.entity_description.field, value)

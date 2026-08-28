@@ -252,3 +252,31 @@ def test_system_overall_status_contract() -> None:
     assert 'key="system_overall_status"' in sensor_source
     assert 'value_kind="system_overall_status"' in sensor_source
     assert "coordinator.device.system_overall_status" in sensor_source
+
+
+def test_dashboard_controller_button_helper_contract() -> None:
+    """Keep the dashboard controller-button helper local and clearly identified."""
+    strings = _load_json(COMPONENT / "strings.json")
+    german = _load_json(TRANSLATIONS / "de.json")
+    number_source = (COMPONENT / "number.py").read_text(encoding="utf-8")
+
+    assert (
+        strings["entity"]["number"]["helper_dashboard_controller_button_clicked"][
+            "name"
+        ]
+        == "Helper - Controller button selected on the dashboard"
+    )
+
+    assert "helper_dashboard_controller_button_clicked" in german["entity"]["number"]
+
+    assert 'key="helper_dashboard_controller_button_clicked"' in number_source
+    assert (
+        'translation_key="helper_dashboard_controller_button_clicked"' in number_source
+    )
+    assert "native_min_value=1" in number_source
+    assert "native_max_value=4" in number_source
+    assert "native_step=1" in number_source
+    assert "initial_value=1" in number_source
+
+    assert "class TrovisHelperNumber" in number_source
+    assert "self.async_write_ha_state()" in number_source
