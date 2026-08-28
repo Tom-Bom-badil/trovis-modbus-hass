@@ -234,3 +234,21 @@ def test_rk4_cleanup_contract() -> None:
     )[1].split("),", 1)[0]
     assert "enabled=False" not in intermediate_heating
     assert "coordinator.device.intermediate_heating_available" in switch_source
+
+
+def test_system_overall_status_contract() -> None:
+    """Keep the overall actuator bit mask as one controller diagnostic sensor."""
+    strings = _load_json(COMPONENT / "strings.json")
+    german = _load_json(TRANSLATIONS / "de.json")
+    sensor_source = (COMPONENT / "sensor.py").read_text(encoding="utf-8")
+
+    assert strings["entity"]["sensor"]["system_overall_status"]["name"] == (
+        "System overall status"
+    )
+    assert german["entity"]["sensor"]["system_overall_status"]["name"] == (
+        "Regler Gesamtstatus"
+    )
+
+    assert 'key="system_overall_status"' in sensor_source
+    assert 'value_kind="system_overall_status"' in sensor_source
+    assert "coordinator.device.system_overall_status" in sensor_source

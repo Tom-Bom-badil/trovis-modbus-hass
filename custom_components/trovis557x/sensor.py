@@ -49,9 +49,8 @@ SensorValueKind = Literal[
     "heating_curves",
     "heating_operating_mode",
     "operating_mode_code",
+    "system_overall_status",
 ]
-
-
 _ROOM_HEATING_ONLY_SENSOR_FIELDS = frozenset(
     {"room_setpoint_active", "heating_curves", "operating_mode"}
 )
@@ -182,6 +181,15 @@ _GLOBAL: tuple[TrovisSensorDescription, ...] = (
         name="System code number",
         component="info",
         field="system_code",
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ),
+    TrovisSensorDescription(
+        key="system_overall_status",
+        translation_key="system_overall_status",
+        name="System overall status",
+        component="controller",
+        field="system_overall_status",
+        value_kind="system_overall_status",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
     _number_sensor(
@@ -591,6 +599,7 @@ def _description_supported(
         "plain",
         "heating_curves",
         "heating_operating_mode",
+        "system_overall_status",
     ):
         return True
 
@@ -806,6 +815,10 @@ class TrovisSensor(TrovisEntity, SensorEntity):
         if self.entity_description.value_kind == "heating_operating_mode":
             operating_mode = self._heating_operating_mode()
             return operating_mode.value if operating_mode is not None else None
+
+        if self.entity_description.value_kind == "system_overall_status":
+            value = self.coordinator.device.system_overall_status
+            return int(value) if value is not None else None
 
         if self.entity_description.component == "sensors":
             value = self.coordinator.device.sensor_value(self.entity_description.field)

@@ -144,6 +144,7 @@
   "entity": {
     "sensor": {
       "system_code": { "name": "Anlagenkennziffer" },
+      "system_overall_status": { "name": "Regler Gesamtstatus" },
       "outdoor_temperature_1": { "name": "AF1 Außensensor 1" },
       "outdoor_temperature_2": { "name": "AF2 Außensensor 2" },
       "flow_temperature_1": { "name": "VF1 Vorlaufsensor 1" },

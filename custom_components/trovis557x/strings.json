@@ -144,6 +144,7 @@
   "entity": {
     "sensor": {
       "system_code": { "name": "System code number" },
+      "system_overall_status": { "name": "System overall status" },
       "outdoor_temperature_1": { "name": "AF1 outdoor sensor 1" },
       "outdoor_temperature_2": { "name": "AF2 outdoor sensor 2" },
       "flow_temperature_1": { "name": "VF1 flow sensor 1" },
