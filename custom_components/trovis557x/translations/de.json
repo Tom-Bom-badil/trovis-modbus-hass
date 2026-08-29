@@ -257,7 +257,8 @@
           "discharge_protection": "Entladeschutz"
         }
       },
-      "operating_mode_code": { "name": "{component} Betriebsart-Code" }
+      "operating_mode_code": { "name": "{component} Betriebsart-Code" },
+      "ui_helper_simulation_values": { "name": "Helper - {component} Simulationswerte" }
     },
     "binary_sensor": {
       "general_fault": { "name": "Störung" },

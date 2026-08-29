@@ -257,7 +257,8 @@
           "discharge_protection": "Discharge protection"
         }
       },
-      "operating_mode_code": { "name": "{component} operating mode code" }
+      "operating_mode_code": { "name": "{component} operating mode code" },
+      "ui_helper_simulation_values": { "name": "Helper - {component} simulation values" }
     },
     "binary_sensor": {
       "general_fault": { "name": "Fault" },

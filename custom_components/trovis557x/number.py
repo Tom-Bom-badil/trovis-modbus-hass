@@ -594,8 +594,7 @@ async def async_setup_entry(
     )
 
     async_add_entities(
-        TrovisNumber(coordinator, description)
-        for description in _HELPERS
+        TrovisNumber(coordinator, description) for description in _HELPERS
     )
 
 

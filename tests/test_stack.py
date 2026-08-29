@@ -264,7 +264,7 @@ def test_dashboard_controller_button_helper_contract() -> None:
         strings["entity"]["number"]["helper_dashboard_controller_button_clicked"][
             "name"
         ]
-        == "Helper - Controller button selected on the dashboard"
+        == "Helper - Active controller button on the dashboard"
     )
 
     assert "helper_dashboard_controller_button_clicked" in german["entity"]["number"]

@@ -40,6 +40,7 @@ from .sensor_statistics import (
     STATISTIC_ATTRIBUTE_NAMES,
     PhysicalSensorStatisticsManager,
 )
+from .simulation import TrovisHeatingCurveSimulationSensor
 
 SensorValueKind = Literal[
     "plain",
@@ -637,7 +638,7 @@ async def async_setup_entry(
         descriptions.extend(_SOLAR)
 
     statistics_manager = PhysicalSensorStatisticsManager(hass)
-    entities = [
+    entities: list[SensorEntity] = [
         TrovisSensor(
             coordinator,
             description,
@@ -650,6 +651,10 @@ async def async_setup_entry(
         for description in descriptions
         if _description_supported(coordinator, description)
     ]
+    entities.extend(
+        TrovisHeatingCurveSimulationSensor(coordinator, index)
+        for index in coordinator.device.room_heating_circuit_indices
+    )
     async_add_entities(entities)
 
     entry.async_on_unload(statistics_manager.stop)
