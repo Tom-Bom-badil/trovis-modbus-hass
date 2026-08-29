@@ -373,7 +373,7 @@
       "control_parameter_hysteresis": { "name": "{component} Zweipunkt Schaltdifferenz" },
       "control_parameter_minimum_on_time": { "name": "{component} Zweipunkt Mindest-Einschaltzeit" },
       "control_parameter_minimum_off_time": { "name": "{component} Zweipunkt Mindest-Ausschaltzeit" },
-      "helper_dashboard_controller_button_clicked": { "name": "Helper - Auf dem Dashboard ausgewählter Reglerknopf" }
+      "helper_dashboard_controller_button_clicked": { "name": "Helper - Auf dem Dashboard aktiver Reglerknopf" }
     },
     "date": {
       "summer_start": { "name": "Sommerzeitraum Beginn" },
@@ -409,6 +409,9 @@
           "saturday": "Samstag",
           "sunday": "Sonntag"
         }
+      },
+      "dashboard_helper_controller_selected": {
+        "name": "Helper - Auf dem Dashboard ausgewählter Regler"
       }
     },
     "switch": {

@@ -373,7 +373,7 @@
       "control_parameter_hysteresis": { "name": "{component} two-point hysteresis" },
       "control_parameter_minimum_on_time": { "name": "{component} two-point minimum ON time" },
       "control_parameter_minimum_off_time": { "name": "{component} two-point minimum OFF time" },
-      "helper_dashboard_controller_button_clicked": { "name": "Helper - Controller button selected on the dashboard" }
+      "helper_dashboard_controller_button_clicked": { "name": "Helper - Active controller button on the dashboard" }
     },
     "date": {
       "summer_start": { "name": "Summer period start" },
@@ -409,7 +409,8 @@
           "saturday": "Saturday",
           "sunday": "Sunday"
         }
-      }
+      },
+      "dashboard_helper_controller_selected": {"name": "Helper - Controller selected on the dashboard" }
     },
     "switch": {
       "write_access": { "name": "Write access" },

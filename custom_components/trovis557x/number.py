@@ -89,9 +89,9 @@ def _number(
 
 _HELPERS: tuple[TrovisHelperNumberDescription, ...] = (
     TrovisHelperNumberDescription(
-        key="helper_dashboard_controller_button_clicked",
+        key="ui_helper_selected_controller_button",
         translation_key="helper_dashboard_controller_button_clicked",
-        name="Helper - Controller button selected on the dashboard",
+        name="Helper - Controller button currently selected on the dashboard",
         native_min_value=1,
         native_max_value=4,
         native_step=1,
