@@ -41,6 +41,7 @@ from .sensor_statistics import (
     PhysicalSensorStatisticsManager,
 )
 from .simulation import TrovisHeatingCurveSimulationSensor
+from .simulation_dhw import TrovisDomesticHotWaterSimulationSensor
 
 SensorValueKind = Literal[
     "plain",
@@ -448,7 +449,6 @@ def _rk_sensor_descriptions(index: int) -> tuple[TrovisSensorDescription, ...]:
     component = f"rk{index}"
     prefix = f"rk{index}"
     placeholders = {"component": f"Rk{index}"}
-
     return (
         _operating_mode_code_sensor(
             component,
@@ -529,7 +529,6 @@ def _pumps_and_valves_sensor_descriptions(
     """Return the canonical actuator sensor view for one Rk valve."""
     component = f"rk{index}"
     placeholders = {"component": f"Rk{index}"}
-
     return (
         _number_sensor(
             component,
@@ -586,7 +585,6 @@ _RK4: tuple[TrovisSensorDescription, ...] = (
     ),
 )
 
-
 _BUFFER_TANK: tuple[TrovisSensorDescription, ...] = (
     _enum_sensor(
         "buffer_tank",
@@ -596,7 +594,6 @@ _BUFFER_TANK: tuple[TrovisSensorDescription, ...] = (
         translation_key="buffer_tank_status",
     ),
 )
-
 
 _SOLAR: tuple[TrovisSensorDescription, ...] = (
     _number_sensor(
@@ -619,7 +616,6 @@ def _description_supported(
     if description.component == "sensors":
         if description.field not in coordinator.device.available_sensor_keys:
             return False
-
     if description.component in {"rk1", "rk2", "rk3"}:
         index = int(description.component[-1])
         if (
@@ -635,7 +631,6 @@ def _description_supported(
         "system_overall_status",
     ):
         return True
-
     component = getattr(coordinator.device, description.component)
     return component_supports_datapoint(component, description.field)
 
@@ -657,7 +652,6 @@ async def async_setup_entry(
 ) -> None:
     """Set up Trovis sensors."""
     coordinator = entry.runtime_data
-
     descriptions = list(_GLOBAL)
     for index in rk1_to_rk3_indices(coordinator):
         descriptions.extend(_rk_sensor_descriptions(index))
@@ -668,7 +662,6 @@ async def async_setup_entry(
         descriptions.extend(_BUFFER_TANK)
     if coordinator.device.has_solar:
         descriptions.extend(_SOLAR)
-
     statistics_manager = PhysicalSensorStatisticsManager(hass)
     entities: list[SensorEntity] = [
         TrovisSensor(
@@ -687,8 +680,9 @@ async def async_setup_entry(
         TrovisHeatingCurveSimulationSensor(coordinator, index)
         for index in coordinator.device.room_heating_circuit_indices
     )
+    if coordinator.device.has_rk4:
+        entities.append(TrovisDomesticHotWaterSimulationSensor(coordinator))
     async_add_entities(entities)
-
     entry.async_on_unload(statistics_manager.stop)
     statistics_manager.start()
 
@@ -720,7 +714,6 @@ class TrovisSensor(TrovisEntity, SensorEntity):
         self._statistics_manager = statistics_manager
         self._enum_metadata: EnumMetadata | None = None
         self._key_by_value: dict[int, str] = {}
-
         if description.value_kind == "number":
             if description.component == "sensors":
                 number = coordinator.device.sensor_number_metadata(description.field)
@@ -732,7 +725,6 @@ class TrovisSensor(TrovisEntity, SensorEntity):
             self._attr_device_class = (
                 description.device_class or _sensor_device_class_from_number(number)
             )
-
         elif description.value_kind == "enum":
             self._enum_metadata = require_enum_metadata(
                 self._subsystem,
@@ -743,11 +735,9 @@ class TrovisSensor(TrovisEntity, SensorEntity):
             }
             self._attr_options = [option.key for option in self._enum_metadata.options]
             self._attr_device_class = SensorDeviceClass.ENUM
-
         elif description.value_kind == "heating_operating_mode":
             self._attr_options = [mode.value for mode in HeatingCircuitControlMode]
             self._attr_device_class = SensorDeviceClass.ENUM
-
         elif description.value_kind == "heating_curves":
             self._attr_options = ["error", "calculated"]
             self._attr_device_class = SensorDeviceClass.ENUM
@@ -764,7 +754,6 @@ class TrovisSensor(TrovisEntity, SensorEntity):
 
         if self._statistics_manager is None:
             return
-
         entity_id = self.entity_id
         self._statistics_manager.register(self)
         self.async_on_remove(lambda: self._statistics_manager.unregister(entity_id))
@@ -781,7 +770,6 @@ class TrovisSensor(TrovisEntity, SensorEntity):
         operating_mode = self._heating_operating_mode()
         if operating_mode is None:
             return None
-
         flow_curve = self._subsystem.heating_curve(
             operating_mode=operating_mode,
             curve="flow",
@@ -829,7 +817,6 @@ class TrovisSensor(TrovisEntity, SensorEntity):
         )
         if any(len(curve) != len(OUTDOOR_TEMPERATURES) for curve in curves):
             return None
-
         return {
             "x_values": list(OUTDOOR_TEMPERATURES),
             "flow_curve": flow_curve,
@@ -843,7 +830,6 @@ class TrovisSensor(TrovisEntity, SensorEntity):
     @property
     def native_value(self) -> object:
         """Return the current value in Home Assistant form."""
-
         if self.entity_description.value_kind == "heating_curves":
             if self._heating_curve_attributes() is None:
                 return "error"
@@ -852,7 +838,6 @@ class TrovisSensor(TrovisEntity, SensorEntity):
         if self.entity_description.value_kind == "heating_operating_mode":
             operating_mode = self._heating_operating_mode()
             return operating_mode.value if operating_mode is not None else None
-
         if self.entity_description.value_kind == "system_overall_status":
             value = self.coordinator.device.system_overall_status
             return int(value) if value is not None else None
@@ -864,7 +849,6 @@ class TrovisSensor(TrovisEntity, SensorEntity):
 
         if value is None:
             return None
-
         if self.entity_description.value_kind == "operating_mode_code":
             try:
                 return int(value)
@@ -875,7 +859,6 @@ class TrovisSensor(TrovisEntity, SensorEntity):
             if not isinstance(value, MonthDay):
                 return None
             return f"{value.month:02d}-{value.day:02d}"
-
         if self.entity_description.value_kind == "enum":
             try:
                 return self._key_by_value.get(int(value))
@@ -898,7 +881,6 @@ class TrovisSensor(TrovisEntity, SensorEntity):
 
         if self.entity_description.value_kind != "month_day":
             return None
-
         value = getattr(self._subsystem, self.entity_description.field)
         if not isinstance(value, MonthDay):
             return None

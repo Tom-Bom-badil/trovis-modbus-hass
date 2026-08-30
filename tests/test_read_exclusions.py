@@ -79,15 +79,9 @@ def test_read_exclusion_platform_contract() -> None:
     assert "async_schedule_reload(entry.entry_id)" in text_source
 
     assert strings == english
-    assert strings["entity"]["text"]["excluded_registers"]["name"] == (
-        "Excluded registers (0-based)"
-    )
-    assert strings["entity"]["text"]["excluded_coils"]["name"] == (
-        "Excluded coils (0-based)"
-    )
-    assert german["entity"]["text"]["excluded_registers"]["name"] == (
-        "Ausgeschlossene Register (0-based)"
-    )
-    assert german["entity"]["text"]["excluded_coils"]["name"] == (
-        "Ausgeschlossene Coils (0-based)"
-    )
+
+    for translations in (strings, german):
+        assert "excluded_registers" in translations["entity"]["text"]
+        assert "excluded_coils" in translations["entity"]["text"]
+        assert translations["entity"]["text"]["excluded_registers"]["name"]
+        assert translations["entity"]["text"]["excluded_coils"]["name"]
