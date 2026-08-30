@@ -5,10 +5,16 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, cast
 
+import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform, UnitOfTemperature
-from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
+from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.exceptions import (
+    ConfigEntryNotReady,
+    HomeAssistantError,
+    ServiceValidationError,
+)
+from homeassistant.helpers import config_validation as cv, service
 from homeassistant.helpers.entity import DeviceInfo, async_generate_entity_id
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
@@ -46,6 +52,12 @@ if TYPE_CHECKING:
     )
 
     from .coordinator import TrovisCoordinator
+
+
+SERVICE_SET_SIMULATION_VALUE = "set_simulation_value"
+SERVICE_RESET_SIMULATION = "reset_simulation"
+ATTR_SIMULATION_FIELD = "field"
+ATTR_SIMULATION_VALUE = "value"
 
 
 def create_modbus_connection(data: Mapping[str, Any]) -> ModbusConnection:
@@ -370,6 +382,70 @@ class TrovisEntity(CoordinatorEntity["TrovisCoordinator"]):
             ) from err
 
         await self.coordinator.async_request_refresh()
+
+
+async def _async_set_simulation_value(
+    entity: Any,
+    service_call: ServiceCall,
+) -> None:
+    """Route a local simulation-value action to a simulation helper entity."""
+    from .simulation import TrovisHeatingCurveSimulationSensor
+
+    if not isinstance(entity, TrovisHeatingCurveSimulationSensor):
+        raise ServiceValidationError(
+            translation_domain=DOMAIN,
+            translation_key="not_simulation_entity",
+            translation_placeholders={"entity_id": entity.entity_id},
+        )
+
+    await entity.async_set_simulation_value(
+        field=str(service_call.data[ATTR_SIMULATION_FIELD]),
+        value=float(service_call.data[ATTR_SIMULATION_VALUE]),
+    )
+
+
+async def _async_reset_simulation(
+    entity: Any,
+    _service_call: ServiceCall,
+) -> None:
+    """Route a reset action to a simulation helper entity."""
+    from .simulation import TrovisHeatingCurveSimulationSensor
+
+    if not isinstance(entity, TrovisHeatingCurveSimulationSensor):
+        raise ServiceValidationError(
+            translation_domain=DOMAIN,
+            translation_key="not_simulation_entity",
+            translation_placeholders={"entity_id": entity.entity_id},
+        )
+
+    await entity.async_reset_simulation()
+
+
+async def async_setup(
+    hass: HomeAssistant,
+    _config: Mapping[str, Any],
+) -> bool:
+    """Set up integration-wide TROVIS entity actions."""
+    service.async_register_platform_entity_service(
+        hass,
+        DOMAIN,
+        SERVICE_SET_SIMULATION_VALUE,
+        entity_domain="sensor",
+        schema={
+            vol.Required(ATTR_SIMULATION_FIELD): cv.string,
+            vol.Required(ATTR_SIMULATION_VALUE): vol.Coerce(float),
+        },
+        func=_async_set_simulation_value,
+    )
+    service.async_register_platform_entity_service(
+        hass,
+        DOMAIN,
+        SERVICE_RESET_SIMULATION,
+        entity_domain="sensor",
+        schema=None,
+        func=_async_reset_simulation,
+    )
+    return True
 
 
 PLATFORMS = [

@@ -145,6 +145,10 @@
     "sensor": {
       "system_code": { "name": "System code number" },
       "system_overall_status": { "name": "System overall status" },
+      "controller_model_code": { "name": "Controller: Model code" },
+      "controller_firmware": { "name": "Controller: Firmware" },
+      "controller_hardware_version": { "name": "Controller: Hardware version" },
+      "controller_serial_number": { "name": "Controller: Serial number" },
       "outdoor_temperature_1": { "name": "AF1 outdoor sensor 1" },
       "outdoor_temperature_2": { "name": "AF2 outdoor sensor 2" },
       "flow_temperature_1": { "name": "VF1 flow sensor 1" },
@@ -435,6 +439,40 @@
       "circulation_pump_control": { "name": "{component} circulation-pump control" },
       "temperature_monitoring_enabled": { "name": "Temperature monitoring" },
       "control_parameter_mode": { "name": "{component} 3-point control mode" }
+    }
+  },
+  "services": {
+    "set_simulation_value": {
+      "name": "Set simulation value",
+      "description": "Changes one local heating-circuit simulation parameter without writing to the controller.",
+      "fields": {
+        "field": {
+          "name": "Parameter",
+          "description": "Simulation parameter to change."
+        },
+        "value": {
+          "name": "Value",
+          "description": "New local simulation value."
+        }
+      }
+    },
+    "reset_simulation": {
+      "name": "Reset simulation",
+      "description": "Replaces the simulation snapshot with the current live controller values."
+    }
+  },
+  "exceptions": {
+    "not_simulation_entity": {
+      "message": "Entity {entity_id} is not a TROVIS heating-curve simulation helper."
+    },
+    "simulation_field_not_available": {
+      "message": "Parameter {field} is not available for control mode {mode} on {entity_id}."
+    },
+    "simulation_field_not_numeric": {
+      "message": "Parameter {field} on {entity_id} has no numeric TROVIS metadata."
+    },
+    "simulation_value_out_of_range": {
+      "message": "Value {value} for {field} on {entity_id} is outside the allowed range {min_value} to {max_value}."
     }
   }
 }

@@ -145,6 +145,10 @@
     "sensor": {
       "system_code": { "name": "Anlagenkennziffer" },
       "system_overall_status": { "name": "Regler Gesamtstatus" },
+      "controller_model_code": { "name": "Regler: Modellcode" },
+      "controller_firmware": { "name": "Regler: Firmware" },
+      "controller_hardware_version": { "name": "Regler: Hardwareversion" },
+      "controller_serial_number": { "name": "Regler: Seriennummer" },
       "outdoor_temperature_1": { "name": "AF1 Außensensor 1" },
       "outdoor_temperature_2": { "name": "AF2 Außensensor 2" },
       "flow_temperature_1": { "name": "VF1 Vorlaufsensor 1" },
@@ -437,6 +441,40 @@
       "circulation_pump_control": { "name": "{component} Zirkulationspumpe" },
       "temperature_monitoring_enabled": { "name": "Temperaturüberwachung" },
       "control_parameter_mode": { "name": "{component} Regelungsart 3-Punkt" }
+    }
+  },
+  "services": {
+    "set_simulation_value": {
+      "name": "Simulationswert setzen",
+      "description": "Ändert einen lokalen Heizkreis-Simulationsparameter, ohne auf den Regler zu schreiben.",
+      "fields": {
+        "field": {
+          "name": "Parameter",
+          "description": "Zu ändernder Simulationsparameter."
+        },
+        "value": {
+          "name": "Wert",
+          "description": "Neuer lokaler Simulationswert."
+        }
+      }
+    },
+    "reset_simulation": {
+      "name": "Simulation zurücksetzen",
+      "description": "Übernimmt die aktuell am Regler gelesenen Werte erneut als Simulations-Ausgangszustand."
+    }
+  },
+  "exceptions": {
+    "not_simulation_entity": {
+      "message": "Die Entity {entity_id} ist kein TROVIS-Heizkurven-Simulationshelper."
+    },
+    "simulation_field_not_available": {
+      "message": "Der Parameter {field} ist für die Regelungsart {mode} bei {entity_id} nicht verfügbar."
+    },
+    "simulation_field_not_numeric": {
+      "message": "Für den Parameter {field} bei {entity_id} sind keine numerischen TROVIS-Metadaten vorhanden."
+    },
+    "simulation_value_out_of_range": {
+      "message": "Der Wert {value} für {field} bei {entity_id} liegt außerhalb des zulässigen Bereichs {min_value} bis {max_value}."
     }
   }
 }
