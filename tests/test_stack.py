@@ -56,7 +56,7 @@ def test_manifest_contract() -> None:
     # Do not duplicate the current minimum release versions in this test.
     # The manifest itself is the single source of truth for those.
     assert ">=" in trovis_requirement
-    assert "<3" in trovis_requirement
+    assert "<4" in trovis_requirement
 
     assert ">=" in modbus_requirement
     assert "<5" in modbus_requirement
