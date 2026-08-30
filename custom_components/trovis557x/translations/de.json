@@ -419,6 +419,10 @@
         "name": "Helper - Auf dem Dashboard ausgewählter Regler"
       }
     },
+    "text": {
+      "excluded_registers": { "name": "Ausgeschlossene Register (0-basiert, z.B. 3,5-6,8)" },
+      "excluded_coils": { "name": "Ausgeschlossene Coils (0-basiert, z.B. 3,5-6,8)" }
+    },
     "switch": {
       "write_access": { "name": "Schreibzugriff" },
       "delayed_outdoor_temperature_adaptation_falling": { "name": "Verzögerte AT fallend" },

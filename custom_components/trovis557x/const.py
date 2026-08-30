@@ -16,7 +16,6 @@ CONF_BAUDRATE: Final = "baudrate"
 CONF_BYTESIZE: Final = "bytesize"
 CONF_PARITY: Final = "parity"
 CONF_STOPBITS: Final = "stopbits"
-
 CONNECTION_TYPE_TCP: Final = "tcp"
 CONNECTION_TYPE_SERIAL: Final = "serial"
 
@@ -28,7 +27,8 @@ CONF_SLUG: Final = "slug"
 CONF_ACCESS_CODE: Final = "access_code"
 CONF_MODEL: Final = "model"
 CONF_DETECTED_SENSORS: Final = "detected_sensors"
-
+CONF_EXCLUDED_REGISTERS: Final = "excluded_registers"
+CONF_EXCLUDED_COILS: Final = "excluded_coils"
 DEFAULT_PORT: Final = 502
 DEFAULT_FRAMER: Final = FRAMER_SOCKET
 DEFAULT_BAUDRATE: Final = 9600
@@ -37,6 +37,5 @@ DEFAULT_PARITY: Final = "N"
 DEFAULT_STOPBITS: Final = 1
 DEFAULT_UNIT_ID: Final = 246
 DEFAULT_SLUG: Final = "trovis"
-
 # A heating controller is not an express train.
 SCAN_INTERVAL: Final = timedelta(seconds=60)

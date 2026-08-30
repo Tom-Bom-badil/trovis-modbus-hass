@@ -27,6 +27,8 @@ from .const import (
     CONF_CONNECTION_TYPE,
     CONF_DETECTED_SENSORS,
     CONF_DEVICE,
+    CONF_EXCLUDED_COILS,
+    CONF_EXCLUDED_REGISTERS,
     CONF_FRAMER,
     CONF_HOST,
     CONF_MODEL,
@@ -42,6 +44,7 @@ from .const import (
     FRAMER_RTU,
     FRAMER_SOCKET,
 )
+from .read_exclusions import parse_address_list
 
 if TYPE_CHECKING:
     from trovis_modbus.metadata import (
@@ -63,7 +66,6 @@ ATTR_SIMULATION_VALUE = "value"
 def create_modbus_connection(data: Mapping[str, Any]) -> ModbusConnection:
     """Create the TROVIS-owned tmodbus connection without opening it."""
     connection_type = str(data[CONF_CONNECTION_TYPE])
-
     if connection_type == CONNECTION_TYPE_TCP:
         return ModbusConnection(
             ModbusTcpParams(
@@ -75,7 +77,6 @@ def create_modbus_connection(data: Mapping[str, Any]) -> ModbusConnection:
                 ),
             )
         )
-
     if connection_type == CONNECTION_TYPE_SERIAL:
         return ModbusConnection(
             ModbusSerialParams(
@@ -96,7 +97,6 @@ def create_modbus_connection(data: Mapping[str, Any]) -> ModbusConnection:
                 framer=FRAMER_RTU,
             )
         )
-
     raise ValueError(f"Unsupported Modbus connection type: {connection_type!r}")
 
 
@@ -109,7 +109,6 @@ def require_datapoint_metadata(
         metadata = component.metadata_for(field)
         if metadata is not None:
             return metadata
-
     if hasattr(component, "require_metadata_for"):
         try:
             return component.require_metadata_for(field)
@@ -138,7 +137,6 @@ def require_number_metadata(
 ) -> NumberMetadata:
     """Return number metadata for a component field."""
     metadata = require_datapoint_metadata(component, field)
-
     if metadata.number is None:
         raise ValueError(f"TROVIS field {field!r} is not numeric")
 
@@ -230,7 +228,6 @@ def _rk_sub_device(
             f"Rk{index} – Precontrol circuit",
             f"{component}_precontrol",
         )
-
     if role is ControlCircuitRole.BUFFER_TANK:
         return (
             component,
@@ -265,7 +262,6 @@ def _sub_device(
 
     if component == "pumps_and_valves":
         return "pumps_and_valves", "Pumps and Valves", "pumps_and_valves"
-
     if component == "buffer_tank":
         return _rk_sub_device(coordinator, 1)
 
@@ -298,7 +294,6 @@ class TrovisEntity(CoordinatorEntity["TrovisCoordinator"]):
         device_component: str | None = None,
     ) -> None:
         super().__init__(coordinator)
-
         self._component = component
         entry = coordinator.config_entry
 
@@ -308,7 +303,6 @@ class TrovisEntity(CoordinatorEntity["TrovisCoordinator"]):
 
         entity_slug = _entry_slug(entry.data.get(CONF_SLUG, entry.title))
         object_id = f"{entity_slug}_{key}"
-
         self._attr_suggested_object_id = object_id
         self.entity_id = async_generate_entity_id(
             f"{platform}.{{}}",
@@ -318,7 +312,6 @@ class TrovisEntity(CoordinatorEntity["TrovisCoordinator"]):
 
         info = coordinator.device.info
         sub = _sub_device(coordinator, device_component or component)
-
         if sub is None:
             self._attr_device_info = DeviceInfo(
                 identifiers={(DOMAIN, entry.entry_id)},
@@ -331,7 +324,6 @@ class TrovisEntity(CoordinatorEntity["TrovisCoordinator"]):
             )
         else:
             sub_id, sub_name, sub_translation_key = sub
-
             self._attr_device_info = DeviceInfo(
                 identifiers={(DOMAIN, f"{entry.entry_id}_{sub_id}")},
                 manufacturer=info.manufacturer,
@@ -363,7 +355,6 @@ class TrovisEntity(CoordinatorEntity["TrovisCoordinator"]):
 
         if not self.coordinator.device.writing_enabled:
             raise HomeAssistantError("Please enable writing for changes!")
-
         try:
             await self._subsystem.async_write_datapoint(
                 field,
@@ -380,7 +371,6 @@ class TrovisEntity(CoordinatorEntity["TrovisCoordinator"]):
             raise HomeAssistantError(
                 "Writing TROVIS data points is not implemented yet"
             ) from err
-
         await self.coordinator.async_request_refresh()
 
 
@@ -417,7 +407,6 @@ async def _async_reset_simulation(
             translation_key="not_simulation_entity",
             translation_placeholders={"entity_id": entity.entity_id},
         )
-
     await entity.async_reset_simulation()
 
 
@@ -457,6 +446,7 @@ PLATFORMS = [
     Platform.SELECT,
     Platform.SENSOR,
     Platform.SWITCH,
+    Platform.TEXT,
     Platform.TIME,
     Platform.WATER_HEATER,
 ]
@@ -476,11 +466,16 @@ async def async_setup_entry(
         **entry.data,
         **entry.options,
     }
-
     try:
         unit_id = int(settings[CONF_UNIT_ID])
         model = int(settings[CONF_MODEL])
         detected_sensors = tuple(settings[CONF_DETECTED_SENSORS])
+        excluded_registers = parse_address_list(
+            str(settings.get(CONF_EXCLUDED_REGISTERS, "") or "")
+        )
+        excluded_coils = parse_address_list(
+            str(settings.get(CONF_EXCLUDED_COILS, "") or "")
+        )
         connection = create_modbus_connection(settings)
         unit = connection.for_unit(unit_id)
     except (KeyError, TypeError, ValueError) as err:
@@ -489,12 +484,13 @@ async def async_setup_entry(
         ) from err
 
     entry.async_on_unload(connection.close)
-
     try:
         device = Trovis557x(
             unit,
             model=model,
             detected_sensors=detected_sensors,
+            excluded_registers=excluded_registers,
+            excluded_coils=excluded_coils,
         )
     except ValueError as err:
         raise ConfigEntryNotReady(str(err)) from err
@@ -513,7 +509,6 @@ async def async_setup_entry(
         entry,
         PLATFORMS,
     )
-
     return True
 
 

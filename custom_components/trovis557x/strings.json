@@ -417,6 +417,10 @@
       },
       "dashboard_helper_controller_selected": {"name": "Helper - Controller selected on the dashboard" }
     },
+    "text": {
+      "excluded_registers": { "name": "Excluded registers (0-based, e.g. 3,5-6,8)" },
+      "excluded_coils": { "name": "Excluded coils (0-based, e.g. 3,5-6,8)" }
+    },
     "switch": {
       "write_access": { "name": "Write access" },
       "delayed_outdoor_temperature_adaptation_falling": { "name": "Delayed outdoor temperature adaptation (falling)" },
