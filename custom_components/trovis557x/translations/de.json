@@ -2,45 +2,21 @@
   "config": {
     "step": {
       "user": {
-        "title": "Verbindungsart",
-        "description": "Wähle aus, wie Home Assistant mit dem Regler verbunden wird.",
-        "menu_options": {
-          "network": "Netzwerk (Modbus TCP / RTU over TCP)",
-          "serial": "Seriell (Modbus RTU)"
-        }
-      },
-      "network": {
-        "title": "Netzwerkverbindung",
+        "title": "Verbindung",
+        "description": "Gib die Verbindung zum Regler ein. Die Schreibweise bestimmt automatisch die Verbindungsart:\n\n- **socket://ip_adresse:port**\nModbus/RTU über eine transparente Netzwerk-Verbindung, z.B. einen normalen ser2net-Adapter.\n- **ip_adresse:port**\nModbus/TCP Verbindung, z.B. über einen ser2net Adapter mit aktiviertem 'Modbus TCP Server' (Standard Port: 502).\n- **esphome://ip_adresse:port/?port_name=name**\nModbus RTU über einen ESPHome Serial Proxy (Standard Port: 6053).\n- **/dev/ttyUSB...**\nLokaler USB-Seriell-Adapter.\n- **/dev/serial/by-id/...**\nPfad zu einer lokalen seriellen Schnittstelle.\n- **/dev/...**\nAndere lokale oder virtuelle serielle Schnittstellen, z.B. über `socat`.\n",
         "data": {
-          "host": "Host",
-          "port": "Port",
-          "framer": "Protokollrahmung",
-          "unit_id": "Modbus-Geräteadresse"
-        },
-        "data_description": {
-          "host": "IP-Adresse oder Hostname der Modbus-Schnittstelle.",
-          "port": "TCP-Port der Modbus-Schnittstelle (Standard 502).",
-          "framer": "Modbus TCP für eine native TCP-Verbindung oder RTU over TCP für ein serielles Gateway verwenden.",
-          "unit_id": "Modbus-Stationsadresse des Reglers (PA6; Standard 246)."
+          "connection": "Verbindung (Schnittstelle)",
+          "unit_id": "Eindeutige Modbus-Geräteadresse (PA6)"
         }
       },
       "serial": {
-        "title": "Serielle Verbindung",
+        "title": "Serielle Einstellungen",
+        "description": "Die serielle Kommunikation mit TROVIS verwendet immer 8N1. Wähle die am Regler eingestellte Baudrate.",
         "data": {
-          "device": "Serielles Gerät",
-          "baudrate": "Baudrate",
-          "parity": "Parität",
-          "stopbits": "Stoppbits",
-          "bytesize": "Datenbits",
-          "unit_id": "Modbus-Geräteadresse"
+          "baudrate": "Baudrate"
         },
         "data_description": {
-          "device": "Serielle Schnittstelle, an die der Regler angeschlossen ist.",
-          "baudrate": "Am Regler eingestellte Modbus-RTU-Baudrate.",
-          "parity": "Am Regler eingestellte Modbus-RTU-Parität.",
-          "stopbits": "Am Regler eingestellte Anzahl der Modbus-RTU-Stoppbits.",
-          "bytesize": "Am Regler eingestellte Anzahl der Modbus-RTU-Datenbits.",
-          "unit_id": "Modbus-Stationsadresse des Reglers (PA6; Standard 246)."
+          "baudrate": "TROVIS unterstützt 9600 oder 19200 Baud. Standard ist 19200."
         }
       },
       "device": {
@@ -51,77 +27,45 @@
           "access_code": "Zugriffscode"
         },
         "data_description": {
-          "name": "Eindeutiger Anzeigename für diesen Regler, z. B. 'SAMSON TROVIS'. Für jeden Regler einen anderen Namen verwenden.",
-          "slug": "Präfix für die erzeugten Entity-IDs, z. B. 't5578'. Daraus entstehen IDs wie 'sensor.t5578_sensor_af1'.",
+          "name": "Eindeutiger Anzeigename für diesen Regler, z.B. 'SAMSON TROVIS'. Für jeden Regler einen anderen Namen verwenden.",
+          "slug": "Präfix für die erzeugten Entity-IDs, z.B. 't5578'. Daraus entstehen IDs wie 'sensor.t5578_sensor_af1'.",
           "access_code": "Zahlencode für den Schreibzugriff (siehe letzte Seite der Geräteanleitung)."
         }
       },
       "reconfigure": {
         "title": "Regler neu konfigurieren",
-        "description": "Wähle die zu konfigurierende Verbindungsart. Reglermodell und angeschlossene Sensoren werden erneut automatisch erkannt.",
-        "menu_options": {
-          "reconfigure_network": "Netzwerk (Modbus TCP / RTU over TCP)",
-          "reconfigure_serial": "Seriell (Modbus RTU)"
-        }
-      },
-      "reconfigure_network": {
-        "title": "Netzwerkverbindung",
-        "description": "Netzwerkverbindung und Einstellungen für den Schreibzugriff ändern. Reglermodell und angeschlossene Sensoren werden erneut automatisch erkannt.",
+        "description": "Gib die Verbindung zum Regler ein. Die Schreibweise bestimmt automatisch die Verbindungsart:\n\n- **socket://ip_adresse:port**\nModbus/RTU über eine transparente Netzwerk-Verbindung, z.B. einen normalen ser2net-Adapter.\n- **ip_adresse:port**\nModbus/TCP Verbindung, z.B. über einen ser2net Adapter mit aktiviertem 'Modbus TCP Server' (Standard Port: 502).\n- **esphome://ip_adresse:port/?port_name=name**\nModbus RTU über einen ESPHome Serial Proxy (Standard Port: 6053).\n- **/dev/ttyUSB...**\nLokaler USB-Seriell-Adapter.\n- **/dev/serial/by-id/...**\nPfad zu einer lokalen seriellen Schnittstelle.\n- **/dev/...**\nAndere lokale oder virtuelle serielle Schnittstellen, z.B. über `socat`.\n",
         "data": {
-          "host": "Host",
-          "port": "Port",
-          "framer": "Protokollrahmung",
-          "unit_id": "Modbus-Geräteadresse",
+          "connection": "Verbindung (Schnittstelle)",
+          "unit_id": "Eindeutige Modbus-Geräteadresse (PA6)",
           "name": "Eindeutiger Name",
           "access_code": "Zugriffscode"
         },
         "data_description": {
-          "host": "IP-Adresse oder Hostname der Modbus-Schnittstelle.",
-          "port": "TCP-Port der Modbus-Schnittstelle (Standard 502).",
-          "framer": "Modbus TCP für eine native TCP-Verbindung oder RTU over TCP für ein serielles Gateway verwenden.",
           "unit_id": "Modbus-Stationsadresse des Reglers (PA6).",
           "name": "Eindeutiger Anzeigename für diesen Regler.",
           "access_code": "Zahlencode für den Schreibzugriff."
         }
       },
       "reconfigure_serial": {
-        "title": "Serielle Verbindung",
-        "description": "Serielle Verbindung und Einstellungen für den Schreibzugriff ändern. Reglermodell und angeschlossene Sensoren werden erneut automatisch erkannt.",
+        "title": "Serielle Einstellungen",
+        "description": "Die serielle Kommunikation mit TROVIS verwendet immer 8N1. Wähle die am Regler eingestellte Baudrate. Anschließend wird der Regler erneut geprüft.",
         "data": {
-          "device": "Serielles Gerät",
-          "baudrate": "Baudrate",
-          "parity": "Parität",
-          "stopbits": "Stoppbits",
-          "bytesize": "Datenbits",
-          "unit_id": "Modbus-Geräteadresse",
-          "name": "Eindeutiger Name",
-          "access_code": "Zugriffscode"
+          "baudrate": "Baudrate"
         },
         "data_description": {
-          "device": "Serielle Schnittstelle, an die der Regler angeschlossen ist.",
-          "baudrate": "Am Regler eingestellte Modbus-RTU-Baudrate.",
-          "parity": "Am Regler eingestellte Modbus-RTU-Parität.",
-          "stopbits": "Am Regler eingestellte Anzahl der Modbus-RTU-Stoppbits.",
-          "bytesize": "Am Regler eingestellte Anzahl der Modbus-RTU-Datenbits.",
-          "unit_id": "Modbus-Stationsadresse des Reglers (PA6).",
-          "name": "Eindeutiger Anzeigename für diesen Regler.",
-          "access_code": "Zahlencode für den Schreibzugriff."
+          "baudrate": "TROVIS unterstützt 9600 oder 19200 Baud. Standard ist 19200."
         }
       }
     },
     "error": {
-      "cannot_connect": "Kommunikation mit dem Regler fehlgeschlagen. Verbindungseinstellungen, Geräteadresse und Erreichbarkeit des Reglers prüfen."
+      "cannot_connect": "Kommunikation mit dem Regler fehlgeschlagen. Verbindungseinstellungen, Geräteadresse und Erreichbarkeit des Reglers prüfen.",
+      "connection_required": "Gib eine Verbindung ein.",
+      "invalid_connection": "Die Verbindung ist ungültig. Verwende /dev/..., esphome://..., socket://host:port oder host:port.",
+      "invalid_baudrate": "Wähle entweder 9600 oder 19200 Baud."
     },
     "abort": {
       "reconfigure_successful": "Die Neukonfiguration war erfolgreich."
-    }
-  },
-  "selector": {
-    "tcp_framer": {
-      "options": {
-        "socket": "Modbus TCP",
-        "rtu": "RTU over TCP"
-      }
     }
   },
   "device": {
@@ -288,8 +232,20 @@
       "heat_up_active": { "name": "{component} Betriebsart Aufheizen" },
       "return_limit_active": { "name": "{component} Rücklauf Begrenzung" },
       "outdoor_temperature_deactivation": { "name": "{component} AT-Abschaltung aktiv" },
-      "valve_closing": { "name": "{component} Ventil schließen", "state": { "off": "Inaktiv", "on": "Aktiv" }},
-      "valve_opening": { "name": "{component} Ventil öffnen", "state": { "off": "Inaktiv", "on": "Aktiv" }},
+      "valve_closing": {
+        "name": "{component} Ventil schließen",
+        "state": {
+          "off": "Inaktiv",
+          "on": "Aktiv"
+        }
+      },
+      "valve_opening": {
+        "name": "{component} Ventil öffnen",
+        "state": {
+          "off": "Inaktiv",
+          "on": "Aktiv"
+        }
+      },
       "mode_control_autonomous": { "name": "{component} Autarke Betriebsart-Steuerung" },
       "valve_control_autonomous": { "name": "{component} Autarke Ventilsteuerung" },
       "pump_control_autonomous": { "name": "{component} Autarke Pumpensteuerung" },
@@ -415,9 +371,7 @@
           "sunday": "Sonntag"
         }
       },
-      "dashboard_helper_controller_selected": {
-        "name": "Helper - Auf dem Dashboard ausgewählter Regler"
-      }
+      "dashboard_helper_controller_selected": { "name": "Helper - Auf dem Dashboard ausgewählter Regler" }
     },
     "text": {
       "excluded_registers": { "name": "Ausgeschlossene Register (0-basiert, z.B. 3,5-6,8)" },
@@ -452,14 +406,8 @@
       "name": "Simulationswert setzen",
       "description": "Ändert einen lokalen Heizkreis-Simulationsparameter, ohne auf den Regler zu schreiben.",
       "fields": {
-        "field": {
-          "name": "Parameter",
-          "description": "Zu ändernder Simulationsparameter."
-        },
-        "value": {
-          "name": "Wert",
-          "description": "Neuer lokaler Simulationswert."
-        }
+        "field": { "name": "Parameter", "description": "Zu ändernder Simulationsparameter." },
+        "value": { "name": "Wert", "description": "Neuer lokaler Simulationswert." }
       }
     },
     "reset_simulation": {
@@ -468,17 +416,9 @@
     }
   },
   "exceptions": {
-    "not_simulation_entity": {
-      "message": "Die Entity {entity_id} ist kein TROVIS-Heizkurven-Simulationshelper."
-    },
-    "simulation_field_not_available": {
-      "message": "Der Parameter {field} ist für die Regelungsart {mode} bei {entity_id} nicht verfügbar."
-    },
-    "simulation_field_not_numeric": {
-      "message": "Für den Parameter {field} bei {entity_id} sind keine numerischen TROVIS-Metadaten vorhanden."
-    },
-    "simulation_value_out_of_range": {
-      "message": "Der Wert {value} für {field} bei {entity_id} liegt außerhalb des zulässigen Bereichs {min_value} bis {max_value}."
-    }
+    "not_simulation_entity": { "message": "Die Entity {entity_id} ist kein TROVIS-Heizkurven-Simulationshelper." },
+    "simulation_field_not_available": { "message": "Der Parameter {field} ist für die Regelungsart {mode} bei {entity_id} nicht verfügbar." },
+    "simulation_field_not_numeric": { "message": "Für den Parameter {field} bei {entity_id} sind keine numerischen TROVIS-Metadaten vorhanden." },
+    "simulation_value_out_of_range": { "message": "Der Wert {value} für {field} bei {entity_id} liegt außerhalb des zulässigen Bereichs {min_value} bis {max_value}." }
   }
 }

@@ -79,39 +79,56 @@ def test_strings_and_english_translation_contract() -> None:
 
     expected_steps = {
         "user",
-        "network",
         "serial",
         "device",
         "reconfigure",
-        "reconfigure_network",
         "reconfigure_serial",
     }
 
-    assert expected_steps <= steps.keys()
+    assert expected_steps == steps.keys()
 
-    assert set(steps["user"]["menu_options"]) == {
-        "network",
-        "serial",
+    assert set(steps["user"]["data"]) == {
+        "connection",
+        "unit_id",
     }
-
-    assert set(steps["reconfigure"]["menu_options"]) == {
-        "reconfigure_network",
-        "reconfigure_serial",
+    assert set(steps["serial"]["data"]) == {"baudrate"}
+    assert set(steps["reconfigure"]["data"]) == {
+        "connection",
+        "unit_id",
+        "name",
+        "access_code",
     }
+    assert set(steps["reconfigure_serial"]["data"]) == {"baudrate"}
 
-    assert "host" in steps["network"]["data"]
-    assert "framer" in steps["network"]["data"]
-    assert "unit_id" in steps["network"]["data"]
-
-    assert "device" in steps["serial"]["data"]
-    assert "unit_id" in steps["serial"]["data"]
-
+    assert "menu_options" not in steps["user"]
+    assert "menu_options" not in steps["reconfigure"]
+    assert "selector" not in strings
     assert "connection_entry_id" not in json.dumps(strings)
 
-    assert strings["selector"]["tcp_framer"]["options"] == {
-        "socket": "Modbus TCP",
-        "rtu": "RTU over TCP",
-    }
+    config_flow_source = (COMPONENT / "config_flow.py").read_text(encoding="utf-8")
+    assert "SerialPortSelector" not in config_flow_source
+    assert "known_connection" not in config_flow_source
+    assert 'lowered.startswith("socket://")' in config_flow_source
+    assert '"esphome://"' in config_flow_source
+    assert '"esphome-hass://"' in config_flow_source
+    assert "FRAMER_RTU" in config_flow_source
+    assert "FRAMER_SOCKET" in config_flow_source
+
+
+def test_trovis_serial_connection_contract() -> None:
+    """Keep the supported TROVIS serial settings deliberately narrow."""
+    const_source = (COMPONENT / "const.py").read_text(encoding="utf-8")
+
+    assert "SERIAL_BAUDRATES: Final = (19200, 9600)" in const_source
+    assert "DEFAULT_BAUDRATE: Final = 19200" in const_source
+    assert 'DEFAULT_PARITY: Final = "N"' in const_source
+    assert "DEFAULT_STOPBITS: Final = 1" in const_source
+    assert "DEFAULT_BYTESIZE: Final = 8" in const_source
+
+    config_flow_source = (COMPONENT / "config_flow.py").read_text(encoding="utf-8")
+    assert "CONF_PARITY: DEFAULT_PARITY" in config_flow_source
+    assert "CONF_STOPBITS: DEFAULT_STOPBITS" in config_flow_source
+    assert "CONF_BYTESIZE: DEFAULT_BYTESIZE" in config_flow_source
 
 
 def test_documented_sensor_abbreviations() -> None:

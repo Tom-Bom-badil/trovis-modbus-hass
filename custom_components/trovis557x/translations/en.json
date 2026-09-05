@@ -2,45 +2,21 @@
   "config": {
     "step": {
       "user": {
-        "title": "Connection type",
-        "description": "Choose how Home Assistant connects to the controller.",
-        "menu_options": {
-          "network": "Network (Modbus TCP / RTU over TCP)",
-          "serial": "Serial (Modbus RTU)"
-        }
-      },
-      "network": {
-        "title": "Network connection",
+        "title": "Connection",
+        "description": "Enter the connection to the controller. The syntax automatically determines the connection type:\n\n- **socket://ip_address:port**\nModbus/RTU over a transparent network connection, e.g. a standard ser2net adapter.\n- **ip_address:port**\nModbus/TCP connection, e.g. via a ser2net adapter with 'Modbus TCP Server' enabled (default port: 502).\n- **esphome://ip_address:port/?port_name=name**\nModbus RTU via an ESPHome Serial Proxy (default port: 6053).\n- **/dev/ttyUSB...**\nLocal USB-to-serial adapter.\n- **/dev/serial/by-id/...**\nPath to a local serial interface.\n- **/dev/...**\nOther local or virtual serial interfaces, e.g. via `socat`.\n",
         "data": {
-          "host": "Host",
-          "port": "Port",
-          "framer": "Protocol framing",
-          "unit_id": "Modbus unit ID"
-        },
-        "data_description": {
-          "host": "IP address or hostname of the Modbus interface.",
-          "port": "TCP port of the Modbus interface (default 502).",
-          "framer": "Use Modbus TCP for a native TCP connection or RTU over TCP for a serial gateway.",
-          "unit_id": "The controller's Modbus station address (PA6; default 246)."
+          "connection": "Connection (interface)",
+          "unit_id": "Unique Modbus device address (PA6)"
         }
       },
       "serial": {
-        "title": "Serial connection",
+        "title": "Serial settings",
+        "description": "TROVIS serial communication always uses 8N1. Select the baud rate configured on the controller.",
         "data": {
-          "device": "Serial device",
-          "baudrate": "Baud rate",
-          "parity": "Parity",
-          "stopbits": "Stop bits",
-          "bytesize": "Data bits",
-          "unit_id": "Modbus unit ID"
+          "baudrate": "Baud rate"
         },
         "data_description": {
-          "device": "Serial interface connected to the controller.",
-          "baudrate": "Configured Modbus RTU baud rate of the controller.",
-          "parity": "Configured Modbus RTU parity.",
-          "stopbits": "Configured number of Modbus RTU stop bits.",
-          "bytesize": "Configured number of Modbus RTU data bits.",
-          "unit_id": "The controller's Modbus station address (PA6; default 246)."
+          "baudrate": "TROVIS supports 9600 or 19200 baud. The default is 19200."
         }
       },
       "device": {
@@ -58,70 +34,38 @@
       },
       "reconfigure": {
         "title": "Reconfigure controller",
-        "description": "Choose the connection type to configure. The controller model and connected sensors are detected again automatically.",
-        "menu_options": {
-          "reconfigure_network": "Network (Modbus TCP / RTU over TCP)",
-          "reconfigure_serial": "Serial (Modbus RTU)"
-        }
-      },
-      "reconfigure_network": {
-        "title": "Network connection",
-        "description": "Update the network connection and write-access settings. The controller model and connected sensors are detected again automatically.",
+        "description": "Enter the connection to the controller. The syntax automatically determines the connection type:\n\n- **socket://ip_address:port**\nModbus/RTU over a transparent network connection, e.g. a standard ser2net adapter.\n- **ip_address:port**\nModbus/TCP connection, e.g. via a ser2net adapter with 'Modbus TCP Server' enabled (default port: 502).\n- **esphome://ip_address:port/?port_name=name**\nModbus RTU via an ESPHome Serial Proxy (default port: 6053).\n- **/dev/ttyUSB...**\nLocal USB-to-serial adapter.\n- **/dev/serial/by-id/...**\nPath to a local serial interface.\n- **/dev/...**\nOther local or virtual serial interfaces, e.g. via `socat`.\n",
         "data": {
-          "host": "Host",
-          "port": "Port",
-          "framer": "Protocol framing",
-          "unit_id": "Modbus unit ID",
+          "connection": "Connection (interface)",
+          "unit_id": "Unique Modbus device address (PA6)",
           "name": "Unique name",
           "access_code": "Access code"
         },
         "data_description": {
-          "host": "IP address or hostname of the Modbus interface.",
-          "port": "TCP port of the Modbus interface (default 502).",
-          "framer": "Use Modbus TCP for a native TCP connection or RTU over TCP for a serial gateway.",
           "unit_id": "The controller's Modbus station address (PA6).",
           "name": "Unique display name for this controller.",
           "access_code": "The number code for write access."
         }
       },
       "reconfigure_serial": {
-        "title": "Serial connection",
-        "description": "Update the serial connection and write-access settings. The controller model and connected sensors are detected again automatically.",
+        "title": "Serial settings",
+        "description": "TROVIS serial communication always uses 8N1. Select the baud rate configured on the controller. The controller is then probed again.",
         "data": {
-          "device": "Serial device",
-          "baudrate": "Baud rate",
-          "parity": "Parity",
-          "stopbits": "Stop bits",
-          "bytesize": "Data bits",
-          "unit_id": "Modbus unit ID",
-          "name": "Unique name",
-          "access_code": "Access code"
+          "baudrate": "Baud rate"
         },
         "data_description": {
-          "device": "Serial interface connected to the controller.",
-          "baudrate": "Configured Modbus RTU baud rate of the controller.",
-          "parity": "Configured Modbus RTU parity.",
-          "stopbits": "Configured number of Modbus RTU stop bits.",
-          "bytesize": "Configured number of Modbus RTU data bits.",
-          "unit_id": "The controller's Modbus station address (PA6).",
-          "name": "Unique display name for this controller.",
-          "access_code": "The number code for write access."
+          "baudrate": "TROVIS supports 9600 or 19200 baud. The default is 19200."
         }
       }
     },
     "error": {
-      "cannot_connect": "Failed to communicate with the controller. Check the connection settings, unit ID and controller availability."
+      "cannot_connect": "Failed to communicate with the controller. Check the connection settings, unit ID and controller availability.",
+      "connection_required": "Enter a connection.",
+      "invalid_connection": "The connection is not valid. Use /dev/..., esphome://..., socket://host:port, or host:port.",
+      "invalid_baudrate": "Select either 9600 or 19200 baud."
     },
     "abort": {
       "reconfigure_successful": "Reconfiguration was successful."
-    }
-  },
-  "selector": {
-    "tcp_framer": {
-      "options": {
-        "socket": "Modbus TCP",
-        "rtu": "RTU over TCP"
-      }
     }
   },
   "device": {

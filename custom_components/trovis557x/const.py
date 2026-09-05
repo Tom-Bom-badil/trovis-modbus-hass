@@ -7,6 +7,7 @@ from typing import Final
 
 DOMAIN: Final = "trovis557x"
 
+CONF_CONNECTION: Final = "connection"
 CONF_CONNECTION_TYPE: Final = "type"
 CONF_HOST: Final = "host"
 CONF_PORT: Final = "port"
@@ -31,7 +32,8 @@ CONF_EXCLUDED_REGISTERS: Final = "excluded_registers"
 CONF_EXCLUDED_COILS: Final = "excluded_coils"
 DEFAULT_PORT: Final = 502
 DEFAULT_FRAMER: Final = FRAMER_SOCKET
-DEFAULT_BAUDRATE: Final = 9600
+SERIAL_BAUDRATES: Final = (19200, 9600)
+DEFAULT_BAUDRATE: Final = 19200
 DEFAULT_BYTESIZE: Final = 8
 DEFAULT_PARITY: Final = "N"
 DEFAULT_STOPBITS: Final = 1

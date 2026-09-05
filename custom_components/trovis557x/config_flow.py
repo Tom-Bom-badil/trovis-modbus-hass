@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from typing import Any
+from urllib.parse import urlsplit
 
 import voluptuous as vol
 from homeassistant.components.modbus import async_get_temporary_unit
@@ -18,7 +19,6 @@ from homeassistant.helpers.selector import (
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
-    SerialPortSelector,
     TextSelector,
 )
 from homeassistant.util import slugify
@@ -30,6 +30,7 @@ from .const import (
     CONF_ACCESS_CODE,
     CONF_BAUDRATE,
     CONF_BYTESIZE,
+    CONF_CONNECTION,
     CONF_CONNECTION_TYPE,
     CONF_DETECTED_SENSORS,
     CONF_DEVICE,
@@ -45,15 +46,14 @@ from .const import (
     CONNECTION_TYPE_TCP,
     DEFAULT_BAUDRATE,
     DEFAULT_BYTESIZE,
-    DEFAULT_FRAMER,
     DEFAULT_PARITY,
-    DEFAULT_PORT,
     DEFAULT_SLUG,
     DEFAULT_STOPBITS,
     DEFAULT_UNIT_ID,
     DOMAIN,
     FRAMER_RTU,
     FRAMER_SOCKET,
+    SERIAL_BAUDRATES,
 )
 
 _UNIT = NumberSelector(
@@ -72,45 +72,44 @@ _ACCESS_CODE = NumberSelector(
         mode=NumberSelectorMode.BOX,
     )
 )
-_PORT = NumberSelector(
-    NumberSelectorConfig(
-        min=1,
-        max=65535,
-        step=1,
-        mode=NumberSelectorMode.BOX,
-    )
-)
-_TCP_FRAMER = SelectSelector(
+_BAUDRATE = SelectSelector(
     SelectSelectorConfig(
-        options=[FRAMER_SOCKET, FRAMER_RTU],
+        options=[str(baudrate) for baudrate in SERIAL_BAUDRATES],
         mode=SelectSelectorMode.DROPDOWN,
-        translation_key="tcp_framer",
     )
 )
 
 
-def _network_schema() -> vol.Schema:
-    """Return the network connection schema."""
+def _connection_schema() -> vol.Schema:
+    """Return the unified connection schema."""
     return vol.Schema(
         {
-            vol.Required(CONF_HOST): TextSelector(),
-            vol.Required(CONF_PORT, default=DEFAULT_PORT): _PORT,
-            vol.Required(CONF_FRAMER, default=DEFAULT_FRAMER): _TCP_FRAMER,
+            vol.Required(
+                CONF_CONNECTION,
+                default="socket://192.168.178.59:8234",
+            ): TextSelector(),
             vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): _UNIT,
         }
     )
 
 
 def _serial_schema() -> vol.Schema:
-    """Return the serial connection schema."""
+    """Return the serial settings schema."""
     return vol.Schema(
         {
-            vol.Required(CONF_DEVICE): SerialPortSelector(),
-            vol.Required(CONF_BAUDRATE, default=DEFAULT_BAUDRATE): vol.Coerce(int),
-            vol.Required(CONF_PARITY, default=DEFAULT_PARITY): vol.In(["N", "E", "O"]),
-            vol.Required(CONF_STOPBITS, default=DEFAULT_STOPBITS): vol.In([1, 2]),
-            vol.Required(CONF_BYTESIZE, default=DEFAULT_BYTESIZE): vol.In([7, 8]),
+            vol.Required(CONF_BAUDRATE, default=str(DEFAULT_BAUDRATE)): _BAUDRATE,
+        }
+    )
+
+
+def _reconfigure_schema() -> vol.Schema:
+    """Return the unified reconfigure schema."""
+    return vol.Schema(
+        {
+            vol.Required(CONF_CONNECTION): TextSelector(),
             vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): _UNIT,
+            vol.Required(CONF_NAME): TextSelector(),
+            vol.Required(CONF_ACCESS_CODE): _ACCESS_CODE,
         }
     )
 
@@ -147,34 +146,121 @@ def _device_schema(default_name: str, default_slug: str) -> vol.Schema:
     )
 
 
-def _reconfigure_network_schema() -> vol.Schema:
-    """Return the reconfigure schema for a network connection."""
-    return vol.Schema(
-        {
-            vol.Required(CONF_HOST): TextSelector(),
-            vol.Required(CONF_PORT, default=DEFAULT_PORT): _PORT,
-            vol.Required(CONF_FRAMER, default=DEFAULT_FRAMER): _TCP_FRAMER,
-            vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): _UNIT,
-            vol.Required(CONF_NAME): TextSelector(),
-            vol.Required(CONF_ACCESS_CODE): _ACCESS_CODE,
-        }
-    )
+def _selected_connection(user_input: dict[str, Any]) -> str | None:
+    """Return the manually entered connection target."""
+    connection = str(user_input.get(CONF_CONNECTION) or "").strip()
+    return connection or None
 
 
-def _reconfigure_serial_schema() -> vol.Schema:
-    """Return the reconfigure schema for a serial connection."""
-    return vol.Schema(
-        {
-            vol.Required(CONF_DEVICE): SerialPortSelector(),
-            vol.Required(CONF_BAUDRATE, default=DEFAULT_BAUDRATE): vol.Coerce(int),
-            vol.Required(CONF_PARITY, default=DEFAULT_PARITY): vol.In(["N", "E", "O"]),
-            vol.Required(CONF_STOPBITS, default=DEFAULT_STOPBITS): vol.In([1, 2]),
-            vol.Required(CONF_BYTESIZE, default=DEFAULT_BYTESIZE): vol.In([7, 8]),
-            vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): _UNIT,
-            vol.Required(CONF_NAME): TextSelector(),
-            vol.Required(CONF_ACCESS_CODE): _ACCESS_CODE,
+def _parse_host_port(value: str) -> tuple[str, int]:
+    """Parse a host:port target, including bracketed IPv6 addresses."""
+    parsed = urlsplit(f"//{value}")
+    if (
+        parsed.hostname is None
+        or parsed.port is None
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.path not in ("", "/")
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise ValueError("Invalid host:port target")
+
+    return parsed.hostname, parsed.port
+
+
+def _parse_manual_connection(value: str, unit_id: int) -> dict[str, Any]:
+    """Translate one user-facing connection string to Modbus parameters."""
+    normalized = value.strip()
+    lowered = normalized.lower()
+
+    if lowered.startswith("/dev/") or lowered.startswith(
+        ("esphome://", "esphome-hass://")
+    ):
+        return {
+            CONF_CONNECTION_TYPE: CONNECTION_TYPE_SERIAL,
+            CONF_DEVICE: normalized,
+            CONF_UNIT_ID: unit_id,
         }
-    )
+
+    if lowered.startswith("socket://"):
+        parsed = urlsplit(normalized)
+        if (
+            parsed.scheme.lower() != "socket"
+            or parsed.hostname is None
+            or parsed.port is None
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.path not in ("", "/")
+            or parsed.query
+            or parsed.fragment
+        ):
+            raise ValueError("Invalid socket target")
+
+        return {
+            CONF_CONNECTION_TYPE: CONNECTION_TYPE_TCP,
+            CONF_HOST: parsed.hostname,
+            CONF_PORT: parsed.port,
+            CONF_FRAMER: FRAMER_RTU,
+            CONF_UNIT_ID: unit_id,
+        }
+
+    if "://" in normalized:
+        raise ValueError("Unsupported connection scheme")
+
+    host, port = _parse_host_port(normalized)
+    return {
+        CONF_CONNECTION_TYPE: CONNECTION_TYPE_TCP,
+        CONF_HOST: host,
+        CONF_PORT: port,
+        CONF_FRAMER: FRAMER_SOCKET,
+        CONF_UNIT_ID: unit_id,
+    }
+
+
+def _connection_data(user_input: dict[str, Any]) -> dict[str, Any] | None:
+    """Build connection data from the unified connection form."""
+    target = _selected_connection(user_input)
+    if target is None:
+        return None
+
+    return _parse_manual_connection(target, int(user_input[CONF_UNIT_ID]))
+
+
+def _complete_serial_data(data: dict[str, Any], baudrate: int) -> dict[str, Any]:
+    """Apply TROVIS' fixed serial format and selected line speed."""
+    return {
+        **data,
+        CONF_BAUDRATE: baudrate,
+        CONF_PARITY: DEFAULT_PARITY,
+        CONF_STOPBITS: DEFAULT_STOPBITS,
+        CONF_BYTESIZE: DEFAULT_BYTESIZE,
+    }
+
+
+def _format_host_port(host: str, port: int) -> str:
+    """Return host:port with brackets around an IPv6 literal."""
+    formatted_host = f"[{host}]" if ":" in host and not host.startswith("[") else host
+    return f"{formatted_host}:{port}"
+
+
+def _format_connection(data: dict[str, Any]) -> str:
+    """Return the user-facing connection string for stored connection data."""
+    connection_type = str(data.get(CONF_CONNECTION_TYPE, ""))
+    if connection_type == CONNECTION_TYPE_SERIAL:
+        return str(data.get(CONF_DEVICE, ""))
+
+    if connection_type == CONNECTION_TYPE_TCP:
+        host = str(data.get(CONF_HOST, ""))
+        port = int(data.get(CONF_PORT, 0))
+        if not host or not port:
+            return ""
+        target = _format_host_port(host, port)
+        if str(data.get(CONF_FRAMER, FRAMER_SOCKET)) == FRAMER_RTU:
+            return f"socket://{target}"
+        return target
+
+    return ""
 
 
 async def _async_probe(
@@ -204,46 +290,38 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
     _pending_data: dict[str, Any] | None = None
     _detected_model: int | None = None
     _detected_sensors: tuple[str, ...] = ()
+    _reconfigure_name: str | None = None
+    _reconfigure_access_code: int | None = None
 
     async def async_step_user(
         self,
         user_input: dict[str, Any] | None = None,
     ) -> ConfigFlowResult:
-        """Let the user choose the Modbus transport."""
-        return self.async_show_menu(
-            step_id="user",
-            menu_options=["network", "serial"],
-        )
-
-    async def async_step_network(
-        self,
-        user_input: dict[str, Any] | None = None,
-    ) -> ConfigFlowResult:
-        """Configure and probe a Modbus TCP or RTU-over-TCP controller."""
+        """Enter a connection string and probe the controller."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            data = {
-                CONF_CONNECTION_TYPE: CONNECTION_TYPE_TCP,
-                CONF_HOST: str(user_input[CONF_HOST]).strip(),
-                CONF_PORT: int(user_input[CONF_PORT]),
-                CONF_FRAMER: str(user_input[CONF_FRAMER]),
-                CONF_UNIT_ID: int(user_input[CONF_UNIT_ID]),
-            }
-
-            probe = await _async_probe(self.hass, data)
-            if probe is None:
-                errors["base"] = "cannot_connect"
+            try:
+                data = _connection_data(user_input)
+            except (TypeError, ValueError):
+                errors[CONF_CONNECTION] = "invalid_connection"
             else:
-                model, detected_sensors = probe
-                self._pending_data = data
-                self._detected_model = model
-                self._detected_sensors = detected_sensors
-                return await self.async_step_device()
+                if data is None:
+                    errors[CONF_CONNECTION] = "connection_required"
+                elif data[CONF_CONNECTION_TYPE] == CONNECTION_TYPE_SERIAL:
+                    self._pending_data = data
+                    return await self.async_step_serial()
+                else:
+                    probe = await _async_probe(self.hass, data)
+                    if probe is None:
+                        errors["base"] = "cannot_connect"
+                    else:
+                        self._store_probe(data, probe)
+                        return await self.async_step_device()
 
         return self.async_show_form(
-            step_id="network",
-            data_schema=_network_schema(),
+            step_id="user",
+            data_schema=_connection_schema(),
             errors=errors,
         )
 
@@ -251,35 +329,46 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
         self,
         user_input: dict[str, Any] | None = None,
     ) -> ConfigFlowResult:
-        """Configure and probe a Modbus RTU serial controller."""
+        """Configure the TROVIS serial baud rate and probe the controller."""
+        if (
+            self._pending_data is None
+            or self._pending_data.get(CONF_CONNECTION_TYPE) != CONNECTION_TYPE_SERIAL
+        ):
+            return await self.async_step_user()
+
         errors: dict[str, str] = {}
-
         if user_input is not None:
-            data = {
-                CONF_CONNECTION_TYPE: CONNECTION_TYPE_SERIAL,
-                CONF_DEVICE: str(user_input[CONF_DEVICE]),
-                CONF_BAUDRATE: int(user_input[CONF_BAUDRATE]),
-                CONF_PARITY: str(user_input[CONF_PARITY]),
-                CONF_STOPBITS: int(user_input[CONF_STOPBITS]),
-                CONF_BYTESIZE: int(user_input[CONF_BYTESIZE]),
-                CONF_UNIT_ID: int(user_input[CONF_UNIT_ID]),
-            }
-
-            probe = await _async_probe(self.hass, data)
-            if probe is None:
-                errors["base"] = "cannot_connect"
+            try:
+                baudrate = int(user_input[CONF_BAUDRATE])
+                if baudrate not in SERIAL_BAUDRATES:
+                    raise ValueError("Unsupported TROVIS baud rate")
+            except (KeyError, TypeError, ValueError):
+                errors[CONF_BAUDRATE] = "invalid_baudrate"
             else:
-                model, detected_sensors = probe
-                self._pending_data = data
-                self._detected_model = model
-                self._detected_sensors = detected_sensors
-                return await self.async_step_device()
+                data = _complete_serial_data(self._pending_data, baudrate)
+                probe = await _async_probe(self.hass, data)
+                if probe is None:
+                    errors["base"] = "cannot_connect"
+                else:
+                    self._store_probe(data, probe)
+                    return await self.async_step_device()
 
         return self.async_show_form(
             step_id="serial",
             data_schema=_serial_schema(),
             errors=errors,
         )
+
+    def _store_probe(
+        self,
+        data: dict[str, Any],
+        probe: tuple[int, tuple[str, ...]],
+    ) -> None:
+        """Store a successful probe for the following flow step."""
+        model, detected_sensors = probe
+        self._pending_data = data
+        self._detected_model = model
+        self._detected_sensors = detected_sensors
 
     async def async_step_device(
         self,
@@ -329,53 +418,49 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
         self,
         user_input: dict[str, Any] | None = None,
     ) -> ConfigFlowResult:
-        """Let the user choose the transport for reconfiguration."""
-        return self.async_show_menu(
-            step_id="reconfigure",
-            menu_options=["reconfigure_network", "reconfigure_serial"],
-        )
-
-    async def async_step_reconfigure_network(
-        self,
-        user_input: dict[str, Any] | None = None,
-    ) -> ConfigFlowResult:
-        """Reconfigure a controller using TCP or RTU-over-TCP."""
+        """Reconfigure a controller using the unified connection form."""
         entry = self._get_reconfigure_entry()
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            name = _normalize_name(
-                user_input.get(CONF_NAME),
-                entry.title,
-            )
-            probe_data = {
-                CONF_CONNECTION_TYPE: CONNECTION_TYPE_TCP,
-                CONF_HOST: str(user_input[CONF_HOST]).strip(),
-                CONF_PORT: int(user_input[CONF_PORT]),
-                CONF_FRAMER: str(user_input[CONF_FRAMER]),
-                CONF_UNIT_ID: int(user_input[CONF_UNIT_ID]),
-            }
-
-            probe = await _async_probe(self.hass, probe_data)
-            if probe is None:
-                errors["base"] = "cannot_connect"
+            try:
+                probe_data = _connection_data(user_input)
+            except (TypeError, ValueError):
+                errors[CONF_CONNECTION] = "invalid_connection"
             else:
-                return self._finish_reconfigure(
-                    entry,
-                    probe_data,
-                    name,
-                    int(
+                if probe_data is None:
+                    errors[CONF_CONNECTION] = "connection_required"
+                else:
+                    self._reconfigure_name = _normalize_name(
+                        user_input.get(CONF_NAME),
+                        entry.title,
+                    )
+                    self._reconfigure_access_code = int(
                         user_input.get(
                             CONF_ACCESS_CODE,
                             DEFAULT_WRITE_ACCESS_CODE,
                         )
-                    ),
-                    probe,
-                )
+                    )
+
+                    if probe_data[CONF_CONNECTION_TYPE] == CONNECTION_TYPE_SERIAL:
+                        self._pending_data = probe_data
+                        return await self.async_step_reconfigure_serial()
+
+                    probe = await _async_probe(self.hass, probe_data)
+                    if probe is None:
+                        errors["base"] = "cannot_connect"
+                    else:
+                        return self._finish_reconfigure(
+                            entry,
+                            probe_data,
+                            self._reconfigure_name,
+                            self._reconfigure_access_code,
+                            probe,
+                        )
 
         suggested_values = {
-            **entry.data,
-            **entry.options,
+            CONF_CONNECTION: _format_connection(entry.data),
+            CONF_UNIT_ID: entry.data.get(CONF_UNIT_ID, DEFAULT_UNIT_ID),
             CONF_NAME: entry.data.get(CONF_NAME, entry.title),
             CONF_ACCESS_CODE: entry.data.get(
                 CONF_ACCESS_CODE,
@@ -383,9 +468,9 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
             ),
         }
         return self.async_show_form(
-            step_id="reconfigure_network",
+            step_id="reconfigure",
             data_schema=self.add_suggested_values_to_schema(
-                _reconfigure_network_schema(),
+                _reconfigure_schema(),
                 suggested_values,
             ),
             errors=errors,
@@ -395,56 +480,45 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
         self,
         user_input: dict[str, Any] | None = None,
     ) -> ConfigFlowResult:
-        """Reconfigure a controller using Modbus RTU serial."""
+        """Set the serial baud rate and finish reconfiguration."""
+        if (
+            self._pending_data is None
+            or self._pending_data.get(CONF_CONNECTION_TYPE) != CONNECTION_TYPE_SERIAL
+            or self._reconfigure_name is None
+            or self._reconfigure_access_code is None
+        ):
+            return await self.async_step_reconfigure()
+
         entry = self._get_reconfigure_entry()
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            name = _normalize_name(
-                user_input.get(CONF_NAME),
-                entry.title,
-            )
-            probe_data = {
-                CONF_CONNECTION_TYPE: CONNECTION_TYPE_SERIAL,
-                CONF_DEVICE: str(user_input[CONF_DEVICE]),
-                CONF_BAUDRATE: int(user_input[CONF_BAUDRATE]),
-                CONF_PARITY: str(user_input[CONF_PARITY]),
-                CONF_STOPBITS: int(user_input[CONF_STOPBITS]),
-                CONF_BYTESIZE: int(user_input[CONF_BYTESIZE]),
-                CONF_UNIT_ID: int(user_input[CONF_UNIT_ID]),
-            }
-
-            probe = await _async_probe(self.hass, probe_data)
-            if probe is None:
-                errors["base"] = "cannot_connect"
+            try:
+                baudrate = int(user_input[CONF_BAUDRATE])
+                if baudrate not in SERIAL_BAUDRATES:
+                    raise ValueError("Unsupported TROVIS baud rate")
+            except (KeyError, TypeError, ValueError):
+                errors[CONF_BAUDRATE] = "invalid_baudrate"
             else:
-                return self._finish_reconfigure(
-                    entry,
-                    probe_data,
-                    name,
-                    int(
-                        user_input.get(
-                            CONF_ACCESS_CODE,
-                            DEFAULT_WRITE_ACCESS_CODE,
-                        )
-                    ),
-                    probe,
-                )
+                probe_data = _complete_serial_data(self._pending_data, baudrate)
+                probe = await _async_probe(self.hass, probe_data)
+                if probe is None:
+                    errors["base"] = "cannot_connect"
+                else:
+                    return self._finish_reconfigure(
+                        entry,
+                        probe_data,
+                        self._reconfigure_name,
+                        self._reconfigure_access_code,
+                        probe,
+                    )
 
-        suggested_values = {
-            **entry.data,
-            **entry.options,
-            CONF_NAME: entry.data.get(CONF_NAME, entry.title),
-            CONF_ACCESS_CODE: entry.data.get(
-                CONF_ACCESS_CODE,
-                DEFAULT_WRITE_ACCESS_CODE,
-            ),
-        }
+        default_baudrate = int(entry.data.get(CONF_BAUDRATE, DEFAULT_BAUDRATE))
         return self.async_show_form(
             step_id="reconfigure_serial",
             data_schema=self.add_suggested_values_to_schema(
-                _reconfigure_serial_schema(),
-                suggested_values,
+                _serial_schema(),
+                {CONF_BAUDRATE: str(default_baudrate)},
             ),
             errors=errors,
         )
