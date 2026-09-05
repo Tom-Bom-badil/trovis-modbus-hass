@@ -10,5 +10,5 @@
   "issue_tracker": "https://github.com/Tom-Bom-badil/trovis-modbus-hass/issues",
   "loggers": ["trovis_modbus"],
   "requirements": ["trovis-modbus>=3.0.0,<4"],
-  "version": "v2026.08.5"
+  "version": "v2026.09.1"
 }
