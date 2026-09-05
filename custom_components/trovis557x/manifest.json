@@ -3,16 +3,12 @@
   "name": "SAMSON TROVIS 557x",
   "codeowners": ["@Tom-Bom-badil"],
   "config_flow": true,
-  "dependencies": ["recorder"],
+  "dependencies": ["modbus", "recorder"],
   "documentation": "https://github.com/Tom-Bom-badil/trovis-modbus-hass",
   "integration_type": "device",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/Tom-Bom-badil/trovis-modbus-hass/issues",
   "loggers": ["trovis_modbus"],
-  "requirements": [
-    "tmodbus>=0.5.0",
-    "trovis-modbus>=3.0.0,<4",
-    "modbus-connection[tmodbus]>=4.8.1,<5"
-  ],
+  "requirements": ["trovis-modbus>=3.0.0,<4"],
   "version": "v2026.08.5"
 }

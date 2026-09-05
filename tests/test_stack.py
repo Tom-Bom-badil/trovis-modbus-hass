@@ -40,27 +40,28 @@ def test_manifest_contract() -> None:
     assert manifest["integration_type"] == "device"
     assert manifest["iot_class"] == "local_polling"
 
-    # modbus-connection is a normal Python requirement owned by this
-    # integration, not a Home Assistant integration dependency.
-    assert "modbus_connection" not in manifest.get("dependencies", [])
+    # Home Assistant owns the concrete Modbus transport stack. The custom
+    # integration depends on Core's Modbus integration and only brings its
+    # device library.
+    assert "modbus" in manifest.get("dependencies", [])
+    assert "recorder" in manifest.get("dependencies", [])
 
     requirements = manifest["requirements"]
 
     trovis_requirement = _requirement(requirements, "trovis-modbus")
-    modbus_requirement = _requirement(
-        requirements,
-        "modbus-connection[tmodbus]",
-    )
-    _requirement(requirements, "tmodbus")
 
     # Do not duplicate the current minimum release versions in this test.
     # The manifest itself is the single source of truth for those.
     assert ">=" in trovis_requirement
     assert "<4" in trovis_requirement
 
-    assert ">=" in modbus_requirement
-    assert "<5" in modbus_requirement
-
+    assert not any(
+        requirement.lower().startswith("modbus-connection")
+        for requirement in requirements
+    )
+    assert not any(
+        requirement.lower().startswith("tmodbus") for requirement in requirements
+    )
     assert not any("pymodbus" in requirement.lower() for requirement in requirements)
 
     assert "trovis_modbus" in manifest["loggers"]

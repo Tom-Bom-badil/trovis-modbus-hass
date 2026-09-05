@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import re
-from contextlib import suppress
 from typing import Any
 
 import voluptuous as vol
+from homeassistant.components.modbus import async_get_temporary_unit
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_NAME
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.selector import (
     NumberSelector,
     NumberSelectorConfig,
@@ -23,7 +25,7 @@ from homeassistant.util import slugify
 from modbus_connection import ModbusError
 from trovis_modbus import DEFAULT_WRITE_ACCESS_CODE, Trovis557x
 
-from . import create_modbus_connection
+from . import create_modbus_params
 from .const import (
     CONF_ACCESS_CODE,
     CONF_BAUDRATE,
@@ -176,20 +178,20 @@ def _reconfigure_serial_schema() -> vol.Schema:
 
 
 async def _async_probe(
+    hass: HomeAssistant,
     data: dict[str, Any],
 ) -> tuple[int, tuple[str, ...]] | None:
-    """Probe a controller through a temporary TROVIS-owned connection."""
-    connection = None
+    """Probe a controller through a temporary Home Assistant Modbus unit."""
     try:
-        connection = create_modbus_connection(data)
-        unit = connection.for_unit(int(data[CONF_UNIT_ID]))
-        probe = await Trovis557x.async_probe(unit)
-    except (ModbusError, OSError, ValueError):
+        params = create_modbus_params(data)
+        async with async_get_temporary_unit(
+            hass,
+            params,
+            int(data[CONF_UNIT_ID]),
+        ) as unit:
+            probe = await Trovis557x.async_probe(unit)
+    except (HomeAssistantError, ModbusError, OSError, ValueError):
         return None
-    finally:
-        if connection is not None:
-            with suppress(ModbusError, OSError):
-                await connection.close()
 
     return probe.model, probe.detected_sensors
 
@@ -229,7 +231,7 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
                 CONF_UNIT_ID: int(user_input[CONF_UNIT_ID]),
             }
 
-            probe = await _async_probe(data)
+            probe = await _async_probe(self.hass, data)
             if probe is None:
                 errors["base"] = "cannot_connect"
             else:
@@ -263,7 +265,7 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
                 CONF_UNIT_ID: int(user_input[CONF_UNIT_ID]),
             }
 
-            probe = await _async_probe(data)
+            probe = await _async_probe(self.hass, data)
             if probe is None:
                 errors["base"] = "cannot_connect"
             else:
@@ -354,7 +356,7 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
                 CONF_UNIT_ID: int(user_input[CONF_UNIT_ID]),
             }
 
-            probe = await _async_probe(probe_data)
+            probe = await _async_probe(self.hass, probe_data)
             if probe is None:
                 errors["base"] = "cannot_connect"
             else:
@@ -412,7 +414,7 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
                 CONF_UNIT_ID: int(user_input[CONF_UNIT_ID]),
             }
 
-            probe = await _async_probe(probe_data)
+            probe = await _async_probe(self.hass, probe_data)
             if probe is None:
                 errors["base"] = "cannot_connect"
             else:
