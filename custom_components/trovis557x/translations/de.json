@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Verbindung",
-        "description": "Gib die Verbindung zum Regler ein. Die Schreibweise bestimmt automatisch die Verbindungsart:\n\n- **socket://ip_adresse:port**\nModbus/RTU über eine transparente Netzwerk-Verbindung, z.B. einen normalen ser2net-Adapter.\n- **ip_adresse:port**\nModbus/TCP Verbindung, z.B. über einen ser2net Adapter mit aktiviertem 'Modbus TCP Server' (Standard Port: 502).\n- **esphome://ip_adresse:port/?port_name=name**\nModbus RTU über einen ESPHome Serial Proxy (Standard Port: 6053).\n- **/dev/ttyUSB...**\nLokaler USB-Seriell-Adapter.\n- **/dev/serial/by-id/...**\nPfad zu einer lokalen seriellen Schnittstelle.\n- **/dev/...**\nAndere lokale oder virtuelle serielle Schnittstellen, z.B. über `socat`.\n",
+        "description": "Gib die Verbindung zum Regler ein. Die Schreibweise bestimmt automatisch die Verbindungsart:\n\n- **socket://ip_adresse:port**\nModbus/RTU über eine transparente Netzwerk-Verbindung, z.B. einen normalen ser2net-Adapter.\n- **ip_adresse:port**\nModbus/TCP Verbindung, z.B. über einen ser2net Adapter mit aktiviertem 'Modbus TCP Server' (Standard Port: 502).\n- **esphome://ip_adresse:port/?port_name=name**\nModbus RTU über einen ESPHome Serial Proxy (Standard Port: 6053).\n- **/dev/ttyUSB...**\nLokaler USB-Seriell-Adapter.\n- **/dev/serial/by-id/...**\nPfad zu einer lokalen seriellen Schnittstelle.\n- **/dev/...**\nAndere lokale oder virtuelle serielle Schnittstellen, z.B. über `socat`.",
         "data": {
           "connection": "Verbindung (Schnittstelle)",
           "unit_id": "Eindeutige Modbus-Geräteadresse (PA6)"
@@ -34,7 +34,7 @@
       },
       "reconfigure": {
         "title": "Regler neu konfigurieren",
-        "description": "Gib die Verbindung zum Regler ein. Die Schreibweise bestimmt automatisch die Verbindungsart:\n\n- **socket://ip_adresse:port**\nModbus/RTU über eine transparente Netzwerk-Verbindung, z.B. einen normalen ser2net-Adapter.\n- **ip_adresse:port**\nModbus/TCP Verbindung, z.B. über einen ser2net Adapter mit aktiviertem 'Modbus TCP Server' (Standard Port: 502).\n- **esphome://ip_adresse:port/?port_name=name**\nModbus RTU über einen ESPHome Serial Proxy (Standard Port: 6053).\n- **/dev/ttyUSB...**\nLokaler USB-Seriell-Adapter.\n- **/dev/serial/by-id/...**\nPfad zu einer lokalen seriellen Schnittstelle.\n- **/dev/...**\nAndere lokale oder virtuelle serielle Schnittstellen, z.B. über `socat`.\n",
+        "description": "Gib die Verbindung zum Regler ein. Die Schreibweise bestimmt automatisch die Verbindungsart:\n\n- **socket://ip_adresse:port**\nModbus/RTU über eine transparente Netzwerk-Verbindung, z.B. einen normalen ser2net-Adapter.\n- **ip_adresse:port**\nModbus/TCP Verbindung, z.B. über einen ser2net Adapter mit aktiviertem 'Modbus TCP Server' (Standard Port: 502).\n- **esphome://ip_adresse:port/?port_name=name**\nModbus RTU über einen ESPHome Serial Proxy (Standard Port: 6053).\n- **/dev/ttyUSB...**\nLokaler USB-Seriell-Adapter.\n- **/dev/serial/by-id/...**\nPfad zu einer lokalen seriellen Schnittstelle.\n- **/dev/...**\nAndere lokale oder virtuelle serielle Schnittstellen, z.B. über `socat`.",
         "data": {
           "connection": "Verbindung (Schnittstelle)",
           "unit_id": "Eindeutige Modbus-Geräteadresse (PA6)",
