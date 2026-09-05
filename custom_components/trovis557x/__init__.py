@@ -61,6 +61,7 @@ SERVICE_SET_SIMULATION_VALUE = "set_simulation_value"
 SERVICE_RESET_SIMULATION = "reset_simulation"
 ATTR_SIMULATION_FIELD = "field"
 ATTR_SIMULATION_VALUE = "value"
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
 def create_modbus_params(

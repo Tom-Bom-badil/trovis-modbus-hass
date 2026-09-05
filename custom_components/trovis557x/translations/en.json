@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Connection",
-        "description": "Enter the connection to the controller. The syntax automatically determines the connection type:\n\n- **socket://ip_address:port**\nModbus/RTU over a transparent network connection, e.g. a standard ser2net adapter.\n- **ip_address:port**\nModbus/TCP connection, e.g. via a ser2net adapter with 'Modbus TCP Server' enabled (default port: 502).\n- **esphome://ip_address:port/?port_name=name**\nModbus RTU via an ESPHome Serial Proxy (default port: 6053).\n- **/dev/ttyUSB...**\nLocal USB-to-serial adapter.\n- **/dev/serial/by-id/...**\nPath to a local serial interface.\n- **/dev/...**\nOther local or virtual serial interfaces, e.g. via `socat`.\n",
+        "description": "Enter the connection to the controller. The syntax automatically determines the connection type:\n\n- **socket://ip_address:port**\nModbus/RTU over a transparent network connection, e.g. a standard ser2net adapter.\n- **ip_address:port**\nModbus/TCP connection, e.g. via a ser2net adapter with 'Modbus TCP Server' enabled (default port: 502).\n- **esphome://ip_address:port/?port_name=name**\nModbus RTU via an ESPHome Serial Proxy (default port: 6053).\n- **/dev/ttyUSB...**\nLocal USB-to-serial adapter.\n- **/dev/serial/by-id/...**\nPath to a local serial interface.\n- **/dev/...**\nOther local or virtual serial interfaces, e.g. via `socat`.",
         "data": {
           "connection": "Connection (interface)",
           "unit_id": "Unique Modbus device address (PA6)"
@@ -34,7 +34,7 @@
       },
       "reconfigure": {
         "title": "Reconfigure controller",
-        "description": "Enter the connection to the controller. The syntax automatically determines the connection type:\n\n- **socket://ip_address:port**\nModbus/RTU over a transparent network connection, e.g. a standard ser2net adapter.\n- **ip_address:port**\nModbus/TCP connection, e.g. via a ser2net adapter with 'Modbus TCP Server' enabled (default port: 502).\n- **esphome://ip_address:port/?port_name=name**\nModbus RTU via an ESPHome Serial Proxy (default port: 6053).\n- **/dev/ttyUSB...**\nLocal USB-to-serial adapter.\n- **/dev/serial/by-id/...**\nPath to a local serial interface.\n- **/dev/...**\nOther local or virtual serial interfaces, e.g. via `socat`.\n",
+        "description": "Enter the connection to the controller. The syntax automatically determines the connection type:\n\n- **socket://ip_address:port**\nModbus/RTU over a transparent network connection, e.g. a standard ser2net adapter.\n- **ip_address:port**\nModbus/TCP connection, e.g. via a ser2net adapter with 'Modbus TCP Server' enabled (default port: 502).\n- **esphome://ip_address:port/?port_name=name**\nModbus RTU via an ESPHome Serial Proxy (default port: 6053).\n- **/dev/ttyUSB...**\nLocal USB-to-serial adapter.\n- **/dev/serial/by-id/...**\nPath to a local serial interface.\n- **/dev/...**\nOther local or virtual serial interfaces, e.g. via `socat`.",
         "data": {
           "connection": "Connection (interface)",
           "unit_id": "Unique Modbus device address (PA6)",
