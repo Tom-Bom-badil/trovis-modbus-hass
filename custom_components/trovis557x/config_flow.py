@@ -19,6 +19,7 @@ from homeassistant.helpers.selector import (
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
+    SerialPortSelector,
     TextSelector,
 )
 from homeassistant.util import slugify
@@ -84,20 +85,12 @@ def _connection_schema() -> vol.Schema:
     """Return the unified connection schema."""
     return vol.Schema(
         {
-            vol.Required(
-                CONF_CONNECTION,
-                default="socket://192.168.178.59:8234",
-            ): TextSelector(),
+            vol.Required(CONF_CONNECTION): SerialPortSelector(),
             vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): _UNIT,
-        }
-    )
-
-
-def _serial_schema() -> vol.Schema:
-    """Return the serial settings schema."""
-    return vol.Schema(
-        {
-            vol.Required(CONF_BAUDRATE, default=str(DEFAULT_BAUDRATE)): _BAUDRATE,
+            vol.Required(
+                CONF_BAUDRATE,
+                default=str(DEFAULT_BAUDRATE),
+            ): _BAUDRATE,
         }
     )
 
@@ -106,8 +99,12 @@ def _reconfigure_schema() -> vol.Schema:
     """Return the unified reconfigure schema."""
     return vol.Schema(
         {
-            vol.Required(CONF_CONNECTION): TextSelector(),
+            vol.Required(CONF_CONNECTION): SerialPortSelector(),
             vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): _UNIT,
+            vol.Required(
+                CONF_BAUDRATE,
+                default=str(DEFAULT_BAUDRATE),
+            ): _BAUDRATE,
             vol.Required(CONF_NAME): TextSelector(),
             vol.Required(CONF_ACCESS_CODE): _ACCESS_CODE,
         }
@@ -144,12 +141,6 @@ def _device_schema(default_name: str, default_slug: str) -> vol.Schema:
             ): _ACCESS_CODE,
         }
     )
-
-
-def _selected_connection(user_input: dict[str, Any]) -> str | None:
-    """Return the manually entered connection target."""
-    connection = str(user_input.get(CONF_CONNECTION) or "").strip()
-    return connection or None
 
 
 def _parse_host_port(value: str) -> tuple[str, int]:
@@ -219,11 +210,28 @@ def _parse_manual_connection(value: str, unit_id: int) -> dict[str, Any]:
 
 def _connection_data(user_input: dict[str, Any]) -> dict[str, Any] | None:
     """Build connection data from the unified connection form."""
-    target = _selected_connection(user_input)
-    if target is None:
+    target = str(user_input.get(CONF_CONNECTION) or "").strip()
+    if not target:
         return None
 
-    return _parse_manual_connection(target, int(user_input[CONF_UNIT_ID]))
+    baudrate = int(user_input[CONF_BAUDRATE])
+    if baudrate not in SERIAL_BAUDRATES:
+        raise ValueError("Unsupported TROVIS baud rate")
+
+    data = _parse_manual_connection(
+        target,
+        int(user_input[CONF_UNIT_ID]),
+    )
+
+    if data[CONF_CONNECTION_TYPE] == CONNECTION_TYPE_SERIAL:
+        return _complete_serial_data(data, baudrate)
+
+    # Keep the baud rate in every config entry for one uniform setup contract.
+    # Native Modbus/TCP does not use it.
+    return {
+        **data,
+        CONF_BAUDRATE: baudrate,
+    }
 
 
 def _complete_serial_data(data: dict[str, Any], baudrate: int) -> dict[str, Any]:
@@ -291,27 +299,22 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
     _pending_data: dict[str, Any] | None = None
     _detected_model: int | None = None
     _detected_sensors: tuple[str, ...] = ()
-    _reconfigure_name: str | None = None
-    _reconfigure_access_code: int | None = None
 
     async def async_step_user(
         self,
         user_input: dict[str, Any] | None = None,
     ) -> ConfigFlowResult:
-        """Enter a connection string and probe the controller."""
+        """Select or enter a connection and probe the controller."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
             try:
                 data = _connection_data(user_input)
-            except (TypeError, ValueError):
+            except (KeyError, TypeError, ValueError):
                 errors[CONF_CONNECTION] = "invalid_connection"
             else:
                 if data is None:
                     errors[CONF_CONNECTION] = "connection_required"
-                elif data[CONF_CONNECTION_TYPE] == CONNECTION_TYPE_SERIAL:
-                    self._pending_data = data
-                    return await self.async_step_serial()
                 else:
                     probe = await _async_probe(self.hass, data)
                     if probe is None:
@@ -323,40 +326,6 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user",
             data_schema=_connection_schema(),
-            errors=errors,
-        )
-
-    async def async_step_serial(
-        self,
-        user_input: dict[str, Any] | None = None,
-    ) -> ConfigFlowResult:
-        """Configure the TROVIS serial baud rate and probe the controller."""
-        if (
-            self._pending_data is None
-            or self._pending_data.get(CONF_CONNECTION_TYPE) != CONNECTION_TYPE_SERIAL
-        ):
-            return await self.async_step_user()
-
-        errors: dict[str, str] = {}
-        if user_input is not None:
-            try:
-                baudrate = int(user_input[CONF_BAUDRATE])
-                if baudrate not in SERIAL_BAUDRATES:
-                    raise ValueError("Unsupported TROVIS baud rate")
-            except (KeyError, TypeError, ValueError):
-                errors[CONF_BAUDRATE] = "invalid_baudrate"
-            else:
-                data = _complete_serial_data(self._pending_data, baudrate)
-                probe = await _async_probe(self.hass, data)
-                if probe is None:
-                    errors["base"] = "cannot_connect"
-                else:
-                    self._store_probe(data, probe)
-                    return await self.async_step_device()
-
-        return self.async_show_form(
-            step_id="serial",
-            data_schema=_serial_schema(),
             errors=errors,
         )
 
@@ -426,26 +395,22 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 probe_data = _connection_data(user_input)
-            except (TypeError, ValueError):
+            except (KeyError, TypeError, ValueError):
                 errors[CONF_CONNECTION] = "invalid_connection"
             else:
                 if probe_data is None:
                     errors[CONF_CONNECTION] = "connection_required"
                 else:
-                    self._reconfigure_name = _normalize_name(
+                    name = _normalize_name(
                         user_input.get(CONF_NAME),
                         entry.title,
                     )
-                    self._reconfigure_access_code = int(
+                    access_code = int(
                         user_input.get(
                             CONF_ACCESS_CODE,
                             DEFAULT_WRITE_ACCESS_CODE,
                         )
                     )
-
-                    if probe_data[CONF_CONNECTION_TYPE] == CONNECTION_TYPE_SERIAL:
-                        self._pending_data = probe_data
-                        return await self.async_step_reconfigure_serial()
 
                     probe = await _async_probe(self.hass, probe_data)
                     if probe is None:
@@ -454,14 +419,15 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
                         return self._finish_reconfigure(
                             entry,
                             probe_data,
-                            self._reconfigure_name,
-                            self._reconfigure_access_code,
+                            name,
+                            access_code,
                             probe,
                         )
 
         suggested_values = {
             CONF_CONNECTION: _format_connection(entry.data),
             CONF_UNIT_ID: entry.data.get(CONF_UNIT_ID, DEFAULT_UNIT_ID),
+            CONF_BAUDRATE: str(entry.data.get(CONF_BAUDRATE, DEFAULT_BAUDRATE)),
             CONF_NAME: entry.data.get(CONF_NAME, entry.title),
             CONF_ACCESS_CODE: entry.data.get(
                 CONF_ACCESS_CODE,
@@ -473,53 +439,6 @@ class TrovisConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=self.add_suggested_values_to_schema(
                 _reconfigure_schema(),
                 suggested_values,
-            ),
-            errors=errors,
-        )
-
-    async def async_step_reconfigure_serial(
-        self,
-        user_input: dict[str, Any] | None = None,
-    ) -> ConfigFlowResult:
-        """Set the serial baud rate and finish reconfiguration."""
-        if (
-            self._pending_data is None
-            or self._pending_data.get(CONF_CONNECTION_TYPE) != CONNECTION_TYPE_SERIAL
-            or self._reconfigure_name is None
-            or self._reconfigure_access_code is None
-        ):
-            return await self.async_step_reconfigure()
-
-        entry = self._get_reconfigure_entry()
-        errors: dict[str, str] = {}
-
-        if user_input is not None:
-            try:
-                baudrate = int(user_input[CONF_BAUDRATE])
-                if baudrate not in SERIAL_BAUDRATES:
-                    raise ValueError("Unsupported TROVIS baud rate")
-            except (KeyError, TypeError, ValueError):
-                errors[CONF_BAUDRATE] = "invalid_baudrate"
-            else:
-                probe_data = _complete_serial_data(self._pending_data, baudrate)
-                probe = await _async_probe(self.hass, probe_data)
-                if probe is None:
-                    errors["base"] = "cannot_connect"
-                else:
-                    return self._finish_reconfigure(
-                        entry,
-                        probe_data,
-                        self._reconfigure_name,
-                        self._reconfigure_access_code,
-                        probe,
-                    )
-
-        default_baudrate = int(entry.data.get(CONF_BAUDRATE, DEFAULT_BAUDRATE))
-        return self.async_show_form(
-            step_id="reconfigure_serial",
-            data_schema=self.add_suggested_values_to_schema(
-                _serial_schema(),
-                {CONF_BAUDRATE: str(default_baudrate)},
             ),
             errors=errors,
         )

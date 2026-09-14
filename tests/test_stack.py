@@ -79,35 +79,35 @@ def test_strings_and_english_translation_contract() -> None:
 
     expected_steps = {
         "user",
-        "serial",
         "device",
         "reconfigure",
-        "reconfigure_serial",
     }
-
     assert expected_steps == steps.keys()
 
     assert set(steps["user"]["data"]) == {
         "connection",
         "unit_id",
+        "baudrate",
     }
-    assert set(steps["serial"]["data"]) == {"baudrate"}
     assert set(steps["reconfigure"]["data"]) == {
         "connection",
         "unit_id",
+        "baudrate",
         "name",
         "access_code",
     }
-    assert set(steps["reconfigure_serial"]["data"]) == {"baudrate"}
-
     assert "menu_options" not in steps["user"]
     assert "menu_options" not in steps["reconfigure"]
     assert "selector" not in strings
     assert "connection_entry_id" not in json.dumps(strings)
+    assert "<id>" not in json.dumps(strings)
+    assert "<port>" not in json.dumps(strings)
 
     config_flow_source = (COMPONENT / "config_flow.py").read_text(encoding="utf-8")
-    assert "SerialPortSelector" not in config_flow_source
+    assert "SerialPortSelector" in config_flow_source
     assert "known_connection" not in config_flow_source
+    assert "async_step_serial" not in config_flow_source
+    assert "async_step_reconfigure_serial" not in config_flow_source
     assert '"esphome://"' in config_flow_source
     assert '"esphome-hass://"' in config_flow_source
 
@@ -150,6 +150,16 @@ def test_strings_and_english_translation_contract() -> None:
     assert "FRAMER_RTU" in format_connection
     assert "FRAMER_SOCKET" in format_connection
 
+    # Baud rate is part of the unified setup contract even for native TCP.
+    connection_data = config_flow_source.split(
+        "def _connection_data",
+        1,
+    )[1].split(
+        "def _complete_serial_data",
+        1,
+    )[0]
+    assert "CONF_BAUDRATE: baudrate" in connection_data
+
 
 def test_trovis_serial_connection_contract() -> None:
     """Keep the supported TROVIS serial settings deliberately narrow."""
@@ -167,7 +177,6 @@ def test_trovis_serial_connection_contract() -> None:
     assert "CONF_BYTESIZE: DEFAULT_BYTESIZE" in config_flow_source
 
     init_source = (COMPONENT / "__init__.py").read_text(encoding="utf-8")
-
     # Serial RTU, including socket://, uses the common serial parameter builder.
     assert "def _serial_modbus_params(" in init_source
     assert "def _socket_device(" in init_source
@@ -247,7 +256,6 @@ def test_local_dev_overrides_remain_local() -> None:
 def test_device_links_use_registry_ids() -> None:
     """Keep sub-device links on Home Assistant's current device registry API."""
     init_source = (COMPONENT / "__init__.py").read_text(encoding="utf-8")
-
     assert "via_device=(" not in init_source
     assert "via_device_id=dr.async_get_device_id_by_identifier(" in init_source
     assert "dr.async_get(hass).async_get_or_create(" in init_source
