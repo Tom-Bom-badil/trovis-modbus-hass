@@ -189,6 +189,15 @@ def test_local_dev_overrides_remain_local() -> None:
     assert not (COMPONENT / "local_dev.py").exists()
 
 
+def test_device_links_use_registry_ids() -> None:
+    """Keep sub-device links on Home Assistant's current device registry API."""
+    init_source = (COMPONENT / "__init__.py").read_text(encoding="utf-8")
+
+    assert "via_device=(" not in init_source
+    assert "via_device_id=dr.async_get_device_id_by_identifier(" in init_source
+    assert "dr.async_get(hass).async_get_or_create(" in init_source
+
+
 def test_pumps_and_valves_device_contract() -> None:
     """Keep the canonical read-only actuator view and speaking IDs stable."""
     strings = _load_json(COMPONENT / "strings.json")
@@ -298,3 +307,34 @@ def test_dashboard_controller_button_helper_contract() -> None:
 
     assert "class TrovisHelperNumber" in number_source
     assert "self.async_write_ha_state()" in number_source
+
+
+def test_timeout_retry_contract() -> None:
+    """Keep TROVIS read retries local to the integration-owned unit proxy."""
+    init_source = (COMPONENT / "__init__.py").read_text(encoding="utf-8")
+
+    assert "_READ_RETRIES = 2" in init_source
+    assert "class _ReadRetryModbusUnit" in init_source
+    assert '"read_holding_registers"' in init_source
+    assert '"read_coils"' in init_source
+    assert "except ModbusTimeoutError" in init_source
+    assert "set_message_spacing" not in init_source
+
+
+def test_verified_write_publishes_without_full_poll_contract() -> None:
+    """Verified writes must publish cache state without a coordinator refresh."""
+    init_source = (COMPONENT / "__init__.py").read_text(encoding="utf-8")
+    switch_source = (COMPONENT / "switch.py").read_text(encoding="utf-8")
+
+    assert "if verified is True:" in init_source
+    immediate_publish = (
+        "self.coordinator.async_set_updated_data(self.coordinator.device)"
+    )
+    assert immediate_publish in init_source
+    assert "await self.coordinator.async_request_refresh()" in init_source
+    assert (
+        switch_source.count(
+            "self.coordinator.async_set_updated_data(self.coordinator.device)"
+        )
+        >= 2
+    )

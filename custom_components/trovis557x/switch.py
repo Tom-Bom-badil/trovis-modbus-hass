@@ -329,7 +329,7 @@ class TrovisWriteAccessSwitch(TrovisEntity, SwitchEntity):
         except TrovisWriteAccessError as err:
             raise HomeAssistantError(str(err)) from err
 
-        await self.coordinator.async_request_refresh()
+        self.coordinator.async_set_updated_data(self.coordinator.device)
 
     async def async_turn_off(self, **kwargs: object) -> None:
         """Disable TROVIS writing."""
@@ -342,7 +342,7 @@ class TrovisWriteAccessSwitch(TrovisEntity, SwitchEntity):
                 exc_info=err,
             )
 
-        await self.coordinator.async_request_refresh()
+        self.coordinator.async_set_updated_data(self.coordinator.device)
 
 
 class TrovisSwitch(TrovisEntity, SwitchEntity):

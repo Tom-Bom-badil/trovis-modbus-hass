@@ -25,7 +25,7 @@ from homeassistant.util import slugify
 from modbus_connection import ModbusError
 from trovis_modbus import DEFAULT_WRITE_ACCESS_CODE, Trovis557x
 
-from . import create_modbus_params
+from . import create_modbus_params, with_read_retries
 from .const import (
     CONF_ACCESS_CODE,
     CONF_BAUDRATE,
@@ -275,7 +275,9 @@ async def _async_probe(
             params,
             int(data[CONF_UNIT_ID]),
         ) as unit:
-            probe = await Trovis557x.async_probe(unit)
+            probe = await Trovis557x.async_probe(
+                with_read_retries(unit, "TROVIS probe")
+            )
     except (HomeAssistantError, ModbusError, OSError, ValueError):
         return None
 

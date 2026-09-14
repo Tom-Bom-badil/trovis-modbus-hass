@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, cast
 
@@ -15,11 +16,19 @@ from homeassistant.exceptions import (
     HomeAssistantError,
     ServiceValidationError,
 )
-from homeassistant.helpers import config_validation as cv, service
+from homeassistant.helpers import (
+    config_validation as cv,
+    device_registry as dr,
+    service,
+)
 from homeassistant.helpers.entity import DeviceInfo, async_generate_entity_id
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
-from modbus_connection import ModbusSerialParams, ModbusTcpParams
+from modbus_connection import (
+    ModbusSerialParams,
+    ModbusTcpParams,
+    ModbusTimeoutError,
+)
 
 from .const import (
     CONF_BAUDRATE,
@@ -62,6 +71,9 @@ SERVICE_RESET_SIMULATION = "reset_simulation"
 ATTR_SIMULATION_FIELD = "field"
 ATTR_SIMULATION_VALUE = "value"
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
+_LOGGER = logging.getLogger(__name__)
+_READ_RETRIES = 2
 
 
 def create_modbus_params(
@@ -188,13 +200,103 @@ try:
         DEVELOPER_MODE,
         apply_local_function_overrides,
         apply_local_log_overrides,
+        log_dev_info,
     )
 except ModuleNotFoundError:
     DEVELOPER_MODE = False
+    log_dev_info = None
 else:
     if DEVELOPER_MODE:
         apply_local_function_overrides()
         apply_local_log_overrides()
+
+
+class _ReadRetryModbusUnit:
+    """TROVIS-local ModbusUnit proxy with timeout retries for pure reads.
+
+    The Home Assistant unit may be shared, so do not monkeypatch methods on the
+    Core-owned object itself. This proxy affects only the TROVIS consumer while
+    forwarding the complete remaining ModbusUnit surface unchanged.
+    """
+
+    def __init__(self, unit: Any, device_name: str) -> None:
+        self._unit = unit
+        self._device_name = device_name
+
+    def __getattr__(self, name: str) -> Any:
+        """Forward every operation not overridden below to the shared unit."""
+        return getattr(self._unit, name)
+
+    async def _read_with_retry(
+        self,
+        method_name: str,
+        address: int,
+        count: int,
+    ) -> Any:
+        method = getattr(self._unit, method_name)
+
+        for attempt in range(_READ_RETRIES + 1):
+            try:
+                result = await method(address, count)
+            except ModbusTimeoutError:
+                if attempt >= _READ_RETRIES:
+                    _log_read_retry(
+                        "%s: %s(%d, %d) timed out on all %d attempts.",
+                        self._device_name,
+                        method_name,
+                        address,
+                        count,
+                        _READ_RETRIES + 1,
+                    )
+                    raise
+
+                _log_read_retry(
+                    "%s: %s(%d, %d) timed out, retry %d/%d.",
+                    self._device_name,
+                    method_name,
+                    address,
+                    count,
+                    attempt + 1,
+                    _READ_RETRIES,
+                )
+                continue
+
+            if attempt:
+                _log_read_retry(
+                    "%s: %s(%d, %d) retry succeeded on attempt %d/%d.",
+                    self._device_name,
+                    method_name,
+                    address,
+                    count,
+                    attempt + 1,
+                    _READ_RETRIES + 1,
+                )
+            return result
+
+        raise AssertionError("unreachable")
+
+    async def read_holding_registers(self, address: int, count: int) -> list[int]:
+        """Read holding registers with up to two timeout retries."""
+        return await self._read_with_retry("read_holding_registers", address, count)
+
+    async def read_coils(self, address: int, count: int) -> list[bool]:
+        """Read coils with up to two timeout retries."""
+        return await self._read_with_retry("read_coils", address, count)
+
+
+def _log_read_retry(message: str, *args: object) -> None:
+    """Log retry diagnostics only in developer mode or normal DEBUG logging."""
+    if DEVELOPER_MODE and log_dev_info is not None:
+        log_dev_info(message, *args)
+        return
+    _LOGGER.debug(message, *args)
+
+
+def with_read_retries(unit: Any, device_name: str) -> Any:
+    """Return a TROVIS-local unit view with pure-read timeout retries."""
+    if isinstance(unit, _ReadRetryModbusUnit):
+        return unit
+    return _ReadRetryModbusUnit(unit, device_name)
 
 
 def rk1_to_rk3_indices(coordinator: TrovisCoordinator) -> tuple[int, ...]:
@@ -328,7 +430,11 @@ class TrovisEntity(CoordinatorEntity["TrovisCoordinator"]):
                 manufacturer=info.manufacturer,
                 name=sub_name,
                 translation_key=sub_translation_key,
-                via_device=(DOMAIN, entry.entry_id),
+                via_device_id=dr.async_get_device_id_by_identifier(
+                    coordinator.hass,
+                    (DOMAIN, entry.entry_id),
+                    config_entry_id=entry.entry_id,
+                ),
             )
 
     @property
@@ -350,12 +456,13 @@ class TrovisEntity(CoordinatorEntity["TrovisCoordinator"]):
             TrovisWriteAccessDisabledError,
             TrovisWriteAccessError,
             TrovisWriteNotImplementedError,
+            TrovisWriteVerificationError,
         )
 
         if not self.coordinator.device.writing_enabled:
             raise HomeAssistantError("Please enable writing for changes!")
         try:
-            await self._subsystem.async_write_datapoint(
+            verified = await self._subsystem.async_write_datapoint(
                 field,
                 value,
                 access_code=self.coordinator.access_code,
@@ -363,6 +470,7 @@ class TrovisEntity(CoordinatorEntity["TrovisCoordinator"]):
         except (
             TrovisWriteAccessDisabledError,
             TrovisWriteAccessError,
+            TrovisWriteVerificationError,
             TrovisValueValidationError,
         ) as err:
             raise HomeAssistantError(str(err)) from err
@@ -370,6 +478,18 @@ class TrovisEntity(CoordinatorEntity["TrovisCoordinator"]):
             raise HomeAssistantError(
                 "Writing TROVIS data points is not implemented yet"
             ) from err
+
+        if verified is True:
+            # The library has already read the exact written field back and
+            # updated its local component cache. Publish that verified state
+            # immediately instead of waiting for the coordinator's debounce
+            # window plus another complete 4-5 second controller poll.
+            self.coordinator.async_set_updated_data(self.coordinator.device)
+            return
+
+        # Explicit command/trigger fields such as Rk4 CL1807 deliberately skip
+        # readback/retry because repeating them may execute the action twice.
+        # Keep the old full-refresh path for those exceptional writes only.
         await self.coordinator.async_request_refresh()
 
 
@@ -476,7 +596,10 @@ async def async_setup_entry(
             str(settings.get(CONF_EXCLUDED_COILS, "") or "")
         )
         params = create_modbus_params(settings)
-        unit = async_get_unit(hass, entry, params, unit_id)
+        unit = with_read_retries(
+            async_get_unit(hass, entry, params, unit_id),
+            entry.title,
+        )
     except (KeyError, TypeError, ValueError) as err:
         raise ConfigEntryNotReady(
             "The TROVIS config entry does not contain valid connection or probe data"
@@ -499,9 +622,28 @@ async def async_setup_entry(
         hass,
         entry,
         device,
+        developer_mode=DEVELOPER_MODE,
     )
 
     await coordinator.async_config_entry_first_refresh()
+
+    # Register the physical TROVIS controller before any platform constructs
+    # sub-device entities. Home Assistant 2026.9 deprecates identifier tuples
+    # passed as ``via_device``; child DeviceInfo must now reference the actual
+    # parent device-registry ID via ``via_device_id``. Pre-registering the
+    # controller here makes that ID available independently of platform setup
+    # order and keeps all existing device identifiers stable.
+    info = coordinator.device.info
+    dr.async_get(hass).async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, entry.entry_id)},
+        manufacturer=info.manufacturer,
+        model=info.model,
+        name=entry.title,
+        sw_version=info.firmware_version,
+        hw_version=info.hardware_version,
+        serial_number=info.serial_number,
+    )
 
     entry.runtime_data = coordinator
 
