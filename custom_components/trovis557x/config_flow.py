@@ -198,10 +198,10 @@ def _parse_manual_connection(value: str, unit_id: int) -> dict[str, Any]:
             raise ValueError("Invalid socket target")
 
         return {
-            CONF_CONNECTION_TYPE: CONNECTION_TYPE_TCP,
-            CONF_HOST: parsed.hostname,
-            CONF_PORT: parsed.port,
-            CONF_FRAMER: FRAMER_RTU,
+            CONF_CONNECTION_TYPE: CONNECTION_TYPE_SERIAL,
+            CONF_DEVICE: (
+                f"socket://{_format_host_port(parsed.hostname, parsed.port)}"
+            ),
             CONF_UNIT_ID: unit_id,
         }
 
@@ -213,7 +213,6 @@ def _parse_manual_connection(value: str, unit_id: int) -> dict[str, Any]:
         CONF_CONNECTION_TYPE: CONNECTION_TYPE_TCP,
         CONF_HOST: host,
         CONF_PORT: port,
-        CONF_FRAMER: FRAMER_SOCKET,
         CONF_UNIT_ID: unit_id,
     }
 

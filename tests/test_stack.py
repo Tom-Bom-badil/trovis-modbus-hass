@@ -108,11 +108,47 @@ def test_strings_and_english_translation_contract() -> None:
     config_flow_source = (COMPONENT / "config_flow.py").read_text(encoding="utf-8")
     assert "SerialPortSelector" not in config_flow_source
     assert "known_connection" not in config_flow_source
-    assert 'lowered.startswith("socket://")' in config_flow_source
     assert '"esphome://"' in config_flow_source
     assert '"esphome-hass://"' in config_flow_source
-    assert "FRAMER_RTU" in config_flow_source
-    assert "FRAMER_SOCKET" in config_flow_source
+
+    # socket:// is RTU over a transparent TCP stream and is represented as
+    # a serial transport since modbus-connection 4.12.
+    socket_branch = config_flow_source.split(
+        'if lowered.startswith("socket://"):',
+        1,
+    )[1].split(
+        'if "://" in normalized:',
+        1,
+    )[0]
+    assert "CONF_CONNECTION_TYPE: CONNECTION_TYPE_SERIAL" in socket_branch
+    assert "CONF_DEVICE" in socket_branch
+    assert "CONF_HOST" not in socket_branch
+    assert "CONF_PORT" not in socket_branch
+    assert "CONF_FRAMER" not in socket_branch
+
+    # Plain host:port remains native Modbus/TCP without an explicit framer.
+    tcp_branch = config_flow_source.split(
+        "host, port = _parse_host_port(normalized)",
+        1,
+    )[1].split(
+        "def _connection_data",
+        1,
+    )[0]
+    assert "CONF_CONNECTION_TYPE: CONNECTION_TYPE_TCP" in tcp_branch
+    assert "CONF_HOST: host" in tcp_branch
+    assert "CONF_PORT: port" in tcp_branch
+    assert "CONF_FRAMER" not in tcp_branch
+
+    # Keep support for displaying old pre-4.12 config entries correctly.
+    format_connection = config_flow_source.split(
+        "def _format_connection",
+        1,
+    )[1].split(
+        "async def _async_probe",
+        1,
+    )[0]
+    assert "FRAMER_RTU" in format_connection
+    assert "FRAMER_SOCKET" in format_connection
 
 
 def test_trovis_serial_connection_contract() -> None:
@@ -129,6 +165,25 @@ def test_trovis_serial_connection_contract() -> None:
     assert "CONF_PARITY: DEFAULT_PARITY" in config_flow_source
     assert "CONF_STOPBITS: DEFAULT_STOPBITS" in config_flow_source
     assert "CONF_BYTESIZE: DEFAULT_BYTESIZE" in config_flow_source
+
+    init_source = (COMPONENT / "__init__.py").read_text(encoding="utf-8")
+
+    # Serial RTU, including socket://, uses the common serial parameter builder.
+    assert "def _serial_modbus_params(" in init_source
+    assert "def _socket_device(" in init_source
+    assert "_socket_device(host, port)" in init_source
+
+    # Native Modbus/TCP must no longer pass the deprecated framer parameter.
+    tcp_params = init_source.split(
+        "return ModbusTcpParams(",
+        1,
+    )[1].split(
+        ")",
+        1,
+    )[0]
+    assert "host=host" in tcp_params
+    assert "port=port" in tcp_params
+    assert "framer=" not in tcp_params
 
 
 def test_documented_sensor_abbreviations() -> None:

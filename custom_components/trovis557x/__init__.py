@@ -48,7 +48,11 @@ from .const import (
     CONF_UNIT_ID,
     CONNECTION_TYPE_SERIAL,
     CONNECTION_TYPE_TCP,
+    DEFAULT_BAUDRATE,
+    DEFAULT_BYTESIZE,
+    DEFAULT_PARITY,
     DEFAULT_SLUG,
+    DEFAULT_STOPBITS,
     DOMAIN,
     FRAMER_RTU,
     FRAMER_SOCKET,
@@ -76,38 +80,69 @@ _LOGGER = logging.getLogger(__name__)
 _READ_RETRIES = 2
 
 
+def _socket_device(host: str, port: int) -> str:
+    """Return a socket:// serial device, including brackets for IPv6."""
+    address = f"[{host}]" if ":" in host and not host.startswith("[") else host
+    return f"socket://{address}:{port}"
+
+
+def _serial_modbus_params(
+    data: Mapping[str, Any],
+    device: str,
+) -> ModbusSerialParams:
+    """Build TROVIS RTU serial parameters."""
+    return ModbusSerialParams(
+        device=device,
+        baudrate=int(data.get(CONF_BAUDRATE, DEFAULT_BAUDRATE)),
+        bytesize=cast(
+            Literal[7, 8],
+            int(data.get(CONF_BYTESIZE, DEFAULT_BYTESIZE)),
+        ),
+        parity=cast(
+            Literal["N", "E", "O"],
+            str(data.get(CONF_PARITY, DEFAULT_PARITY)),
+        ),
+        stopbits=cast(
+            Literal[1, 2],
+            int(data.get(CONF_STOPBITS, DEFAULT_STOPBITS)),
+        ),
+        framer=FRAMER_RTU,
+    )
+
+
 def create_modbus_params(
     data: Mapping[str, Any],
 ) -> ModbusSerialParams | ModbusTcpParams:
     """Build Modbus connection parameters for the Home Assistant shared stack."""
     connection_type = str(data[CONF_CONNECTION_TYPE])
+
     if connection_type == CONNECTION_TYPE_TCP:
-        return ModbusTcpParams(
-            host=str(data[CONF_HOST]),
-            port=int(data[CONF_PORT]),
-            framer=cast(
-                Literal["socket", "rtu"],
-                str(data.get(CONF_FRAMER, FRAMER_SOCKET)),
-            ),
-        )
+        host = str(data[CONF_HOST])
+        port = int(data[CONF_PORT])
+        framer = str(data.get(CONF_FRAMER, FRAMER_SOCKET))
+
+        if framer == FRAMER_SOCKET:
+            return ModbusTcpParams(
+                host=host,
+                port=port,
+            )
+
+        # Compatibility with config entries created before modbus-connection
+        # 4.12, where socket:// was stored as TCP + RTU framing.
+        if framer == FRAMER_RTU:
+            return _serial_modbus_params(
+                data,
+                _socket_device(host, port),
+            )
+
+        raise ValueError(f"Unsupported TCP framer: {framer!r}")
+
     if connection_type == CONNECTION_TYPE_SERIAL:
-        return ModbusSerialParams(
-            device=str(data[CONF_DEVICE]),
-            baudrate=int(data[CONF_BAUDRATE]),
-            bytesize=cast(
-                Literal[7, 8],
-                int(data[CONF_BYTESIZE]),
-            ),
-            parity=cast(
-                Literal["N", "E", "O"],
-                str(data[CONF_PARITY]),
-            ),
-            stopbits=cast(
-                Literal[1, 2],
-                int(data[CONF_STOPBITS]),
-            ),
-            framer=FRAMER_RTU,
+        return _serial_modbus_params(
+            data,
+            str(data[CONF_DEVICE]),
         )
+
     raise ValueError(f"Unsupported Modbus connection type: {connection_type!r}")
 
 
