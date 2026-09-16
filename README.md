@@ -29,7 +29,7 @@
 >
 > Development and documentation are continued at [`github.com/Tom-Bom-badil/samson_trovis_557x`](https://github.com/Tom-Bom-badil/samson_trovis_557x).
 >
-> The current documentation can be found in the central [TROVIS Wiki](https://github.com/Tom-Bom-badil/samson_trovis_557x/wiki).
+> The current documentation, including all development related items, can be found in the central [`Samson Trovis Wiki`](https://github.com/Tom-Bom-badil/samson_trovis_557x/wiki).
 
 
 <br/><br/>
