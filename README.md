@@ -24,7 +24,8 @@
 >
 > The central repository also preserves the project history and information
 > collected since the original TROVIS project started in 2016, including
-> documentation and material from its earlier implementations.
+> documentation and material from its earlier implementations, plus hardware and
+> model related information and assembly guides for cabling, network, adapters etc.
 >
 > Development and documentation are now continued at  
 > [`github.com/Tom-Bom-badil/samson_trovis_557x`](https://github.com/Tom-Bom-badil/samson_trovis_557x).
