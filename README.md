@@ -17,21 +17,21 @@
 > considered deprecated. It will remain available as a reference implementation and
 > for documentation on how to utilize Home Assistant's `modbus-connection` library.
 >
-> Please note that the project has moved to the central TROVIS repository.
-> This was done to keep the integration, documentation, and related project
-> information in one place and to avoid maintaining duplicate content across
-> multiple repositories.<br/>
+> Please note that the 'Samson Trovis HA Integration' project has moved to the central
+> TROVIS repository. This was done to keep the code, integration, documentation,
+> and related project information in one place and to avoid maintaining duplicate
+> content across multiple repositories.<br/>
 >
 > The central repository also preserves the project history and information
 > collected since the original TROVIS project started in 2016, including
 > documentation and material from its earlier implementations, plus hardware and
 > model related information and assembly guides for cabling, network, adapters etc.
 >
-> Development and documentation are now continued at  
+> Development and documentation are continued at  
 > [`github.com/Tom-Bom-badil/samson_trovis_557x`](https://github.com/Tom-Bom-badil/samson_trovis_557x).
 >
 > The current documentation can be found in the
-> [central TROVIS Wiki](https://github.com/Tom-Bom-badil/samson_trovis_557x/wiki).
+> central [TROVIS Wiki](https://github.com/Tom-Bom-badil/samson_trovis_557x/wiki).
 
 
 <br/><br/>
