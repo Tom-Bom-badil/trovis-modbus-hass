@@ -27,11 +27,9 @@
 > documentation and material from its earlier implementations, plus hardware and
 > model related information and assembly guides for cabling, network, adapters etc.
 >
-> Development and documentation are continued at  
-> [`github.com/Tom-Bom-badil/samson_trovis_557x`](https://github.com/Tom-Bom-badil/samson_trovis_557x).
+> Development and documentation are continued at [`github.com/Tom-Bom-badil/samson_trovis_557x`](https://github.com/Tom-Bom-badil/samson_trovis_557x).
 >
-> The current documentation can be found in the
-> central [TROVIS Wiki](https://github.com/Tom-Bom-badil/samson_trovis_557x/wiki).
+> The current documentation can be found in the central [TROVIS Wiki](https://github.com/Tom-Bom-badil/samson_trovis_557x/wiki).
 
 
 <br/><br/>
