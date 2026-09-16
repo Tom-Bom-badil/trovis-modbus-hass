@@ -1,8 +1,8 @@
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-%2341BDF5.svg)](https://www.home-assistant.io)
 [![Custom integration](https://img.shields.io/badge/Custom%20Integration-%2341BDF5.svg)](https://www.home-assistant.io/getting-started/concepts-terminology)
 [![Release](https://img.shields.io/github/v/release/Tom-Bom-badil/trovis-modbus-hass?include_prereleases&color=41BDF5)](https://github.com/Tom-Bom-badil/trovis-modbus-hass/releases)
-[![HACS Custom Repository](https://img.shields.io/badge/HACS-not%20applied%20yet-orange.svg)](https://www.hacs.xyz/docs/faq/custom_repositories/)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/Tom-Bom-badil/home-assistant_helios-vallox/graphs/commit-activity)
+[![HACS Custom Repository](https://img.shields.io/badge/HACS-not%20applicable-orange.svg)](https://www.hacs.xyz/docs/faq/custom_repositories/)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-no-red.svg)](https://GitHub.com/Tom-Bom-badil/home-assistant_helios-vallox/graphs/commit-activity)
 [![CI](https://img.shields.io/github/actions/workflow/status/Tom-Bom-badil/trovis-modbus-hass/ci.yml?branch=develop&label=CI&color=green)](https://github.com/Tom-Bom-badil/trovis-modbus-hass/actions/workflows/ci.yml)
 [![HA Analytics](https://img.shields.io/badge/dynamic/json?url=https://analytics.home-assistant.io/custom_integrations.json&query=$.trovis557x.total&label=HA%20Analytics&suffix=%20installations%20%2A&color=green)](https://analytics.home-assistant.io/)
 
@@ -36,7 +36,7 @@
 
 <br/><br/>
 
-## SAMSON TROVIS 557x - Home Assistant Custom Integration
+## ~~SAMSON TROVIS 557x - Home Assistant Custom Integration~~
 
 This is a Home Assistant custom integration for monitoring and
 adjusting SAMSON TROVIS 557x heating and district heating controllers over
